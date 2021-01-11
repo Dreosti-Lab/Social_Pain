@@ -1,22 +1,87 @@
 # -*- coding: utf-8 -*-
 """
+Processing Social_Pain videos : 
+    - Compute Backgrounds for each ROIs 
+    - PreProcessing Average difference between Background and Frame 
+    - ImprovedTracking Current Frame - Background Image / fine fish Eyes (dark) + Body (Bright)
 """
 # Import useful libraries
 import os
 import numpy as np
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as pltbon
 import matplotlib.image as mpimg
-#import imageio
-import scipy.signal as signal
-import CV_ARK
-import scipy.misc as misc
 import math
 import glob
 import cv2
-import BONSAI_ARK
+import imageio
 
-# Utilities for processing videos of Social Pain Experiments
 
+
+# Process Video : Make Summary Images
+def pre_process_video_summary_images(folder, social):
+    
+    # Load Video
+    aviFiles = glob.glob(folder+'/*.avi')
+    aviFile = aviFiles[0]
+    vid = cv2.VideoCapture(aviFile)
+    numFrames = int(vid.get(cv2.CAP_PROP_FRAME_COUNT))
+    
+    # Read First Frame
+    ret, im = vid.read()
+    previous = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
+    width = np.size(previous, 1)
+    height = np.size(previous, 0)
+    
+    # Alloctae Image Space
+    stepFrames = 250 # Add a background frame every 2.5 seconds for 50 seconds
+    bFrames = 50
+    thresholdValue=10
+    accumulated_diff = np.zeros((height, width), dtype = float)
+    backgroundStack = np.zeros((height, width, bFrames), dtype = float)
+    background = np.zeros((height, width), dtype = float)
+    bCount = 0
+    for i, f in enumerate(range(0, numFrames, stepFrames)):
+        
+        vid.set(cv2.CAP_PROP_POS_FRAMES, f)
+        ret, im = vid.read()
+        current = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
+        absDiff = cv2.absdiff(previous, current)
+        level, threshold = cv2.threshold(absDiff,thresholdValue,255,cv2.THRESH_TOZERO)
+        previous = current
+       
+        # Accumulate differences
+        accumulated_diff = accumulated_diff + threshold
+        
+        # Add to background stack
+        if(bCount < bFrames):
+            backgroundStack[:,:,bCount] = current
+            bCount = bCount + 1
+        
+        print (numFrames-f)
+#        print (bCount)
+
+    vid.release()
+
+    # Normalize accumulated difference image
+    accumulated_diff = accumulated_diff/np.max(accumulated_diff)
+    accumulated_diff = np.ubyte(accumulated_diff*255)
+    
+    # Enhance Contrast (Histogram Equalize)
+    equ = cv2.equalizeHist(accumulated_diff)
+
+    # Compute Background Frame (median or mode)
+    background = np.median(backgroundStack, axis = 2)
+
+    saveFolder = folder
+    #imageio.imwrite(saveFolder + r'/difference.png', equ)    
+    cv2.imwrite(saveFolder + r'/background.png', background)
+    # Using SciPy to save caused a weird rescaling when the images were dim.
+    # This will change not only the background in the beginning but the threshold estimate
+
+    return 0
+
+#------------------------------------------------------------------------------
+    
 # Compute the initial background for each ROI
 def compute_intial_backgrounds(folder, ROIs):
 
@@ -88,69 +153,6 @@ def compute_intial_backgrounds(folder, ROIs):
 #------------------------------------------------------------------------------
 
 
-# Process Video : Make Summary Images
-def pre_process_video_summary_images(folder, social):
-    
-    # Load Video
-    aviFiles = glob.glob(folder+'/*.avi')
-    aviFile = aviFiles[0]
-    vid = cv2.VideoCapture(aviFile)
-    numFrames = int(vid.get(cv2.CAP_PROP_FRAME_COUNT))
-    
-    # Read First Frame
-    ret, im = vid.read()
-    previous = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
-    width = np.size(previous, 1)
-    height = np.size(previous, 0)
-    
-    # Alloctae Image Space
-    stepFrames = 250 # Add a background frame every 2.5 seconds for 50 seconds
-    bFrames = 50
-    thresholdValue=10
-    accumulated_diff = np.zeros((height, width), dtype = float)
-    backgroundStack = np.zeros((height, width, bFrames), dtype = float)
-    background = np.zeros((height, width), dtype = float)
-    bCount = 0
-    for i, f in enumerate(range(0, numFrames, stepFrames)):
-        
-        vid.set(cv2.CAP_PROP_POS_FRAMES, f)
-        ret, im = vid.read()
-        current = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
-        absDiff = cv2.absdiff(previous, current)
-        level, threshold = cv2.threshold(absDiff,thresholdValue,255,cv2.THRESH_TOZERO)
-        previous = current
-       
-        # Accumulate differences
-        accumulated_diff = accumulated_diff + threshold
-        
-        # Add to background stack
-        if(bCount < bFrames):
-            backgroundStack[:,:,bCount] = current
-            bCount = bCount + 1
-        
-        print (numFrames-f)
-#        print (bCount)
-
-    vid.release()
-
-    # Normalize accumulated difference image
-    accumulated_diff = accumulated_diff/np.max(accumulated_diff)
-    accumulated_diff = np.ubyte(accumulated_diff*255)
-    
-    # Enhance Contrast (Histogram Equalize)
-    equ = cv2.equalizeHist(accumulated_diff)
-
-    # Compute Background Frame (median or mode)
-    background = np.median(backgroundStack, axis = 2)
-
-    saveFolder = folder
-    #imageio.imwrite(saveFolder + r'/difference.png', equ)    
-    cv2.imwrite(saveFolder + r'/background.png', background)
-    # Using SciPy to save caused a weird rescaling when the images were dim.
-    # This will change not only the background in the beginning but the threshold estimate
-
-    return 0
-
 # Process Video : Track fish in AVI
 def improved_fish_tracking(input_folder, output_folder, ROIs):
     
@@ -163,7 +165,7 @@ def improved_fish_tracking(input_folder, output_folder, ROIs):
     # 2. Extract Crop regions from ROIs
     # 3. Threshold ROI using median/7 of each crop region, Binary Close image using 5 rad disc
     # 4. Find largest particle (Contour)
-    # 5. - Compute Weighted Centroid (X,Y) for Eye Region (10% of brightest pixels)
+    # 5. - Compute Weighted Centroid (X,Y) for Eye Region (10% of darkest pixels)
     # 6. - Compute Binary Centroid of Body Region (50% of brightest pixels - eyeRegion)
     # 7. - Compute Heading
     
@@ -260,7 +262,7 @@ def improved_fish_tracking(input_folder, output_folder, ROIs):
                 # Get Largest Contour (fish, ideally)
                 largest_cnt, area = get_largest_contour(contours)
                 
-                # If the particle to too small to consider, skip frame
+                # If the particle is too small to consider, skip frame
                 if area == 0.0:
                     if f!= 0:
                         fX = fxS[f-1, i] - xOff
@@ -310,11 +312,11 @@ def improved_fish_tracking(input_folder, output_folder, ROIs):
                     # Find Body and Eye Centroids
                     area = np.float(area)
                     
-                    # Highlight 50% of the brightest pixels (body + eyes)                    
+                    # Highlight 50% of the brightest pixels (body)                    
                     numBodyPixels = np.int(np.ceil(area/2))
                     
-                    # Highlight 10% of the brightest pixels (mostly eyes)     
-                    numEyePixels = np.int(np.ceil(area/10))
+                    # Highlight 10% of the darkest pixels (eyes)     
+                    numEyePixels = np.int(np.floor(area/10))
                     
                     # Fish Pixel Values (difference from background)
                     fishValues = diff[pixelpoints[:,0], pixelpoints[:,1]]

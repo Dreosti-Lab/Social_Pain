@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Bonsai Python Utilities
+Bonsai Python Utilities - extract all ROIs 
 
 @author: Adam Raymond Kampff (ARK)
 """
@@ -15,7 +15,7 @@ def read_bonsai_crop_rois(filename):
     tree = ET.parse(filename)
     root = tree.getroot()
 
-    # Extract all "Region of Interext Tags" and save parameters (X,Y,Width,Height)
+    # Extract all "Region of Interest Tags" and save parameters (X,Y,Width,Height)
     X = []
     Y = []
     Width = []
@@ -36,11 +36,5 @@ def read_bonsai_crop_rois(filename):
     ROIs[:, 2] = np.array(Width)
     ROIs[:, 3] = np.array(Height)
     return ROIs
-
-
-## Test Script
-#filename = r'C:/Users/kampff/Desktop/TrackFile - 6 Fish and Social Tracker_dynamic_Social.bonsai'
-#ROIs = read_bonsai_crop_rois(filename)
-#print np.shape(ROIs)
 
 # FIN

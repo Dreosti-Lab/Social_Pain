@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Add comments here
+PreProcessing check immediately if the tracking has worked: Summary Background image + Difference
 """
 
 # -----------------------------------------------------------------------------
@@ -20,6 +20,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
+import scipy.signal as signal
 import scipy.misc as misc
 from scipy import stats
 
@@ -28,33 +29,24 @@ import SP_video as SPV
 import SP_utilities as SPU
 
 # Read Folder List
-folderListFile = base_path + r'\Python_ED\Social _Behaviour_Setup\PreProcessing'
-folderListFile = folderListFile + r'\SocialFolderList_PreProcessing_2017_08_25_subset.txt'
+folderListFile = base_path + r'\Experiment_1\Folderlist\Exp_1.txt'
 
 control = False
-groups, ages, folderNames, fishStatus = SZU.read_folder_list(folderListFile)
+groups, ages, folderNames, fishStatus = SPU.read_folder_list(folderListFile)
 
 # Bulk analysis of all folders
 for idx,folder in enumerate(folderNames):
     
     # Get Folder Names
-    NS_folder, S_folder, C_folder = SZU.get_folder_names(folder)
+    NS_folder, S_folder = SPU.get_folder_names(folder)
 
     # ----------------------
             
     # Process Video (NS)
-    SZV.pre_process_video_summary_images(NS_folder, False)
-    
-    # Check if this is a control experiment
-    if control:
-        # Process Video (NS_2) - Control
-        SZV.pre_process_video_summary_images(C_folder, False)
+    SPV.pre_process_video_summary_images(NS_folder, False)
+    # Process Video (S)
+    SPV.pre_process_video_summary_images(S_folder, True)
 
-    else:
-        # Process Video (S)
-        SZV.pre_process_video_summary_images(S_folder, True)
-#    print (cv2.__version__) 
-        # Process Video (D-dark)
        
     # Report Progress
  #print groups[idx]
