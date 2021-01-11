@@ -5,7 +5,7 @@ Video Fish Tracking after defining ROIs
 
 # -----------------------------------------------------------------------------
 # Set "Library Path" - Social_Pain Repos
-lib_path = r'C:/Repos/Dreosti-Lab/Social_Pain/libs'
+lib_path = r'C:/Users/Hande/Documents/Github/Social_Pain/libs'
 
 # Set Library Path
 import sys
@@ -13,7 +13,7 @@ sys.path.append(lib_path)
 
 # -----------------------------------------------------------------------------
 # Set Base Path
-base_path = r'S:/WIBR_Dreosti_lab/Alizee/Behaviour_Heat_Gradient'
+base_path = r'V:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
 
 # Import useful libraries
 import os
@@ -32,9 +32,9 @@ import importlib
 importlib.reload(SPV)
 
 # Set path video + ROI + output folder
-input_folder = base_path + r'/Experiment_2/2020_12_11/behaviours/Fish2_23dpf/Non_Social_1'
+input_folder = base_path + r'/Experiment_2/2020_12_11/Behaviours/Fish2_23dpf/Non_Social_1'
 output_folder = input_folder
-bonsai_file = input_folder + r'/Bonsai_ROI_Analysis'
+bonsai_file = input_folder + r'/Bonsai_ROI_Analysis.bonsai'
 ROIs = BONSAI_ARK.read_bonsai_crop_rois(bonsai_file)
     
 # Run more improved tracking in SP_video module

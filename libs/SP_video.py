@@ -8,7 +8,7 @@ Processing Social_Pain videos :
 # Import useful libraries
 import os
 import numpy as np
-import matplotlib.pyplot as pltbon
+import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import math
 import glob
@@ -229,7 +229,7 @@ def improved_fish_tracking(input_folder, output_folder, ROIs):
             closing = cv2.morphologyEx(threshold, cv2.MORPH_CLOSE, kernel)
             
             # Find Binary Contours            
-            # NEW VERSION: contours, hierarchy = cv2.findContours(closing,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
+             # NEW : contours, hierarchy = cv2.findContours(closing,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
             images, contours, hierarchy = cv2.findContours(closing,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
             
             # Create Binary Mask Image
