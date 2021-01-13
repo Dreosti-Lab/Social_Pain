@@ -13,7 +13,8 @@ sys.path.append(lib_path)
 
 # -----------------------------------------------------------------------------
 # Set Base Path
-base_path = r'V:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
+#base_path = r'V:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
+base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
 
 # Import useful libraries
 import os
@@ -54,13 +55,22 @@ importlib.reload(SPV)
 
 
 # Set path video + ROI + output folder
-input_folder = base_path + r'/Experiment_3/2020_12_27/Behaviours/Fish5_26dpf/Social_1'
+input_folder = base_path + r'/Experiment_3/Behaviours/2020_12_27/Fish5_26dpf/Social_1'
 output_folder = input_folder
 bonsai_file = input_folder + r'/Bonsai_ROI_Analysis.bonsai'
 ROIs = BONSAI_ARK.read_bonsai_crop_rois(bonsai_file)
     
 # Run more improved tracking in SP_video module
-SPV.improved_fish_tracking(input_folder, output_folder, ROIs)
+fxS, fyS, bxS, byS, exS, eyS, areaS, ortS, motS = SPV.improved_fish_tracking(input_folder, output_folder, ROIs)
+
+# Save Tracking
+for i in range(0,6):
+    filename = input_folder + r'/tracking'+ str(i+1) + '.npz'
+    fish = np.vstack((fxS[:,i], fyS[:,i], bxS[:,i], byS[:,i], exS[:,i], eyS[:,i], areaS[:,i], ortS[:,i], motS[:,i]))
+    np.savez(filename, tracking=fish.T)
+
+# Analyze (tracking) NPZ
+
 
 
 # FIN

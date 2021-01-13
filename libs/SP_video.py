@@ -13,7 +13,7 @@ import matplotlib.image as mpimg
 import math
 import glob
 import cv2
-import imageio
+#import imageio
 
 
 
@@ -215,7 +215,7 @@ def improved_fish_tracking(input_folder, output_folder, ROIs):
 
             # Difference from current background: within crop, the fish appears brighter than the ROI background
             # The difference betwwen the crop and the computed background is the fish
-            diff = crop - background_ROIs[i]
+            diff = np.abs(crop - background_ROIs[i])
             
             # Determine current threshold (Sensitivity : detected range of pixel change)
             # How different does it need to be for it to be picked up as the fish, lower threshold if you want to track fish that are not moving much 
@@ -234,6 +234,17 @@ def improved_fish_tracking(input_folder, output_folder, ROIs):
             # Closing eliminates noise : closing small holes inside object (black spots)
             kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,5))
             closing = cv2.morphologyEx(threshold, cv2.MORPH_CLOSE, kernel)
+            
+            # Debug
+            plt.figure()
+            plt.subplot(4,1,1)
+            plt.imshow(crop)
+            plt.subplot(4,1,2)            
+            plt.imshow(diff)
+            plt.subplot(4,1,3)
+            plt.imshow(threshold)
+            plt.subplot(4,1,4)
+            plt.imshow(closing)
             
             # Find Binary Contours 
             #object to be found shoul be white and contours should be black 
@@ -320,10 +331,10 @@ def improved_fish_tracking(input_folder, output_folder, ROIs):
                     # Find Body and Eye Centroids
                     area = np.float(area)
                     
-                    # Highlight 50% of the brightest pixels (body)                    
+                    # Highlight 50% of the most different pixels (body)                    
                     numBodyPixels = np.int(np.ceil(area/2))
                     
-                    # Highlight 10% of the brightest pixels (eyes)     
+                    # Highlight 10% of the ??? pixels (eyes)     
                     numEyePixels = np.int(np.ceil(area/10))
                     
                     # Fish Pixel Values (difference from background)
@@ -331,7 +342,7 @@ def improved_fish_tracking(input_folder, output_folder, ROIs):
                     sortedFishValues = np.sort(fishValues)
                     
                     bodyThreshold = sortedFishValues[-numBodyPixels]                    
-                    eyeThreshold = sortedFishValues[-numEyePixels]
+                    eyeThreshold = sortedFishValues[numEyePixels]
 
                     # Compute Binary/Weighted Centroids
                     r = pixelpoints[:,0]
