@@ -3,7 +3,7 @@
 Processing Social_Pain videos : 
     - Compute Backgrounds for each ROIs 
     - PreProcessing Average difference between Background and Frame 
-    - ImprovedTracking Current Frame - Background Image / fine fish Eyes (dark) + Body (Bright)
+    - ImprovedTracking Current Frame - Background Image / find fish Eyes (dark) + Body (Bright)
 """
 # Import useful libraries
 import os
@@ -163,9 +163,9 @@ def improved_fish_tracking(input_folder, output_folder, ROIs):
     # Algorithm
     # 1. Find initial background guess for each ROI
     # 2. Extract Crop regions from ROIs
-    # 3. Threshold ROI using median/7 of each crop region, Binary Close image using 5 rad disc
+    # 3. Threshold ROI using median/4 of each crop region, Binary Close image using 5 rad disc
     # 4. Find largest particle (Contour)
-    # 5. - Compute Weighted Centroid (X,Y) for Eye Region (10% of darkest pixels)
+    # 5. - Compute Weighted Centroid (X,Y) for Eye Region (10% of brightest pixels)
     # 6. - Compute Binary Centroid of Body Region (50% of brightest pixels - eyeRegion)
     # 7. - Compute Heading
     
@@ -212,11 +212,11 @@ def improved_fish_tracking(input_folder, output_folder, ROIs):
             crop, xOff, yOff = get_ROI_crop(current, ROIs, i)
             crop_height, crop_width = np.shape(crop)
 
-            # Difference from current background
+            # Difference from current background: within crop, the fish appears brighter than the ROI background
             diff = crop - background_ROIs[i]
             
-            # Determine current threshold
-            threshold_level = np.median(background_ROIs[i])/7            
+            # Determine current threshold (Sensitivity : detected range of pixel change)
+            threshold_level = np.median(background_ROIs[i])/4           
    
             # Threshold            
             level, threshold = cv2.threshold(diff,threshold_level,255,cv2.THRESH_BINARY)
@@ -315,8 +315,8 @@ def improved_fish_tracking(input_folder, output_folder, ROIs):
                     # Highlight 50% of the brightest pixels (body)                    
                     numBodyPixels = np.int(np.ceil(area/2))
                     
-                    # Highlight 10% of the darkest pixels (eyes)     
-                    numEyePixels = np.int(np.floor(area/10))
+                    # Highlight 10% of the brightest pixels (eyes)     
+                    numEyePixels = np.int(np.ceil(area/10))
                     
                     # Fish Pixel Values (difference from background)
                     fishValues = diff[pixelpoints[:,0], pixelpoints[:,1]]
@@ -340,7 +340,7 @@ def improved_fish_tracking(input_folder, output_folder, ROIs):
                     fX = np.float(np.sum(c*values))/acc
                     fY = np.float(np.sum(r*values))/acc
                     
-                    # Eye Centroid (a weighted centorid)
+                    # Eye Centroid (a weighted centroid)
                     values = np.copy(all_values)                   
                     values = (values-eyeThreshold+1)
                     values[values < 0] = 0
