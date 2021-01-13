@@ -86,7 +86,7 @@ def pre_process_video_summary_images(folder, social):
 def compute_intial_backgrounds(folder, ROIs):
 
     # Load Video
-    aviFiles = glob.glob(folder+'/*.avi')
+    aviFiles = glob.glob(folder+'/*.avi')#finds any avi file in the folder
     aviFile = aviFiles[0]
     vid = cv2.VideoCapture(aviFile)
     numFrames = int(vid.get(cv2.CAP_PROP_FRAME_COUNT))-100 # Skip, possibly corrupt, last 100 frames (1 second)
@@ -96,7 +96,7 @@ def compute_intial_backgrounds(folder, ROIs):
     # Allocate space for all ROI backgrounds
     background_ROIs = []
     for i in range(0,6):
-        w, h = get_ROI_size(ROIs, i)
+        w, h = get_ROI_size(ROIs, i)#get height and width of all 6 ROIs
         background_ROIs.append(np.zeros((h, w), dtype = np.float32))
     
     # Find initial background for each ROI
@@ -147,6 +147,7 @@ def compute_intial_backgrounds(folder, ROIs):
         # Compute background
         backgroundStack = backgroundStack[:,:, 0:bCount]
         background_ROIs[i] = np.median(backgroundStack, axis=2)
+    # median value of 20 frames with significant differences gives a background with no fish
                         
     # Return initial background
     return background_ROIs
@@ -195,8 +196,8 @@ def improved_fish_tracking(input_folder, output_folder, ROIs):
     motS = np.zeros((numFrames,6))          # frame-by-frame change in segmented particle
         
     # Track within each ROI
-    plt.figure(figsize=(8,6))
-    for f in range(0,numFrames):
+    plt.figure(figsize=(8,6))  #size of the figure (video)
+    for f in range(0,numFrames):  
         
         # Read next frame        
         ret, im = vid.read()
@@ -213,23 +214,30 @@ def improved_fish_tracking(input_folder, output_folder, ROIs):
             crop_height, crop_width = np.shape(crop)
 
             # Difference from current background: within crop, the fish appears brighter than the ROI background
+            # The difference betwwen the crop and the computed background is the fish
             diff = crop - background_ROIs[i]
             
             # Determine current threshold (Sensitivity : detected range of pixel change)
+            # How different does it need to be for it to be picked up as the fish, lower threshold if you want to track fish that are not moving much 
             threshold_level = np.median(background_ROIs[i])/4           
    
-            # Threshold            
+            # Threshold  
+            # Within the diff (fish) our threshold value is the median background and max value is 255 (White)
+            #if pixel > threshold_level = white and if < threshold_level = Black
             level, threshold = cv2.threshold(diff,threshold_level,255,cv2.THRESH_BINARY)
             
-            # Convert to uint8
+            # Convert to uint8 : instead of black or white : 0 and 1
             threshold = np.uint8(threshold)
             
             # Binary Close
+            # Kernel is a structuring element 
+            # Closing eliminates noise : closing small holes inside object (black spots)
             kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,5))
             closing = cv2.morphologyEx(threshold, cv2.MORPH_CLOSE, kernel)
             
-            # Find Binary Contours            
-             # NEW : contours, hierarchy = cv2.findContours(closing,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
+            # Find Binary Contours 
+            #object to be found shoul be white and contours should be black 
+             # NEW Cv2 VERSION : contours, hierarchy = cv2.findContours(closing,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
             images, contours, hierarchy = cv2.findContours(closing,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
             
             # Create Binary Mask Image
@@ -350,9 +358,9 @@ def improved_fish_tracking(input_folder, output_folder, ROIs):
     
                     # Body Centroid (a binary centroid, excluding "eye" pixels)
                     values = np.copy(all_values)                   
-                    values[values < bodyThreshold] = 0
-                    values[values >= bodyThreshold] = 1                                                            
-                    values[values > eyeThreshold] = 0                                                            
+                    values[values < bodyThreshold] = 0 #black
+                    values[values >= bodyThreshold] = 1 #white                                                         
+                    values[values > eyeThreshold] = 0  #black                                                          
                     acc = np.sum(values)
                     bX = np.float(np.sum(c*values))/acc
                     bY = np.float(np.sum(r*values))/acc
