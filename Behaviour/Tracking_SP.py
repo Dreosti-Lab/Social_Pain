@@ -13,18 +13,23 @@ sys.path.append(lib_path)
 
 # -----------------------------------------------------------------------------
 # Set Base Path
-#base_path = r'V:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
-base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
+base_path = r'V:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
+#base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
 
 # Import useful libraries
 import os
+import glob
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
+import scipy.signal as signal
 import scipy.misc as misc
 from scipy import stats
 
+
+
 # Import local modules
+import CV_ARK
 import SP_video as SPV
 import BONSAI_ARK
 import SP_utilities as SPU
@@ -33,43 +38,67 @@ import SP_utilities as SPU
 import importlib
 importlib.reload(SPV)
 
-# # Read Folder List
-# folderListFile = base_path + r'\Experiment_2\Folderlist\Exp_2.txt'
+# Read Folder List
+FolderlistFile = base_path + r'\Experiment_2\Folderlist\Exp_2.txt'
 
-# groups, ages, folderNames = SPU.read_folder_list(folderListFile)
+groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
-# # Bulk analysis of all folders
-# for idx,folder in enumerate(folderNames):
+# Bulk analysis of all folders
+for idx,folder in enumerate(folderNames):
     
-#     # Get Folder Names
-#     NS_folder, S_folder = SPU.get_folder_names(folder)
+    # Get Folder Names
+    NS_folder, S_folder = SPU.get_folder_names(folder)
 
-#     input_folder = NS_folder, S_folder
-#     output_folder = input_folder
-#     bonsai_file = input_folder + r'/Bonsai_ROI_Analysis.bonsai'
-#     ROIs = BONSAI_ARK.read_bonsai_crop_rois(bonsai_file)
+    # ---------------------
+    # Process Video (NS)
+    bonsaiFiles = glob.glob(NS_folder + '/*.bonsai')
+    bonsaiFiles = bonsaiFiles[0]
+    ROIs = BONSAI_ARK.read_bonsai_crop_rois(bonsaiFiles)
+    # Run more improved tracking in SP_video module
+    fxS, fyS, bxS, byS, exS, eyS, areaS, ortS, motS = SPV.improved_fish_tracking(NS_folder, NS_folder, ROIs)
 
-# # Run more improved tracking in SP_video module
-# SPV.improved_fish_tracking(input_folder, output_folder, ROIs)
-
-
-
-# Set path video + ROI + output folder
-input_folder = base_path + r'/Experiment_3/Behaviours/2020_12_27/Fish5_26dpf/Social_1'
-output_folder = input_folder
-bonsai_file = input_folder + r'/Bonsai_ROI_Analysis.bonsai'
-ROIs = BONSAI_ARK.read_bonsai_crop_rois(bonsai_file)
+    # Save Tracking (NS)
+    for i in range(0,6):
+        # Save NS
+        filename = NS_folder + r'/tracking'+ str(i+1) + '.npz'
+        fish = np.vstack((fxS[:,i], fyS[:,i], bxS[:,i], byS[:,i], exS[:,i], eyS[:,i], areaS[:,i], ortS[:,i], motS[:,i]))
+        np.savez(filename, tracking=fish.T)
     
-# Run more improved tracking in SP_video module
-fxS, fyS, bxS, byS, exS, eyS, areaS, ortS, motS = SPV.improved_fish_tracking(input_folder, output_folder, ROIs)
+    #---------------------
+    # Process Video (S)
+    bonsaiFiles = glob.glob(S_folder + '/*.bonsai')
+    bonsaiFiles = bonsaiFiles[0]
+    ROIs = BONSAI_ARK.read_bonsai_crop_rois(bonsaiFiles)
+    #Run more improved tracking in SP_video module
+    fxS, fyS, bxS, byS, exS, eyS, areaS, ortS, motS = SPV.improved_fish_tracking(S_folder, S_folder, ROIs)
 
-# Save Tracking
-for i in range(0,6):
-    filename = input_folder + r'/tracking'+ str(i+1) + '.npz'
-    fish = np.vstack((fxS[:,i], fyS[:,i], bxS[:,i], byS[:,i], exS[:,i], eyS[:,i], areaS[:,i], ortS[:,i], motS[:,i]))
-    np.savez(filename, tracking=fish.T)
+    # Save Tracking (S)
+    for i in range(0,6):
+        filename = S_folder + r'/tracking'+ str(i+1) + '.npz'
+        fish = np.vstack((fxS[:,i], fyS[:,i], bxS[:,i], byS[:,i], exS[:,i], eyS[:,i], areaS[:,i], ortS[:,i], motS[:,i]))
+        np.savez(filename, tracking=fish.T)
+    
+     # Close Plots
+    plt.close('all')
+    
 
-# Analyze (tracking) NPZ
+
+# # Set path video + ROI + output folder
+# input_folder = base_path + r'/Experiment_2/Behaviours/2020_12_11/Fish2_23dpf/Non_Social_1'
+# output_folder = input_folder
+# bonsai_file = input_folder + r'/Bonsai_ROI_Analysis.bonsai'
+# ROIs = BONSAI_ARK.read_bonsai_crop_rois(bonsai_file)
+    
+
+# # # Run more improved tracking in SP_video module
+# fxS, fyS, bxS, byS, exS, eyS, areaS, ortS, motS = SPV.improved_fish_tracking(input_folder, output_folder, ROIs)
+
+# #Save Tracking as NPZ file
+# for i in range(0,6):
+#     filename = output_folder + r'/tracking'+ str(i+1) + '.npz'
+#     fish = np.vstack((fxS[:,i], fyS[:,i], bxS[:,i], byS[:,i], exS[:,i], eyS[:,i], areaS[:,i], ortS[:,i], motS[:,i]))
+#     np.savez(filename, tracking=fish.T)
+
 
 
 
