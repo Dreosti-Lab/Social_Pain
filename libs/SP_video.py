@@ -227,6 +227,7 @@ def improved_fish_tracking(input_folder, output_folder, ROIs):
             # Within the diff (fish) our threshold value is the median background and max value is 255 (White)
             #if pixel > threshold_level = white and if < threshold_level = Black
             level, threshold = cv2.threshold(diff,threshold_level,255,cv2.THRESH_BINARY)
+            level, eye_threshold = cv2.threshold(diff,-threshold_level,255,cv2.THRESH_BINARY_INV)
             
             # Convert to uint8 : instead of black or white : 0 and 1
             threshold = np.uint8(threshold)
@@ -261,7 +262,9 @@ def improved_fish_tracking(input_folder, output_folder, ROIs):
             
             # Create Binary Mask Image
             mask = np.zeros(crop.shape,np.uint8)
-                       
+            eye_mask = mask * eye_threshold
+            eye_pixelpoints = 
+            
             # If there are NO contours, then skip tracking
             if len(contours) == 0:
                 if f!= 0:
@@ -315,6 +318,7 @@ def improved_fish_tracking(input_folder, output_folder, ROIs):
                     # Draw contours into Mask Image (1 for Fish, 0 for Background)
                     cv2.drawContours(mask,[largest_cnt],0,1,-1) # -1 draw the contour filled
                     pixelpoints = np.transpose(np.nonzero(mask))
+                    eye_pixelpoints = np.transpose(np.nonzero(eye_mask))
                     
                     # Get Area (again)
                     area = np.size(pixelpoints, 0)
