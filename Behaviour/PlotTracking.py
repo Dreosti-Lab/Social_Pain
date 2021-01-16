@@ -13,7 +13,7 @@ sys.path.append(lib_path)
 
 # -----------------------------------------------------------------------------
 # Set Base Path
-base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
+base_path = r'V:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
 
 # Import useful libraries
 import os
@@ -23,13 +23,7 @@ import matplotlib.image as mpimg
 import scipy.misc as misc
 from scipy import stats
 
-# Import local modules
-import SP_video as SPV
-import BONSAI_ARK
 
-# Reload important libraries
-import importlib
-importlib.reload(SPV)
 
 # Set folder
 input_folder = base_path + r'/Experiment_2/Behaviours/2020_12_11/Fish2_23dpf/Social_1'
@@ -67,6 +61,8 @@ good_samples = (fx > min_x) * (fx < max_x) * (fy > min_y) * (fy < max_y)
 num_good_samples = np.sum(good_samples)
 lost_samples = num_total_samples-num_good_samples
 
+
+
 # Plot motion
 plt.figure()
 plt.plot(motion)
@@ -79,6 +75,7 @@ plt.title("Fish #{0}- Lost Frames {1}".format(fish_number, lost_samples))
 
 good_fx = fx[good_samples]
 good_fy = fy[good_samples]
+
 
 # SPM Score
 SPM = np.mean(fx[good_samples]) - np.mean(good_fx)

@@ -59,8 +59,9 @@ def get_folder_names(folder):
     # Specifiy Folder Names
     NS_folder = folder + '/Non_Social_1'
     S_folder = folder + '/Social_1'
+    Analysis_folder = folder + '/Analysis'
     
-    return NS_folder, S_folder
+    return NS_folder, S_folder, Analysis_folder
            
 
 
