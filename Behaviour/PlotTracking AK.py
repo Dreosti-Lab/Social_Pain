@@ -166,7 +166,9 @@ for idx,folder in enumerate(folderNames):
 ]
         
         plt.hist(x, bins = 30, color = '#468189')
-        plt.title('SPM for each Fish')
+        plt.title('SPM for each Fish (n=36)')
+        plt.xlabel('SPM score')
+        plt.ylabel('number of fish')
         sns.despine()
         plt.show()
 
