@@ -39,7 +39,7 @@ import importlib
 importlib.reload(SPV)
 
 # Read Folder List
-FolderlistFile = base_path + r'\Experiment_2\Folderlist\Exp_2.txt'
+FolderlistFile = base_path + r'\Experiment_3\Folderlist\Exp_3_5.txt'
 
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
@@ -47,7 +47,7 @@ groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 for idx,folder in enumerate(folderNames):
     
     # Get Folder Names
-    NS_folder, S_folder = SPU.get_folder_names(folder)
+    NS_folder, S_folder, Analysis = SPU.get_folder_names(folder)
 
     # ---------------------
     # Process Video (NS)
