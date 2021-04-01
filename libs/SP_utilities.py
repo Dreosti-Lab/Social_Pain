@@ -11,7 +11,7 @@ if(platform.system() == 'Linux'):
     lib_path = r'/home/kampff/Repos/Dreosti-Lab/Social_Zebrafish/libs'
 else:
     # Set "Repos Library Path" - Social_Pain Repos
-    lib_path = r'C:/Repos/Dreosti-Lab/Social_Pain/libs'
+    lib_path = r'C:/Repos/Social_Pain/libs'
 
 # Set Library Paths
 import sys
@@ -59,9 +59,10 @@ def get_folder_names(folder):
     # Specifiy Folder Names
     NS_folder = folder + '/Non_Social_1'
     S_folder = folder + '/Social_1'
-    Analysis_folder = folder + '/Analysis'
+    Analysis = folder + '/Analysis'
     
-    return NS_folder, S_folder, Analysis_folder
+    
+    return NS_folder, S_folder, Analysis
            
 
 

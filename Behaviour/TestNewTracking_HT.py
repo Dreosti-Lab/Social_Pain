@@ -5,7 +5,7 @@ Add comments here
 
 # -----------------------------------------------------------------------------
 # Set "Library Path" - Social Zebrafish Repo
-lib_path = r'C:\Repos\Dreosti-Lab\Social_Pain\libs'
+lib_path = r'C:\Repos\Social_Pain\libs'
 
 # Set Library Paths
 import sys
@@ -13,7 +13,7 @@ sys.path.append(lib_path)
 
 # -----------------------------------------------------------------------------
 # Set Base Path
-base_path = r'V:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
+base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
 
 # Import useful libraries
 import os
@@ -35,7 +35,7 @@ importlib.reload(SPV)
 
 #---------------------------------------------------------------------------------
 ## Set experiment path for bulk analysis 
-Exps_folder = base_path + r'/Experiment_3'
+Exps_folder = base_path + r'/Experiment_4'
 #---------------------------------------------------------------------------------
 
 # Test Fish Tracking 
@@ -45,7 +45,7 @@ avi_paths_list = glob.glob(Exps_folder +'/*/*/*/*/')
 for avis in avi_paths_list:
     input_folder = avis
     output_folder = input_folder
-    bonsai_file = input_folder + r'\Bonsai_ROI_Analysis.bonsai'
+    bonsai_file = input_folder + r'\ROI_Analysis.bonsai'
     ROIs = BONSAI_ARK.read_bonsai_crop_rois(bonsai_file)
 
     # Run more improved tracking in SP_video module

@@ -5,7 +5,7 @@ PreProcessing check immediately if the tracking has worked: Summary Background i
 
 # -----------------------------------------------------------------------------
 # Set "Library Path" - Social Zebrafish Repo
-lib_path = r'C:\Repos\Dreosti-Lab\Social_Pain\libs'
+lib_path = r'C:\Repos\Social_Pain\libs'
 
 # Set Library Paths
 import sys
@@ -29,7 +29,7 @@ import SP_video as SPV
 import SP_utilities as SPU
 
 # Read Folder List
-folderListFile = base_path + r'\Experiment_1\Folderlist\Exp_1.txt'
+folderListFile = base_path + r'\Experiment_16\Folderlist\Exp_16.txt'
 
 control = False
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(folderListFile)
@@ -38,7 +38,7 @@ groups, ages, folderNames, fishStatus = SPU.read_folder_list(folderListFile)
 for idx,folder in enumerate(folderNames):
     
     # Get Folder Names
-    NS_folder, S_folder = SPU.get_folder_names(folder)
+    NS_folder, S_folder, Analysis = SPU.get_folder_names(folder)
 
     # ----------------------
             
