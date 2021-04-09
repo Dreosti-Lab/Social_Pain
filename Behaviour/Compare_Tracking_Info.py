@@ -7,12 +7,15 @@ Created on Tue Apr  6 19:00:40 2021
 Bouts
 """                        
 # Set Library Path - Social_Pain Repos
-lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
+#lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
+lib_path = r'C:\Repos\Social_Pain\libs'
 import sys
 sys.path.append(lib_path)
 
 # Set Base Path
-base_path = r'/Users/alizeekastler/Desktop'
+#base_path = r'/Users/alizeekastler/Desktop'
+base_path = r'S:\WIBR_Dreosti_Lab\Alizee\Behaviour_Heat_Gradient'
+
 
 # Import useful libraries
 import glob
@@ -26,14 +29,14 @@ from scipy import stats
 
 # Import local modules
 
-import SP_Utilities as SPU
+import SP_utilities as SPU
 import SP_Analysis as SPA
 import BONSAI_ARK
 
 
 
 # Specify Analysis folder
-AnalysisFolder = base_path + '/Experiment_8/Analysis'
+AnalysisFolder = base_path + '/Analysis'
 
 # Find all the npz files saved for each group and fish with all the information
 npzFiles = glob.glob(AnalysisFolder+'/*.npz')
@@ -46,8 +49,8 @@ BPS_NS_ALL = np.zeros(numFiles)
 BPS_S_ALL = np.zeros(numFiles)
 Freezes_NS_ALL = np.zeros(numFiles)
 Freezes_S_ALL = np.zeros(numFiles)
-DistanceT_NS_ALL = np.zeros(numFiles)
-DistanceT_S_ALL = np.zeros(numFiles)
+#DistanceT_NS_ALL = np.zeros(numFiles)
+#DistanceT_S_ALL = np.zeros(numFiles)
 Bouts_NS_ALL = np.zeros((0,9))
 Bouts_S_ALL = np.zeros((0,9))
 Pauses_NS_ALL = np.zeros((0,9))   
@@ -68,8 +71,8 @@ for f, filename in enumerate(npzFiles):
     Pauses_S = dataobject['Pauses_S']
     Freezes_NS = dataobject['Freezes_NS']
     Freezes_S = dataobject['Freezes_S']
-    DistanceT_NS = dataobject['DistanceT_NS']
-    DistanceT_S = dataobject['DistanceT_S']
+    #DistanceT_NS = dataobject['DistanceT_NS']
+    #DistanceT_S = dataobject['DistanceT_S']
     
     # Make an array with all summary stats
     BPS_NS_ALL[f] = BPS_NS
@@ -97,28 +100,29 @@ for f, filename in enumerate(npzFiles):
 # sns.despine()  
 
 
-         
-stats.ttest_rel(BPS_NS_ALL, BPS_S_ALL)    
+s_BPS,pvalue_BPS = stats.ttest_rel(BPS_NS_ALL, BPS_S_ALL)    
 #Plot BPS
 plt.figure(figsize=(4,8), dpi=300)
-plt.title('Bouts Per Second\n(p-value: {2:0.4f}')
+plt.title('Bouts Per Second\n p-value: '+ format(pvalue_BPS))
 s1 = pd.Series(BPS_NS_ALL, name='NS')
 s2 = pd.Series(BPS_S_ALL, name='S')
 df = pd.concat([s1,s2], axis=1)
 sns.barplot(data=df, ci='sd',  palette=['Steelblue', 'plum'])
 sns.stripplot(data=df, orient="v", color= 'dimgrey',size=4, jitter=False, edgecolor="gray")
 sns.despine()
+plt.show()
 
-stats.ttest_rel(Freezes_NS_ALL, Freezes_S_ALL) 
+s_Frezes,pvalue_Freezes = stats.ttest_rel(Freezes_NS_ALL, Freezes_S_ALL) 
 # Plot Freezes
 plt.figure(figsize=(4,8), dpi=300)
-plt.title('Freezes')
+plt.title('Freezes\n p-value: ' + format(pvalue_Freezes))
 s1 = pd.Series(Freezes_NS_ALL, name='NS')
 s2 = pd.Series(Freezes_S_ALL, name='S')
 df = pd.concat([s1,s2], axis=1)
 sns.barplot(data=df, ci='sd',  palette=['Steelblue', 'plum'])
 sns.stripplot(data=df, orient="v", color= 'dimgrey',size=4, jitter=False, edgecolor="gray")
 sns.despine()
+plt.show()
     
 
 

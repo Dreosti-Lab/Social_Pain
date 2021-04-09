@@ -7,12 +7,14 @@ Created on Tue Apr  6 19:00:40 2021
 Bouts
 """                        
 # Set Library Path - Social_Pain Repos
-lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
+#lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
+lib_path = r'C:\Repos\Social_Pain\libs'
 import sys
 sys.path.append(lib_path)
 
 # Set Base Path
-base_path = r'/Users/alizeekastler/Desktop'
+#base_path = r'/Users/alizeekastler/Desktop'
+base_path = r'S:\WIBR_Dreosti_Lab\Alizee\Behaviour_Heat_Gradient'
 
 # Import useful libraries
 import glob
@@ -24,7 +26,7 @@ import seaborn as sns
 
 # Import local modules
 
-import SP_Utilities as SPU
+import SP_utilities as SPU
 import SP_Analysis as SPA
 import BONSAI_ARK
 
@@ -36,9 +38,9 @@ freeze_threshold = 500
 motionStartThreshold = 0.03
 motionStopThreshold = 0.01 
 
-analysisFolder = base_path + '/Experiment_8/Analysis/' 
+analysisFolder = base_path + '/Analysis' 
 # Read folder list
-FolderlistFile = base_path + '/Experiment_8/FolderList/Exp_8_1.txt' 
+FolderlistFile = base_path + '/Folderlist_New.txt' 
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
  
 # Get Folder Names
@@ -91,7 +93,7 @@ for idx,folder in enumerate(folderNames):
             BPS_NS = SPA.measure_BPS(motion_NS, motionStartThreshold, motionStopThreshold)
            
             # Compute Distance Traveled (NS)
-            DistanceT_NS = SPA.distance_traveled(bx_NS, by_NS, NS_ROIs)
+            #DistanceT_NS = SPA.distance_traveled(bx_NS, by_NS, NS_ROIs)
            
             # Analyze "Bouts" amd "Pauses" (NS)
             Bouts_NS, Pauses_NS = SPA.analyze_bouts_and_pauses(bx_NS, by_NS,ort_NS, motion_NS, motionStartThreshold, motionStopThreshold)
@@ -136,7 +138,7 @@ for idx,folder in enumerate(folderNames):
             BPS_S = SPA.measure_BPS(motion_S, motionStartThreshold, motionStopThreshold)
             
             # Compute Distance Traveled (S)
-            DistanceT_S = SPA.distance_traveled(bx_S, by_S, S_ROIs)
+            #DistanceT_S = SPA.distance_traveled(bx_S, by_S, S_ROIs)
             
             # Analyze "Bouts" and "Pauses" (S)
             Bouts_S, Pauses_S = SPA.analyze_bouts_and_pauses(bx_S, by_S,ort_S, motion_S, motionStartThreshold, motionStopThreshold)
@@ -179,16 +181,16 @@ for idx,folder in enumerate(folderNames):
                       Pauses_NS = Pauses_NS,
                       Pauses_S = Pauses_S,
                       Freezes_NS = Freezes_NS, 
-                      Freezes_S = Freezes_S, 
-                      DistanceT_NS = DistanceT_NS,
-                      DistanceT_S = DistanceT_S)
+                      Freezes_S = Freezes_S )
+                      #DistanceT_NS = DistanceT_NS,
+                      #DistanceT_S = DistanceT_S)
             
     
     # Report Progress
     print (idx)
 
 
-# #FIN
+#FIN
 
 
 
