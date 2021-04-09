@@ -1,0 +1,91 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Apr  8 13:36:53 2021
+
+@author: alizeekastler
+"""
+
+# Set Library Path - Social_Pain Repos
+lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
+import sys
+sys.path.append(lib_path)
+
+# Set Base Path
+base_path = r'/Users/alizeekastler/Desktop'
+
+# Import useful libraries
+import glob
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+import seaborn as sns
+
+
+# Import local modules
+
+import SP_Utilities as SPU
+import SP_Analysis as SPA
+import BONSAI_ARK
+
+# Read folder list
+FolderlistFile = base_path + '/Experiment_8/FolderList/Exp_8_1.txt' 
+groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
+ 
+# Get Folder Names
+for idx,folder in enumerate(folderNames):
+    NS_folder, S_folder, Analysis = SPU.get_folder_names(folder)
+ 
+    # Determine Fish Status       
+    fishStat = fishStatus[idx, :]
+    
+    
+    #Load Crop regions NS
+    bonsaiFiles = glob.glob(NS_folder + '/*.bonsai')
+    bonsaiFiles = bonsaiFiles[0]
+    ROIs = BONSAI_ARK.read_bonsai_crop_rois(bonsaiFiles)
+    NS_ROIs = ROIs[:,:]
+    
+    x=ROIs[:,0]
+    y=ROIs[:,1]
+    width=ROIs[:,2]
+    height=ROIs[:,3]
+                      
+    Threshold_Cool = np.mean(x+(width-x)/3)
+    Threshold_Noxious = np.mean(x+(width-x)*2/3)
+    
+    # Analyze and plot each Fish
+    for i in range(0,6):
+        
+        # Only use "good" fish
+        if fishStat[i] == 1:
+            # Extract tracking data (NS)     
+            tracking_file = NS_folder + r'/tracking' + str(i+1) +'.npz'
+            data = np.load(tracking_file)
+            tracking = data['tracking']
+            bx_NS = tracking[:,2]
+            #NS = bx_NS[~np.isnan(bx_NS)]
+            NS = pd.DataFrame(data=bx_NS, columns = ['Non_Social'])
+            
+            NS.loc[NS['Non_Social'] < Threshold_Cool] = 0
+            NS.loc[(NS['Non_Social'] > Threshold_Cool) & (NS['Non_Social'] < Threshold_Noxious)] = 1
+            NS.loc[NS['Non_Social'] > Threshold_Noxious] = 3
+
+        print(NS)  
+
+        
+        if NS == 0:
+            NS['condition']='Cool'
+          
+        if NS == 1:
+            NS['condition']='Hot'
+            
+        if NS == 3:
+            NS['condition']='Noxious'   
+        
+
+plt.figure(figsize=(10, 12), dpi=300)
+      
+          
+    
+# FIN
