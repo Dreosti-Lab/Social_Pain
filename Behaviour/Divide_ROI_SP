@@ -1,0 +1,234 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Apr  8 13:36:53 2021
+
+@author: alizeekastler
+"""
+
+# Set Library Path - Social_Pain Repos
+#lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
+lib_path = r'C:\Repos\Social_Pain\libs'
+import sys
+sys.path.append(lib_path)
+
+# Set Base Path
+#base_path = r'/Users/alizeekastler/Desktop'
+base_path = r'S:\WIBR_Dreosti_Lab\Alizee\Behaviour_Heat_Gradient'
+
+# Import useful libraries
+import glob
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+import seaborn as sns
+
+
+# Import local modules
+
+import SP_utilities as SPU
+import SP_Analysis as SPA
+import BONSAI_ARK
+
+# Read folder list
+FolderlistFile = base_path + '/FolderList_New.txt' 
+groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
+
+Cool = []
+Hot = []
+Noxious = []
+
+TCool = []
+TNoxious = []
+TNoxious_Hot = []
+TCool_Hot = []
+ 
+# Get Folder Names
+for idx,folder in enumerate(folderNames):
+    NS_folder, S_folder, Analysis = SPU.get_folder_names(folder)
+ 
+    # Determine Fish Status       
+    fishStat = fishStatus[idx, :]
+    
+    #Load Crop regions S
+    bonsaiFiles = glob.glob(S_folder + '/*.bonsai')
+    bonsaiFiles = bonsaiFiles[0]
+    ROIs = BONSAI_ARK.read_bonsai_crop_rois(bonsaiFiles)
+    S_ROIs = ROIs[:,:]
+  
+    
+    x=ROIs[:,0]
+    y=ROIs[:,1]
+    width=ROIs[:,2]
+    height=ROIs[:,3]
+                      
+    Threshold_Cool = np.mean(x+(width-x)/3)
+    Threshold_Noxious = np.mean(x+(width-x)*2/3)
+    
+    # Analyze and plot each Fish
+    for i in range(0,6):
+        
+        # Only use "good" fish
+        if fishStat[i] == 1:
+            # Extract tracking data (NS)     
+            tracking_file = S_folder + r'/tracking' + str(i+1) +'.npz'
+            data = np.load(tracking_file)
+            tracking = data['tracking']
+            bx_S = tracking[:,2]
+            numFrames = len (bx_S)
+            S= bx_S[~np.isnan(bx_S)]    
+            # NS = pd.DataFrame(data=bx_noNAN, columns = ['Non_Social'])
+            
+            S[S < Threshold_Cool] = 1
+            S[(S >= Threshold_Cool) & (S <= Threshold_Noxious)] = 2
+            S[S > Threshold_Noxious] = 4
+            
+            
+            # Total Frames in each ROI
+            TotFrames_Cool = (np.count_nonzero(S[S==1]))
+            TotFrames_Hot = (np.count_nonzero(S[S==2]))
+            TotFrames_Noxious = (np.count_nonzero(S[S==4]))
+            
+            # Proportion of Frames in each ROI 
+            Cool.append(TotFrames_Cool / numFrames)
+            Hot.append(TotFrames_Hot / numFrames)
+            Noxious.append(TotFrames_Noxious / numFrames)
+    
+            
+             # Transitions
+            # difference vector
+            SDiff=np.diff(S)
+            
+            TCool.append(np.count_nonzero(SDiff[SDiff==1])) # Hot - Cool
+            TCool_Hot.append(np.count_nonzero(SDiff[SDiff==-1])) # Cool - Hot
+            TNoxious.append(np.count_nonzero(SDiff[SDiff==-2])) # Hot - Noxious
+            TNoxious_Hot.append(np.count_nonzero(SDiff[SDiff==2])) # Noxious - Hot
+
+
+s1 = pd.Series(Cool, name='Cool')
+s2 = pd.Series(Hot, name='Hot')
+s3 = pd.Series(Noxious, name='Noxious')
+data1 = pd.concat([s1,s2,s3], axis=1)
+
+plt.figure(figsize=(4,8), dpi=300)
+plt.ylim(0,1)
+sns.barplot(data=data1, ci ='sd', palette= ['midnightblue','purple','darkorange'], dodge= False)
+ax=sns.stripplot(data=data1,orient="v", color= 'dimgrey',size=4, jitter=False, edgecolor="gray") 
+plt.title('Time Spent in each ROI Social')
+ax.set(ylabel= 'Proportion of Frames')
+sns.despine() 
+plt.show()
+
+
+s1 = pd.Series(TCool, name='Hot->Cool')
+s2 = pd.Series(TCool_Hot, name='Cool->Hot')
+s3 = pd.Series(TNoxious, name='Hot->Noxious')
+s4 = pd.Series(TNoxious_Hot, name='Noxious->Hot')
+data2 = pd.concat([s1,s2,s3,s4], axis=1)
+
+plt.figure(figsize=(6,8), dpi=300)
+sns.barplot(data=data2, ci ='sd', palette= ['midnightblue','purple', 'purple','darkorange'], dodge= False)
+ax=sns.stripplot(data=data2,orient="v", color= 'dimgrey',size=4, jitter=False, edgecolor="gray") 
+ax.set_ylim([0, 250])
+plt.title('Transitions Social')
+ax.set(ylabel= 'Number of T')
+sns.despine() 
+plt.show()
+
+        
+    #Load Crop regions NS
+    bonsaiFiles = glob.glob(NS_folder + '/*.bonsai')
+    bonsaiFiles = bonsaiFiles[0]
+    ROIs = BONSAI_ARK.read_bonsai_crop_rois(bonsaiFiles)
+    NS_ROIs = ROIs[:,:]
+  
+    
+    x=ROIs[:,0]
+    y=ROIs[:,1]
+    width=ROIs[:,2]
+    height=ROIs[:,3]
+                      
+    Threshold_Cool = np.mean(x+(width-x)/3)
+    Threshold_Noxious = np.mean(x+(width-x)*2/3)
+    
+    # Analyze and plot each Fish
+    for i in range(0,6):
+        
+        # Only use "good" fish
+        if fishStat[i] == 1:
+            # Extract tracking data (NS)     
+            tracking_file = NS_folder + r'/tracking' + str(i+1) +'.npz'
+            data = np.load(tracking_file)
+            tracking = data['tracking']
+            bx_NS = tracking[:,2]
+            numFrames = len (bx_NS)
+            NS= bx_NS[~np.isnan(bx_NS)]    
+           #NS = pd.DataFrame(data=bx_noNAN, columns = ['Non_Social'])
+            
+            NS[NS < Threshold_Cool] = 1
+            NS[(NS >= Threshold_Cool) & (NS <= Threshold_Noxious)] = 2
+            NS[NS > Threshold_Noxious] = 4
+            
+            print(NS)
+            
+            # Total Frames in each ROI
+            TotFrames_Cool = (np.count_nonzero(NS[NS==1]))
+            TotFrames_Hot = (np.count_nonzero(NS[NS==2]))
+            TotFrames_Noxious = (np.count_nonzero(NS[NS==4]))
+            
+            # Proportion of Frames in each ROI 
+            Cool.append(TotFrames_Cool / numFrames)
+            Hot.append(TotFrames_Hot / numFrames)
+            Noxious.append(TotFrames_Noxious / numFrames)
+            
+             # Transitions
+            # difference vector
+            NSDiff=np.diff(NS)
+            
+            TCool.append(np.count_nonzero(NSDiff[NSDiff==1])) # Hot - Cool
+            TCool_Hot.append(np.count_nonzero(NSDiff[NSDiff==-1])) # Cool - Hot
+            TNoxious.append(np.count_nonzero(NSDiff[NSDiff==-2])) # Hot - Noxious
+            TNoxious_Hot.append(np.count_nonzero(NSDiff[NSDiff==2])) # Noxious - Hot
+
+s1 = pd.Series(Cool, name='Cool')
+s2 = pd.Series(Hot, name='Hot')
+s3 = pd.Series(Noxious, name='Noxious')
+data1 = pd.concat([s1,s2,s3], axis=1)
+
+plt.figure(figsize=(4,8), dpi=300)
+plt.ylim(0,1)
+sns.barplot(data=data1, ci ='sd', palette= ['midnightblue','purple','darkorange'], dodge= False)
+ax=sns.stripplot(data=data1,orient="v", color= 'dimgrey',size=4, jitter=False, edgecolor="gray") 
+ax.set(ylabel='Proportion of Frames')
+plt.title('Time Spent in each ROI Non Social')
+sns.despine() 
+plt.show()
+
+
+s1 = pd.Series(TCool, name='Hot->Cool')
+s2 = pd.Series(TCool_Hot, name='Cool->Hot')
+s3 = pd.Series(TNoxious, name='Hot->Noxious')
+s4 = pd.Series(TNoxious_Hot, name='Noxious->Hot')
+data2 = pd.concat([s1,s2,s3,s4], axis=1)
+
+plt.figure(figsize=(6,8), dpi=300)
+sns.barplot(data=data2, ci ='sd', palette= ['midnightblue','purple', 'purple','darkorange'], dodge= False)
+ax=sns.stripplot(data=data2,orient="v", color= 'dimgrey',size=4, jitter=False, edgecolor="gray") 
+ax.set_ylim([0, 250])
+plt.title('Transitions Non Social')
+ax.set(ylabel='Number of T')
+sns.despine() 
+plt.show()
+
+
+
+
+
+   
+
+
+
+      
+          
+    
+# FIN

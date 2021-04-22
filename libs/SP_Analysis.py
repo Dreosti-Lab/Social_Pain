@@ -11,18 +11,19 @@ import matplotlib.image as mpimg
 import scipy.signal as signal
 
 
+
+
 # Measure ditance traveled during experiment (in mm)
-def distance_traveled(bx, by, ROI):
+def distance_traveled(bx, by, ROI, numFrames):
 
     # Rescale by chamber dimensions
     chamber_Width_px = ROI[2]
     chamber_Height_px = ROI[3]
-    chamber_Width_mm = 15
-    chamber_Height_mm = 120
+    chamber_Width_mm = 140
+    chamber_Height_mm = 10
     
     # Sample position every 10 frames (10 Hz) and accumulate distance swum
     # - Only add increments greater than 0.5 mm
-    numFrames = len(bx)
     prev_x = bx[0]
     prev_y = by[0]
     distanceT = 0
@@ -63,7 +64,7 @@ def measure_BPS(motion, startThreshold, stopThreshold):
     # Count number of bouts
     numBouts= len(boutStarts)
     numberOfSeconds = np.size(motion)/100   ## Assume 100 Frames per Second
-
+    print(numberOfSeconds)
     # Set the bouts per second (BPS)
     boutsPerSecond = numBouts/numberOfSeconds
 
@@ -145,7 +146,6 @@ def analyze_bouts_and_pauses(bx, by, ort, motion, startThreshold, stopThreshold)
     pauses[-1, 8] = len(motion)-1-boutStops[-1]
 
     return bouts, pauses
-            
     
 # FIN
     

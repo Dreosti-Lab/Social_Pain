@@ -120,7 +120,8 @@ for idx,folder in enumerate(folderNames):
     
 XM_values = np.array(XMs)
 
-plt.figure(figsize=(10,6))
+plt.figure(figsize=(10,10))
+plt.axis([250,900,250,900])
 sns.scatterplot(x=XM_values[:,0], y=XM_values[:,1])
 plt.xlabel('Non_Social')
 plt.ylabel('Social')
@@ -140,6 +141,7 @@ mean_TTS = np.mean(XM_values[:,1] - XM_values[:,0])
 sem_TTS = np.std(XM_values[:,1] - XM_values[:,0])/np.sqrt(len(TTSs)-1)
 
 #Plot TTS Histogram
+plt.figure(figsize=(10,8), dpi=300)
 plt.vlines(0, 0, 18, 'k')
 sns.histplot(TTSs, bins=20, color = 'xkcd:royal', kde=True,line_kws={"linewidth":3})
 plt.xlabel('Tolerated Temperature Shift (°C)')

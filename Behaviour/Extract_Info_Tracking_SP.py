@@ -30,19 +30,20 @@ import SP_utilities as SPU
 import SP_Analysis as SPA
 import BONSAI_ARK
 
-plot = True 
+plot = False
 
 
 # Set threshold
-freeze_threshold = 500
-motionStartThreshold = 0.03
-motionStopThreshold = 0.01 
+freeze_threshold = 1000
+motionStartThreshold = 0.02
+motionStopThreshold = 0.005 
 
-analysisFolder = base_path + '/Analysis' 
+analysisFolder = base_path + '/Analysis_Control' 
 # Read folder list
-FolderlistFile = base_path + '/Folderlist_New.txt' 
+FolderlistFile = base_path + '/Folderlist_Control.txt' 
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
- 
+
+
 # Get Folder Names
 for idx,folder in enumerate(folderNames):
     NS_folder, S_folder, Analysis = SPU.get_folder_names(folder)
@@ -50,19 +51,16 @@ for idx,folder in enumerate(folderNames):
     #Load Crop regions NS
     bonsaiFiles = glob.glob(NS_folder + '/*.bonsai')
     bonsaiFiles = bonsaiFiles[0]
-    ROIs = BONSAI_ARK.read_bonsai_crop_rois(bonsaiFiles)
-    NS_ROIs = ROIs[:,:]
-    
+    NS_ROIs = BONSAI_ARK.read_bonsai_crop_rois(bonsaiFiles)
+        
     #Load Crop regions S
     bonsaiFiles = glob.glob(S_folder + '/*.bonsai')
     bonsaiFiles = bonsaiFiles[0]
-    ROIs = BONSAI_ARK.read_bonsai_crop_rois(bonsaiFiles)
-    S_ROIs = ROIs[:,:]
-    
+    S_ROIs = BONSAI_ARK.read_bonsai_crop_rois(bonsaiFiles)
+        
     # Determine Fish Status       
     fishStat = fishStatus[idx, :]
-    
-    
+        
     # Analyze and plot each Fish
     for i in range(0,6):
         
@@ -93,14 +91,15 @@ for idx,folder in enumerate(folderNames):
             BPS_NS = SPA.measure_BPS(motion_NS, motionStartThreshold, motionStopThreshold)
            
             # Compute Distance Traveled (NS)
-            #DistanceT_NS = SPA.distance_traveled(bx_NS, by_NS, NS_ROIs)
-           
+            DistanceT_NS = SPA.distance_traveled(bx_NS, by_NS, NS_ROIs[i],len(bx_NS))
+            
+
             # Analyze "Bouts" amd "Pauses" (NS)
             Bouts_NS, Pauses_NS = SPA.analyze_bouts_and_pauses(bx_NS, by_NS,ort_NS, motion_NS, motionStartThreshold, motionStopThreshold)
-            Percent_Moving_NS = 100 * np.sum(Bouts_NS[:,8])/len(motion_NS)
-            Percent_Paused_NS = 100 * np.sum(Pauses_NS[:,8])/len(motion_NS)
+            Percent_Moving_NS = 100 * np.sum(Bouts_NS[i,8])/len(motion_NS)
+            Percent_Paused_NS = 100 * np.sum(Pauses_NS[i,8])/len(motion_NS)
             # Count Freezes(NS)
-            Freezes_NS = np.array(np.sum(Pauses_NS[:,8] > freeze_threshold))
+            Freezes_NS = np.array(np.sum(Pauses_NS[:,8]> freeze_threshold))
             
             if plot: 
                 
@@ -138,7 +137,7 @@ for idx,folder in enumerate(folderNames):
             BPS_S = SPA.measure_BPS(motion_S, motionStartThreshold, motionStopThreshold)
             
             # Compute Distance Traveled (S)
-            #DistanceT_S = SPA.distance_traveled(bx_S, by_S, S_ROIs)
+            DistanceT_S = SPA.distance_traveled(bx_S, by_S, S_ROIs[i], (len(bx_S)-30000))
             
             # Analyze "Bouts" and "Pauses" (S)
             Bouts_S, Pauses_S = SPA.analyze_bouts_and_pauses(bx_S, by_S,ort_S, motion_S, motionStartThreshold, motionStopThreshold)
@@ -173,17 +172,16 @@ for idx,folder in enumerate(folderNames):
 
             # Save Analyzed Summary Data
             filename = analysisFolder + '/' + str(np.int(groups[idx])) + 'SUMMARY' + str(i+1) + '.npz'
-            np.savez(filename,  
-                      BPS_NS=BPS_NS,
-                      BPS_S=BPS_S,
+            np.savez(filename, BPS_NS = BPS_NS,
+                      BPS_S = BPS_S,
                       Bouts_NS = Bouts_NS, 
                       Bouts_S = Bouts_S,
                       Pauses_NS = Pauses_NS,
                       Pauses_S = Pauses_S,
                       Freezes_NS = Freezes_NS, 
-                      Freezes_S = Freezes_S )
-                      #DistanceT_NS = DistanceT_NS,
-                      #DistanceT_S = DistanceT_S)
+                      Freezes_S = Freezes_S,
+                      DistanceT_NS = DistanceT_NS,
+                      DistanceT_S = DistanceT_S)
             
     
     # Report Progress
