@@ -26,21 +26,22 @@ import seaborn as sns
 
 # Import local modules
 
-import SP_utilities as SPU
+import SP_Utilities as SPU
 import SP_Analysis as SPA
 import BONSAI_ARK
 
-plot = False
+plot = True
 
 
 # Set threshold
-freeze_threshold = 1000
+long_freeze_threshold = 1000
+short_freeze_threshold = 300
 motionStartThreshold = 0.02
-motionStopThreshold = 0.005 
+motionStopThreshold = 0.002 
 
-analysisFolder = base_path + '/Analysis_Control' 
+analysisFolder = base_path + '/Analysis_Lidocaine' 
 # Read folder list
-FolderlistFile = base_path + '/Folderlist_Control.txt' 
+FolderlistFile = base_path + '/Folderlist_Lidocaine.txt' 
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 
@@ -78,10 +79,6 @@ for idx,folder in enumerate(folderNames):
             tracking = data['tracking']
             fx_NS = tracking[:,0] 
             fy_NS = tracking[:,1]
-            bx_NS = tracking[:,2]
-            by_NS = tracking[:,3]
-            ex_NS = tracking[:,4]
-            ey_NS = tracking[:,5]
             area_NS = tracking[:,6]
             ort_NS = tracking[:,7]
             motion_NS = tracking[:,8]
@@ -91,15 +88,18 @@ for idx,folder in enumerate(folderNames):
             BPS_NS = SPA.measure_BPS(motion_NS, motionStartThreshold, motionStopThreshold)
            
             # Compute Distance Traveled (NS)
-            DistanceT_NS = SPA.distance_traveled(bx_NS, by_NS, NS_ROIs[i],len(bx_NS))
+            DistanceT_NS = SPA.distance_traveled(fx_NS, fy_NS, NS_ROIs[i],len(fx_NS))
             
 
             # Analyze "Bouts" amd "Pauses" (NS)
-            Bouts_NS, Pauses_NS = SPA.analyze_bouts_and_pauses(bx_NS, by_NS,ort_NS, motion_NS, motionStartThreshold, motionStopThreshold)
+            Bouts_NS, Pauses_NS = SPA.analyze_bouts_and_pauses(fx_NS, fy_NS,ort_NS, motion_NS, motionStartThreshold, motionStopThreshold)
             Percent_Moving_NS = 100 * np.sum(Bouts_NS[i,8])/len(motion_NS)
             Percent_Paused_NS = 100 * np.sum(Pauses_NS[i,8])/len(motion_NS)
             # Count Freezes(NS)
-            Freezes_NS = np.array(np.sum(Pauses_NS[:,8]> freeze_threshold))
+            Long_Freezes_NS = np.array(np.sum(Pauses_NS[:,8]> long_freeze_threshold))
+            Short_Freezes_NS = np.array(np.sum(Pauses_NS[:,8]> short_freeze_threshold))
+          
+            
             
             if plot: 
                 
@@ -115,7 +115,7 @@ for idx,folder in enumerate(folderNames):
                 plt.title('Area_NS')
                 plt.plot(area_NS, c='teal')
                 
-        
+            
                 
             # ------------------------------
             
@@ -125,10 +125,6 @@ for idx,folder in enumerate(folderNames):
             tracking = data['tracking']
             fx_S = tracking[:,0] 
             fy_S = tracking[:,1]
-            bx_S = tracking[:,2]
-            by_S = tracking[:,3]
-            ex_S = tracking[:,4]
-            ey_S = tracking[:,5]
             area_S = tracking[:,6]
             ort_S = tracking[:,7]
             motion_S = tracking[:,8]
@@ -137,14 +133,15 @@ for idx,folder in enumerate(folderNames):
             BPS_S = SPA.measure_BPS(motion_S, motionStartThreshold, motionStopThreshold)
             
             # Compute Distance Traveled (S)
-            DistanceT_S = SPA.distance_traveled(bx_S, by_S, S_ROIs[i], (len(bx_S)-30000))
+            DistanceT_S = SPA.distance_traveled(fx_S[0:60000], fy_S[0:60000], S_ROIs[i], len(fx_S[0:60000]))
             
             # Analyze "Bouts" and "Pauses" (S)
-            Bouts_S, Pauses_S = SPA.analyze_bouts_and_pauses(bx_S, by_S,ort_S, motion_S, motionStartThreshold, motionStopThreshold)
-            Percent_Moving_S = 100 * np.sum(Bouts_S[:,8])/len(motion_S)
-            Percent_Paused_S = 100 * np.sum(Pauses_S[:,8])/len(motion_S)
+            Bouts_S, Pauses_S = SPA.analyze_bouts_and_pauses(fx_S[0:60000], fy_S[0:60000], ort_S[0:60000], motion_S[0:60000], motionStartThreshold, motionStopThreshold)
+            Percent_Moving_S = 100 * np.sum(Bouts_S[:,8])/len(motion_S[0:60000])
+            Percent_Paused_S = 100 * np.sum(Pauses_S[:,8])/len(motion_S[0:60000])
             # Count Freezes(S)
-            Freezes_S = np.array(np.sum(Pauses_S[:,8] > freeze_threshold))
+            Long_Freezes_S = np.array(np.sum(Pauses_S[:,8] > long_freeze_threshold))
+            Short_Freezes_S = np.array(np.sum(Pauses_S[:,8] > short_freeze_threshold))
             
             if plot:
                 
@@ -172,17 +169,11 @@ for idx,folder in enumerate(folderNames):
 
             # Save Analyzed Summary Data
             filename = analysisFolder + '/' + str(np.int(groups[idx])) + 'SUMMARY' + str(i+1) + '.npz'
-            np.savez(filename, BPS_NS = BPS_NS,
-                      BPS_S = BPS_S,
-                      Bouts_NS = Bouts_NS, 
-                      Bouts_S = Bouts_S,
-                      Pauses_NS = Pauses_NS,
-                      Pauses_S = Pauses_S,
-                      Freezes_NS = Freezes_NS, 
-                      Freezes_S = Freezes_S,
-                      DistanceT_NS = DistanceT_NS,
-                      DistanceT_S = DistanceT_S)
-            
+            np.savez(filename, BPS_NS = BPS_NS, BPS_S = BPS_S,
+                      Bouts_NS = Bouts_NS, Bouts_S = Bouts_S ,
+                      Pauses_NS = Pauses_NS ,Pauses_S = Pauses_S ,
+                      Long_Freezes_NS=Long_Freezes_NS , Short_Freezes_NS=Short_Freezes_NS, Long_Freezes_S=Long_Freezes_S, Short_Freezes_S=Short_Freezes_S, 
+                      DistanceT_NS=DistanceT_NS, DistanceT_S=DistanceT_S)
     
     # Report Progress
     print (idx)

@@ -17,7 +17,7 @@ from scipy import stats
 import seaborn as sns
 
 # Import local modules
-import SP_utilities as SPU
+import SP_Utilities as SPU
 
 # Read folder list file
 FolderlistFile = base_path + '/Folderlist_New.txt' 

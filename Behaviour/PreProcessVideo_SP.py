@@ -10,8 +10,8 @@ sys.path.append(lib_path)
 base_path = r'S:\WIBR_Dreosti_Lab\Alizee\Behaviour_Heat_Gradient'
 
 # Import local modules
-import SP_Video_AK as SPV
-import SP_utilities as SPU
+import SP_Video as SPV
+import SP_Utilities as SPU
 
 # Read Folder List
 folderListFile = base_path + r'\Experiment_17\Folderlist\Exp_17.txt'

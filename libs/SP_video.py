@@ -19,7 +19,7 @@ import imageio
 
 
 # Process Video : Make Summary Images
-def pre_process_video_summary_images(folder, social):
+def pre_process_video(folder, social):
     
      # Load Video
      aviFiles = glob.glob(folder+'/*.avi')
@@ -154,7 +154,7 @@ def compute_intial_backgrounds(folder, ROIs):
 #------------------------------------------------------------------------------
 
 # Process Video : Track fish in AVI
-def improved_fish_tracking(input_folder, output_folder, ROIs):
+def fish_tracking(input_folder, output_folder, ROIs):
     
     # Compute a "Starting" Background
     # - Median value of 20 frames with significant difference between them
@@ -169,7 +169,7 @@ def improved_fish_tracking(input_folder, output_folder, ROIs):
     # 6. - Compute Binary Centroid of Body Region (50% of brightest pixels - eyeRegion)
     # 7. - Compute Heading
     
-    # Load Videod_ROI
+    # Load Video_ROI
     aviFiles = glob.glob(input_folder+'/*.avi')
     aviFile = aviFiles[0]
     vid = cv2.VideoCapture(aviFile)
@@ -201,10 +201,8 @@ def improved_fish_tracking(input_folder, output_folder, ROIs):
         
         # Read next frame        
         ret, im = vid.read()
-        
         # Convert to grayscale (uint8)
         current = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
-                        
         # Process each ROI
         for i in range(0,6):
             
@@ -217,53 +215,25 @@ def improved_fish_tracking(input_folder, output_folder, ROIs):
             # The difference betwwen the crop and the computed background is the fish
             diff = crop - background_ROIs[i]
 
-            
             # Determine current threshold (Sensitivity : detected range of pixel change)
             # How different does it need to be for it to be picked up as the fish, lower threshold if you want to track fish that are not moving much 
-            # we tried a few and thought 4 or 5 is best, fish gave more of the fish hence why we chose this. 
             threshold_level = np.median(background_ROIs[i])/4        
-                 
-            # Threshold  
+                  
             # Within the diff (fish) our threshold value is the median background and max value is 255 (White)
             #if pixel > threshold_level = white and if < threshold_level = Black
             level, threshold = cv2.threshold(diff,threshold_level,255,cv2.THRESH_BINARY)
-            #level, eye_threshold = cv2.threshold(diff,-threshold_level,255,cv2.THRESH_BINARY_INV)
-            
             # Convert to uint8 : instead of black or white : 0 and 1
             threshold = np.uint8(threshold)
             
-            # Binary Close
-            # Kernel is a structuring element 
-            # Closing eliminates noise : closing small holes inside object (black spots)
+            # Binary Close: Closing eliminates noise ie. closing small holes inside object (black spots)
             kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,5))
             closing = cv2.morphologyEx(threshold, cv2.MORPH_CLOSE, kernel)
             
-            # # Debug
-            # plt.figure()
-            # plt.subplot(5,1,1)
-            # plt.imshow(background_ROIs[1])
-            
-            # plt.subplot(5,1,2)
-            # plt.imshow(crop)
-            
-            # plt.subplot(5,1,3) 
-            # plt.imshow(diff)
-                        
-            # plt.subplot(5,1,4)
-            # plt.imshow(threshold)
-            
-            # plt.subplot(5,1,5)
-            # plt.imshow(closing)
-            
             # Find Binary Contours 
-            #object to be found shoul be white and contours should be black 
             contours, hierarchy = cv2.findContours(closing,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
-            #images, contours, hierarchy = cv2.findContours(closing,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
             
             # Create Binary Mask Image
             mask = np.zeros(crop.shape,np.uint8)
-            #eye_mask = mask * eye_threshold
-            #eye_pixelpoints = 
             
             # If there are NO contours, then skip tracking
             if len(contours) == 0:
@@ -318,14 +288,12 @@ def improved_fish_tracking(input_folder, output_folder, ROIs):
                     # Draw contours into Mask Image (1 for Fish, 0 for Background)
                     cv2.drawContours(mask,[largest_cnt],0,1,-1) # -1 draw the contour filled
                     pixelpoints = np.transpose(np.nonzero(mask))
-                    #eye_pixelpoints = np.transpose(np.nonzero(eye_mask))
                     
                     # Get Area (again)
                     area = np.size(pixelpoints, 0)
                     
                     # ---------------------------------------------------------------------------------
                     # Compute Frame-by-Frame Motion (absolute changes above threshold)
-                    # - Normalize by total absdiff from background
                     if (f != 0):
                         absdiff = np.abs(diff)
                         absdiff[absdiff < threshold_level] = 0
@@ -339,11 +307,10 @@ def improved_fish_tracking(input_folder, output_folder, ROIs):
                     # Save Masked Fish Image from ROI (for subsequent frames motion calculation)
                     previous_ROIs[i] = np.copy(crop)
                     
-                 
                     # ---------------------------------------------------------------------------------
                     # Find Body and Eye Centroids
                     area = np.float(area)
-                    
+
                     # Highlight 50% of the most different pixels (body)                    
                     numBodyPixels = np.int(np.ceil(area/1.2))
                     
@@ -419,7 +386,6 @@ def improved_fish_tracking(input_folder, output_folder, ROIs):
             updated_background[dilated_fish==1] = current_background[dilated_fish==1]            
             background_ROIs[i] = np.copy(updated_background)
             
-            
         # ---------------------------------------------------------------------------------
         # Plot All Fish in Movie with Tracking Overlay
         if (f % 100 == 0):
@@ -432,8 +398,7 @@ def improved_fish_tracking(input_folder, output_folder, ROIs):
                 plt.plot(fxS[f, i],fyS[f, i],'b.', MarkerSize = 1)
                 plt.plot(exS[f, i],eyS[f, i],'r.', MarkerSize = 3)
                 plt.plot(bxS[f, i],byS[f, i],'co', MarkerSize = 3)
-                # plt.text(bxS[f, i]+10,byS[f, i]+10,  '{0:.1f}'.format(ortS[f, i]), color = [1.0, 1.0, 0.0, 0.5])
-                # plt.text(bxS[f, i]+10,byS[f, i]+30,  '{0:.0f}'.format(areaS[f, i]), color = [1.0, 0.5, 0.0, 0.5])
+               
             plt.draw()
             plt.pause(0.001)
             
@@ -488,7 +453,7 @@ def get_ROI_size(ROIs, numROi):
     
     return width, height
 
-# Return largest (area) cotour from contour list
+# Return largest (area) contour from contour list
 def get_largest_contour(contours):
     # Find contour with maximum area and store it as best_cnt
     max_area = 0
@@ -501,7 +466,6 @@ def get_largest_contour(contours):
         return best_cnt, max_area
     else:
         return cnt, max_area
-
 
 
 # FIN

@@ -3,12 +3,12 @@
 Video Fish Tracking after defining ROIs 
 """                        
 # Set Library Path - Social_Pain Repos
-lib_path = r'C:/Repos/Social_Pain/libs'
+lib_path = r'C:\Repos\Social_Pain\libs'
 import sys
 sys.path.append(lib_path)
 
 # Set Base Path
-base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
+base_path = r'S:\WIBR_Dreosti_Lab\Alizee\Behaviour_Heat_Gradient'
 
 # Import useful libraries
 import os
@@ -21,9 +21,9 @@ import scipy.misc as misc
 from scipy import stats
 
 # Import local modules
-import SP_Video_AK as SPV
+import SP_Video as SPV
 import BONSAI_ARK
-import SP_utilities as SPU
+import SP_Utilities as SPU
 
 # Read Folder List
 FolderlistFile = base_path + r'\Experiment_17\Folderlist\Exp_17.txt'
@@ -50,8 +50,7 @@ for idx,folder in enumerate(folderNames):
     
     #---------------------
     # Process Video (S)
-    bonsaiFiles = NS_folder + r'/Bonsai_ROI_Analysis.bonsai'
-    bonsaiFiles = bonsaiFiles[0]
+    bonsaiFiles = S_folder + r'/Bonsai_ROI_Analysis.bonsai'
     ROIs = BONSAI_ARK.read_bonsai_crop_rois(bonsaiFiles)
     #Run more improved tracking in SP_video module
     fxS, fyS, bxS, byS, exS, eyS, areaS, ortS, motS = SPV.fish_tracking(S_folder, S_folder, ROIs)
