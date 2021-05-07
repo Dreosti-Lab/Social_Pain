@@ -12,7 +12,20 @@ import scipy.signal as signal
 
 #-----------------------------------------------------------------------------
 # Utilities for loading and ploting "social pain" data
-
+def getTracking(path):
+    data = np.load(path)
+    tracking = data['tracking']
+    fx = tracking[:,0] 
+    fy = tracking[:,1]
+    bx = tracking[:,2]
+    by = tracking[:,3]
+    ex = tracking[:,4]
+    ey = tracking[:,5]
+    area = tracking[:,6]
+    ort = tracking[:,7]
+    motion = tracking[:,8]
+    
+    return fx,fy,bx,by,ex,ey,area,ort,motion
 # Read Folder List file 6 fish 
 def read_folder_list(folderlistFile): 
     folderFile = open(folderlistFile, "r") #"r" means read the file

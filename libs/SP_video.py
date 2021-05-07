@@ -213,7 +213,7 @@ def fish_tracking(input_folder, output_folder, ROIs):
 
             # Difference from current background: within crop, the fish appears brighter than the ROI background
             # The difference betwwen the crop and the computed background is the fish
-            diff = crop - background_ROIs[i]
+            diff = background_ROIs[i]-crop
 
             # Determine current threshold (Sensitivity : detected range of pixel change)
             # How different does it need to be for it to be picked up as the fish, lower threshold if you want to track fish that are not moving much 
@@ -312,7 +312,7 @@ def fish_tracking(input_folder, output_folder, ROIs):
                     area = np.float(area)
 
                     # Highlight 50% of the most different pixels (body)                    
-                    numBodyPixels = np.int(np.ceil(area/1.2))
+                    numBodyPixels = np.int(np.ceil(area/2))
                     
                     # Highlight 10% of the ??? pixels (eyes)     
                     numEyePixels = np.int(np.ceil(area/20))
@@ -322,7 +322,7 @@ def fish_tracking(input_folder, output_folder, ROIs):
                     sortedFishValues = np.sort(fishValues)
                     
                     bodyThreshold = sortedFishValues[-numBodyPixels]                    
-                    eyeThreshold = sortedFishValues[numEyePixels]
+                    eyeThreshold = sortedFishValues[-numEyePixels]
 
                     # Compute Binary/Weighted Centroids
                     r = pixelpoints[:,0]
@@ -398,7 +398,8 @@ def fish_tracking(input_folder, output_folder, ROIs):
                 plt.plot(fxS[f, i],fyS[f, i],'b.', MarkerSize = 1)
                 plt.plot(exS[f, i],eyS[f, i],'r.', MarkerSize = 3)
                 plt.plot(bxS[f, i],byS[f, i],'co', MarkerSize = 3)
-               
+                plt.text(bxS[f, i]+10,byS[f, i]+10,  '{0:.1f}'.format(ortS[f, i]), color = [1.0, 1.0, 0.0, 0.5])
+                plt.text(bxS[f, i]+10,byS[f, i]+30,  '{0:.0f}'.format(areaS[f, i]), color = [1.0, 0.5, 0.0, 0.5])
             plt.draw()
             plt.pause(0.001)
             

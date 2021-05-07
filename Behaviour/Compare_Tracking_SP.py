@@ -36,7 +36,7 @@ import BONSAI_ARK
 
 
 # Specify Analysis folder
-AnalysisFolder = base_path + '/Analysis_Lidocaine'
+AnalysisFolder = base_path + '/Analysis_L368,899'
 
 # Find all the npz files saved for each group and fish with all the information
 npzFiles = glob.glob(AnalysisFolder+'/*.npz')

@@ -20,7 +20,7 @@ import seaborn as sns
 import SP_Utilities as SPU
 
 # Read folder list file
-FolderlistFile = base_path + '/Folderlist_New.txt' 
+FolderlistFile = base_path + '/Folderlist_Isolated.txt' 
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 # XMs
@@ -67,50 +67,50 @@ for idx,folder in enumerate(folderNames):
 
         # Filter out bad data
         min_x = 250
-        max_x = 1000
-#=============================================================================
-        if fish_number == 1:
-            min_y = 150
-            max_y = 250
-        if fish_number == 2:
-            min_y = 270
-            max_y = 370
-        if fish_number == 3:
-            min_y = 390
-            max_y = 490
-        if fish_number == 4:
-            min_y = 510
-            max_y = 610
-        if fish_number == 5:
-            min_y = 630
-            max_y = 730
-        if fish_number == 6:
-            min_y = 750
-            max_y = 850    
+        max_x = 900
+# #=============================================================================
+#         if fish_number == 1:
+#             min_y = 150
+#             max_y = 250
+#         if fish_number == 2:
+#             min_y = 270
+#             max_y = 370
+#         if fish_number == 3:
+#             min_y = 390
+#             max_y = 490
+#         if fish_number == 4:
+#             min_y = 510
+#             max_y = 610
+#         if fish_number == 5:
+#             min_y = 630
+#             max_y = 730
+#         if fish_number == 6:
+#             min_y = 750
+#             max_y = 850    
 # =============================================================================
  
-        # Find good tracking (NS)
-        num_total_frames_NS = len(fx_NS)
-        good_frame_NS = (fx_NS > min_x) * (fx_NS < max_x) * (fy_NS > min_y) * (fy_NS < max_y)
-        num_good_frames_NS = np.sum(good_frame_NS)
-        lost_frame_NS = num_total_frames_NS-num_good_frames_NS
+        # # Find good tracking (NS)
+        # num_total_frames_NS = len(fx_NS)
+        # good_frame_NS = (fx_NS > min_x) * (fx_NS < max_x) * (fy_NS > min_y) * (fy_NS < max_y)
+        # num_good_frames_NS = np.sum(good_frame_NS)
+        # lost_frame_NS = num_total_frames_NS-num_good_frames_NS
         
-        # Find good tracking (S)         
-        num_total_frames_S = len(fx_S)
-        good_frame_S = (fx_S > min_x) * (fx_S < max_x) * (fy_S > min_y) * (fy_S < max_y)
-        num_good_frames_S = np.sum(good_frame_S)
-        lost_frame_S = num_total_frames_S-num_good_frames_S         
+        # # Find good tracking (S)         
+        # num_total_frames_S = len(fx_S)
+        # good_frame_S = (fx_S > min_x) * (fx_S < max_x) * (fy_S > min_y) * (fy_S < max_y)
+        # num_good_frames_S = np.sum(good_frame_S)
+        # lost_frame_S = num_total_frames_S-num_good_frames_S         
 
-        # All lost frames
-        lost_frame = lost_frame_S + lost_frame_NS
+        # # All lost frames
+        # lost_frame = lost_frame_S + lost_frame_NS
         
-        # plt. figure ()
-        # plt.plot(fx_NS[good_frame_NS], fy_NS[good_frame_NS], 'b.', alpha = 0.15)
-        # plt.plot(fx_S[good_frame_S], fy_S[good_frame_S], 'm.', alpha = 0.15)  
-        # plt.title("Fish #{0}- Lost Frames {1}".format(fish_number, lost_frame))
+        plt. figure ()
+        plt.plot(fx_NS, fy_NS, 'b.', alpha = 0.15)
+        plt.plot(fx_S, fy_S, 'm.', alpha = 0.15)  
+        plt.title("Fish #{0}".format(fish_number))
     
-        # for i in range(0,6):
-        #     plt.savefig(Analysis + '/tracking_summary'+ str(fish_number) + '.png', dpi=300)
+        for i in range(0,6):
+            plt.savefig(Analysis + '/tracking_summary'+ str(fish_number) + '.png', dpi=300)
        
         # Store XMs
         XMs.append([np.mean(fx_NS[good_frame_NS]), np.mean(fx_S[good_frame_S])])

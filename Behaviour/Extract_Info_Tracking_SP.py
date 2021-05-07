@@ -39,9 +39,9 @@ short_freeze_threshold = 300
 motionStartThreshold = 0.02
 motionStopThreshold = 0.002 
 
-analysisFolder = base_path + '/Analysis_Lidocaine' 
+analysisFolder = base_path + '/Analysis_L368,899' 
 # Read folder list
-FolderlistFile = base_path + '/Folderlist_Lidocaine.txt' 
+FolderlistFile = base_path + '/Folderlist_L368,899.txt' 
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 
@@ -133,12 +133,12 @@ for idx,folder in enumerate(folderNames):
             BPS_S = SPA.measure_BPS(motion_S, motionStartThreshold, motionStopThreshold)
             
             # Compute Distance Traveled (S)
-            DistanceT_S = SPA.distance_traveled(fx_S[0:60000], fy_S[0:60000], S_ROIs[i], len(fx_S[0:60000]))
+            DistanceT_S = SPA.distance_traveled(fx_S, fy_S, S_ROIs[i], len(fx_S))
             
             # Analyze "Bouts" and "Pauses" (S)
-            Bouts_S, Pauses_S = SPA.analyze_bouts_and_pauses(fx_S[0:60000], fy_S[0:60000], ort_S[0:60000], motion_S[0:60000], motionStartThreshold, motionStopThreshold)
-            Percent_Moving_S = 100 * np.sum(Bouts_S[:,8])/len(motion_S[0:60000])
-            Percent_Paused_S = 100 * np.sum(Pauses_S[:,8])/len(motion_S[0:60000])
+            Bouts_S, Pauses_S = SPA.analyze_bouts_and_pauses(fx_S, fy_S, ort_S, motion_S, motionStartThreshold, motionStopThreshold)
+            Percent_Moving_S = 100 * np.sum(Bouts_S[:,8])/len(motion_S)
+            Percent_Paused_S = 100 * np.sum(Pauses_S[:,8])/len(motion_S )
             # Count Freezes(S)
             Long_Freezes_S = np.array(np.sum(Pauses_S[:,8] > long_freeze_threshold))
             Short_Freezes_S = np.array(np.sum(Pauses_S[:,8] > short_freeze_threshold))

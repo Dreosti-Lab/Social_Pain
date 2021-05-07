@@ -26,7 +26,7 @@ import BONSAI_ARK
 import SP_Utilities as SPU
 
 # Read Folder List
-FolderlistFile = base_path + r'\Experiment_17\Folderlist\Exp_17.txt'
+FolderlistFile = base_path + r'\Experiment_20\Folderlist\Exp_20.txt'
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 # Bulk analysis of all folders
@@ -61,7 +61,7 @@ for idx,folder in enumerate(folderNames):
         fish = np.vstack((fxS[:,i], fyS[:,i], bxS[:,i], byS[:,i], exS[:,i], eyS[:,i], areaS[:,i], ortS[:,i], motS[:,i]))
         np.savez(filename, tracking=fish.T)
     
-     # Close Plots
+    #Close Plots
     plt.close('all')
     
 # FIN

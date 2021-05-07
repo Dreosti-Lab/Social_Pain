@@ -30,7 +30,7 @@ import SP_Utilities as SPU
 import BONSAI_ARK
 
 # Read folder list
-FolderlistFile = base_path + '/FolderList_Heat.txt' 
+FolderlistFile = base_path + '/FolderList_L368,899.txt' 
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 NS_Cool = []
@@ -70,11 +70,11 @@ for idx,folder in enumerate(folderNames):
     width=ROIs[:,2]
     height=ROIs[:,3]
                       
-    # Threshold_Cool = np.mean(x+(width)/3)
-    # Threshold_Noxious = np.mean(x+(width)*2/3)
+    Threshold_Cool = np.mean(x+(width)/3)
+    Threshold_Noxious = np.mean(x+(width)*2/3)
     
-    Threshold_Cool = 400
-    Threshold_Noxious = 750
+    #Threshold_Cool = 400
+    #Threshold_Noxious = 750
     
     # Analyze and plot each Fish
     for i in range(0,6):
