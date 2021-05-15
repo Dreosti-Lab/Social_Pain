@@ -1,102 +1,37 @@
-# -*- coding: utf-8 -*-
+
 """
 Processing Social_Pain videos : 
     - Compute Backgrounds for each ROIs 
     - PreProcessing Average difference between Background and Frame 
     - ImprovedTracking Current Frame - Background Image / find fish Eyes (dark) + Body (Bright)
 """
+
+lib_path = r'C:/Repos/Social_Pain/libs'
+import sys
+sys.path.append(lib_path)  
+
+
 # Import useful libraries
-import os
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
 import math
-import glob
 import cv2
-import imageio
 
 
+import SP_Utilities as SPU
 
-
-# Process Video : Make Summary Images
-def pre_process_video(folder, social):
-    
-     # Load Video
-     aviFiles = glob.glob(folder+'/*.avi')
-     aviFile = aviFiles[0]
-     vid = cv2.VideoCapture(aviFile)
-     numFrames = int(vid.get(cv2.CAP_PROP_FRAME_COUNT))
-   
-     # Read First Frame
-     ret, im = vid.read()
-     previous = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
-     width = np.size(previous, 1)
-     height = np.size(previous, 0)
-   
-     # Alloctae Image Space
-     stepFrames = 250 # Add a background frame every 2.5 seconds for 50 seconds
-     bFrames = 50
-     thresholdValue=10
-     accumulated_diff = np.zeros((height, width), dtype = float)
-     backgroundStack = np.zeros((height, width, bFrames), dtype = float)
-     background = np.zeros((height, width), dtype = float)
-     bCount = 0
-     for i, f in enumerate(range(0, numFrames, stepFrames)):
-       
-         vid.set(cv2.CAP_PROP_POS_FRAMES, f)
-         ret, im = vid.read()
-         current = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
-         absDiff = cv2.absdiff(previous, current)
-         level, threshold = cv2.threshold(absDiff,thresholdValue,255,cv2.THRESH_TOZERO)
-         previous = current
-      
-         # Accumulate differences
-         accumulated_diff = accumulated_diff + threshold
-       
-         # Add to background stack
-         if(bCount < bFrames):
-             backgroundStack[:,:,bCount] = current
-             bCount = bCount + 1
-       
-         print (numFrames-f)
-         print (bCount)
-
-     vid.release()  
-    # Normalize accumulated difference image
-     accumulated_diff = accumulated_diff/np.max(accumulated_diff)
-     accumulated_diff = np.ubyte(accumulated_diff*255)
-    
-    # Enhance Contrast (Histogram Equalize)
-     equ = cv2.equalizeHist(accumulated_diff)
-
-     # Compute Background Frame (median or mode)
-     background = np.median(backgroundStack, axis = 2)
-
-     saveFolder = folder
-     imageio.imwrite(saveFolder + r'/difference.png', equ)    
-     cv2.imwrite(saveFolder + r'/background.png', background)
-     # Using SciPy to save caused a weird rescaling when the images were dim.
-     # This will change not only the background in the beginning but the threshold estimate
-
-     return 0
 
 #------------------------------------------------------------------------------
     
 # Compute the initial background for each ROI
 def compute_intial_backgrounds(folder, ROIs):
 
-    # Load Video
-    aviFiles = glob.glob(folder+'/*.avi')#finds any avi file in the folder
-    aviFile = aviFiles[0]
-    vid = cv2.VideoCapture(aviFile)
-    numFrames = int(vid.get(cv2.CAP_PROP_FRAME_COUNT))-100 # Skip, possibly corrupt, last 100 frames (1 second)
-    width = int(vid.get(cv2.CAP_PROP_FRAME_WIDTH))
-    height = int(vid.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    
+    vid, numFrames, width, height = SPU.load_video(folder)
+
     # Allocate space for all ROI backgrounds
     background_ROIs = []
     for i in range(0,6):
-        w, h = get_ROI_size(ROIs, i)#get height and width of all 6 ROIs
+        w, h = get_ROI_size(ROIs, i)
         background_ROIs.append(np.zeros((h, w), dtype = np.float32))
     
     # Find initial background for each ROI
@@ -119,7 +54,7 @@ def compute_intial_backgrounds(folder, ROIs):
         previous = np.copy(crop)
         bCount = 1
         
-        # Search for useful background frames (significantly different than previous)
+        # Search for useful background frames (significantly different)
         changes = []
         for f in range(stepFrames, numFrames, stepFrames):
 
@@ -147,20 +82,11 @@ def compute_intial_backgrounds(folder, ROIs):
         # Compute background
         backgroundStack = backgroundStack[:,:, 0:bCount]
         background_ROIs[i] = np.median(backgroundStack, axis=2)
-    # median value of 20 frames with significant differences gives a background with no fish
-                        
-    # Return initial background
+   
     return background_ROIs
 #------------------------------------------------------------------------------
 
-# Process Video : Track fish in AVI
-def fish_tracking(input_folder, output_folder, ROIs):
-    
-    # Compute a "Starting" Background
-    # - Median value of 20 frames with significant difference between them
-    background_ROIs = compute_intial_backgrounds(input_folder, ROIs)
-    
-    # Algorithm
+ # Algorithm
     # 1. Find initial background guess for each ROI
     # 2. Extract Crop regions from ROIs
     # 3. Threshold ROI using median/5 of each crop region, Binary Close image using 5 rad disc
@@ -169,61 +95,58 @@ def fish_tracking(input_folder, output_folder, ROIs):
     # 6. - Compute Binary Centroid of Body Region (50% of brightest pixels - eyeRegion)
     # 7. - Compute Heading
     
+def fish_tracking(input_folder, output_folder, ROIs):
+    
     # Load Video_ROI
-    aviFiles = glob.glob(input_folder+'/*.avi')
-    aviFile = aviFiles[0]
-    vid = cv2.VideoCapture(aviFile)
-    numFrames = int(vid.get(cv2.CAP_PROP_FRAME_COUNT))-100 # Skip, possibly corrupt, last 100 frames (1 second)
-    width = int(vid.get(cv2.CAP_PROP_FRAME_WIDTH))
-    height = int(vid.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        
+    vid, numFrames, width, height = SPU.load_video(input_folder)
+    
+    # Allocate Tracking Data Space
+    fxS = np.zeros((numFrames,6))           
+    fyS = np.zeros((numFrames,6))           
+    bxS = np.zeros((numFrames,6))           
+    byS = np.zeros((numFrames,6))          
+    exS = np.zeros((numFrames,6))           
+    eyS = np.zeros((numFrames,6))           
+    areaS = np.zeros((numFrames,6))         # area (-1 if error)
+    ortS = np.zeros((numFrames,6))          # heading/orientation (angle from body to eyes)
+    motS = np.zeros((numFrames,6))          # frame-by-frame change in segmented particle
+    
+    
+    # Compute a "Starting" Background :Median value of 20 frames with significant difference
+    background_ROIs = compute_intial_backgrounds(input_folder, ROIs)
     # Allocate ROI (crop region) space
     previous_ROIs = []
     for i in range(0,6):
         w, h = get_ROI_size(ROIs, i)
         previous_ROIs.append(np.zeros((h, w), dtype = np.uint8))
-    
-    # Allocate Tracking Data Space
-    fxS = np.zeros((numFrames,6))           # Fish X
-    fyS = np.zeros((numFrames,6))           # Fish Y
-    bxS = np.zeros((numFrames,6))           # Body X
-    byS = np.zeros((numFrames,6))           # Body Y
-    exS = np.zeros((numFrames,6))           # Eye X
-    eyS = np.zeros((numFrames,6))           # Eye Y
-    areaS = np.zeros((numFrames,6))         # area (-1 if error)
-    ortS = np.zeros((numFrames,6))          # heading/orientation (angle from body to eyes)
-    motS = np.zeros((numFrames,6))          # frame-by-frame change in segmented particle
-        
+       
+#-------------------------------------------------------------------------------------------------
     # Track within each ROI
-    plt.figure(figsize=(8,6))  #size of the figure (video)
+    plt.figure(figsize=(8,6))  
     
     for f in range(0,numFrames):  
-        
         # Read next frame        
         ret, im = vid.read()
-        # Convert to grayscale (uint8)
-        current = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
+        current = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)  # Convert to grayscale 
+        
         # Process each ROI
         for i in range(0,6):
             
-            print('Processing ROI ' + str(i+1))            
+            print('Processing ROI ' + str(i+1))  
+            
             # Extract Crop Region
             crop, xOff, yOff = get_ROI_crop(current, ROIs, i)
             crop_height, crop_width = np.shape(crop)
 
-            # Difference from current background: within crop, the fish appears brighter than the ROI background
-            # The difference betwwen the crop and the computed background is the fish
-            diff = background_ROIs[i] - crop
+            # Fish = difference from current background (fish is brighter than background)
+            diff = crop - background_ROIs[i]
 
-            # Determine current threshold (Sensitivity : detected range of pixel change)
-            # How different does it need to be for it to be picked up as the fish, lower threshold if you want to track fish that are not moving much 
+            # Sensitivity: How different does it need to be for it to be picked up as a fish (lower threshold if you want to track fish that are not moving much)
             threshold_level = np.median(background_ROIs[i])/4        
                   
-            # Within the diff (fish) our threshold value is the median background and max value is 255 (White)
             #if pixel > threshold_level = white and if < threshold_level = Black
             level, threshold = cv2.threshold(diff,threshold_level,255,cv2.THRESH_BINARY)
-            # Convert to uint8 : instead of black or white : 0 and 1
-            threshold = np.uint8(threshold)
+            threshold = np.uint8(threshold) # Convert to uint8 : 0 and 1
             
             # Binary Close: Closing eliminates noise ie. closing small holes inside object (black spots)
             kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,5))
@@ -231,9 +154,7 @@ def fish_tracking(input_folder, output_folder, ROIs):
             
             # Find Binary Contours 
             contours, hierarchy = cv2.findContours(closing,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
-            
-            # Create Binary Mask Image
-            mask = np.zeros(crop.shape,np.uint8)
+            mask = np.zeros(crop.shape,np.uint8) # Create Binary Mask Image
             
             # If there are NO contours, then skip tracking
             if len(contours) == 0:
@@ -259,7 +180,6 @@ def fish_tracking(input_folder, output_folder, ROIs):
                     motion = -1.0
             
             else:
-                # Get Largest Contour (fish, ideally)
                 largest_cnt, area = get_largest_contour(contours)
                 
                 # If the particle is too small to consider, skip frame
@@ -286,13 +206,10 @@ def fish_tracking(input_folder, output_folder, ROIs):
                         
                 else:
                     # Draw contours into Mask Image (1 for Fish, 0 for Background)
-                    cv2.drawContours(mask,[largest_cnt],0,1,-1) # -1 draw the contour filled
+                    cv2.drawContours(mask,[largest_cnt],0,1,-1)
                     pixelpoints = np.transpose(np.nonzero(mask))
-                    
-                    # Get Area (again)
                     area = np.size(pixelpoints, 0)
                     
-                    # ---------------------------------------------------------------------------------
                     # Compute Frame-by-Frame Motion (absolute changes above threshold)
                     if (f != 0):
                         absdiff = np.abs(diff)
@@ -304,23 +221,22 @@ def fish_tracking(input_folder, output_folder, ROIs):
                     else:
                         motion = 0
                     
-                    # Save Masked Fish Image from ROI (for subsequent frames motion calculation)
+                    # Save Mask Image from ROI 
                     previous_ROIs[i] = np.copy(crop)
                     
                     # ---------------------------------------------------------------------------------
+                    
                     # Find Body and Eye Centroids
                     area = np.float(area)
 
-                    # Highlight 50% of the most different pixels (body)                    
+                    # Body =  50% of the most different pixels 
+                    # Eye = 10% of the most different pixels 
                     numBodyPixels = np.int(np.ceil(area/2))
-                    
-                    # Highlight 10% of the ??? pixels (eyes)     
                     numEyePixels = np.int(np.ceil(area/20))
                     
                     # Fish Pixel Values (difference from background)
                     fishValues = diff[pixelpoints[:,0], pixelpoints[:,1]]
-                    sortedFishValues = np.sort(fishValues)
-                    
+                    sortedFishValues = np.sort(fishValues)           
                     bodyThreshold = sortedFishValues[-numBodyPixels]                    
                     eyeThreshold = sortedFishValues[-numEyePixels]
 
@@ -356,7 +272,6 @@ def fish_tracking(input_folder, output_folder, ROIs):
                     bX = np.float(np.sum(c*values))/acc
                     bY = np.float(np.sum(r*values))/acc
                     
-                    # ---------------------------------------------------------------------------------
                     # Heading (0 deg to right, 90 deg up)
                     if (bY != eY) or (eX != bX):
                         heading = math.atan2((bY-eY), (eX-bX)) * (360.0/(2*np.pi))
@@ -364,8 +279,6 @@ def fish_tracking(input_folder, output_folder, ROIs):
                         heading = -181.00
             
             # ---------------------------------------------------------------------------------
-            # Store data in arrays
-            
             # Shift X,Y Values by ROI offset and store in Matrix
             fxS[f, i] = fX + xOff
             fyS[f, i] = fY + yOff
@@ -377,8 +290,8 @@ def fish_tracking(input_folder, output_folder, ROIs):
             ortS[f, i] = heading
             motS[f, i] = motion
             
-            # -----------------------------------------------------------------
-            # Update this ROIs background estimate (everywhere except the (dilated) Fish)
+            
+            # Update ROIs background estimate (everywhere except the (dilated) Fish)
             current_background = np.copy(background_ROIs[i])            
             kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(15,15))
             dilated_fish = cv2.dilate(mask, kernel, iterations = 2)           
@@ -424,16 +337,16 @@ def fish_tracking(input_folder, output_folder, ROIs):
 
         # Report Progress
         if (f%100) == 0:
-            bs = '\b' * 1000            # The backspace
+            bs = '\b' * 1000          
             print(bs)
             print (numFrames-f)
-    
-    # -------------------------------------------------------------------------
+
     # Close Video File
     vid.release()
-    
-    # Return tracking data
+
     return fxS, fyS, bxS, byS, exS, eyS, areaS, ortS, motS
+
+
 #------------------------------------------------------------------------------
 
 
@@ -455,8 +368,8 @@ def get_ROI_size(ROIs, numROi):
     return width, height
 
 # Return largest (area) contour from contour list
+# Find contour with maximum area and store it as best_cnt
 def get_largest_contour(contours):
-    # Find contour with maximum area and store it as best_cnt
     max_area = 0
     for cnt in contours:
         area = cv2.contourArea(cnt)

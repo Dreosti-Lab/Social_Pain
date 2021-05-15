@@ -24,23 +24,41 @@ import seaborn as sns
 
 # Import local modules
 
-import SP_utilities as SPU
+import SP_Utilities as SPU
 import SP_Analysis as SPA
 import BONSAI_ARK
 
 
-FolderlistFile = base_path + '/Folderlist_New.txt' 
+FolderlistFile = base_path + '/Folderlist_Control.txt' 
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
-# Analyze temporal bouts
-def analyze_temporal_bouts(bouts, binning):
+for idx,folder in enumerate(folderNames):
+    
+    # Get Folder Names
+    NS_folder, S_folder, Analysis = SPU.get_folder_names(folder) 
+    
+    for i in range(0,6):
+        fish_number = i + 1
+     
+        # Extract tracking data (NS)     
+        tracking_file_NS = NS_folder + r'/tracking' + str(fish_number) +'.npz'
+        fx,fy,bx,by,ex,ey,area,ort,motion = SPU.getTracking(tracking_file_NS)
+        # Extract tracking data (S)
+        tracking_file_S = S_folder + r'/tracking' + str(fish_number) +'.npz'
+        fx,fy,bx,by,ex,ey,area,ort,motion = SPU.getTracking(tracking_file_S)
 
+
+
+# Analyze temporal bouts
+def analyze_temporal_bouts(bx, binning):
+
+    
     # Determine total bout counts
-    num_bouts = bouts.shape[0]
+    num_bouts = bx.shape[0]
 
     # Determine largest frame number in all bouts recordings (make multiple of 100)
-    max_frame = np.int(np.max(bouts[:, 4]))
-    max_frame = max_frame + (binning - (max_frame % binning))
+    max_frame = np.int(np.max(fx))
+    max_frame = max_frame + (100*60 - (max_frame % 100*60))
     max_frame = 100 * 60 * 10 # 10 minutes
 
     # Temporal bouts
@@ -49,9 +67,9 @@ def analyze_temporal_bouts(bouts, binning):
 
     for i in range(0, num_bouts):
         # Extract bout params
-        start = np.int(bouts[i][0])
-        stop = np.int(bouts[i][4])
-        duration = np.int(bouts[i][8])
+        start = np.int(fx[i][0])
+        stop = np.int(fx[i][4])
+        duration = np.int(fx[i][8])
 
         # Ignore bouts beyond 15 minutes
         if stop >= max_frame:

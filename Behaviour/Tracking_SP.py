@@ -26,7 +26,7 @@ import BONSAI_ARK
 import SP_Utilities as SPU
 
 # Read Folder List
-FolderlistFile = base_path + r'\Experiment_20\Folderlist\Exp_20.txt'
+FolderlistFile = base_path + r'\Experiment_22\Folderlist\Exp_22.txt'
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 # Bulk analysis of all folders

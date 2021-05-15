@@ -36,7 +36,7 @@ import BONSAI_ARK
 
 
 # Specify Analysis folder
-AnalysisFolder = base_path + '/Analysis_L368,899'
+AnalysisFolder = base_path + '/Analysis_Isolated'
 
 # Find all the npz files saved for each group and fish with all the information
 npzFiles = glob.glob(AnalysisFolder+'/*.npz')
@@ -105,7 +105,7 @@ plt.ylim(0,60000)
 s1 = pd.Series(DistanceT_NS_ALL, name='NS')
 s2 = pd.Series(DistanceT_S_ALL, name='S')
 df = pd.concat([s1,s2], axis=1)
-sns.barplot(data=df, ci='sd',  palette=['Steelblue', 'plum'])
+sns.barplot(data=df, ci='sd',  palette=['steelblue'])
 sns.stripplot(data=df,orient="v", color= 'dimgrey',size=4, jitter=False, edgecolor="gray")
 sns.despine()  
 
@@ -119,7 +119,7 @@ plt.ylim(0,7)
 s1 = pd.Series(BPS_NS_ALL, name='NS')
 s2 = pd.Series(BPS_S_ALL, name='S')
 df = pd.concat([s1,s2], axis=1)
-sns.barplot(data=df, ci='sd',  palette=['Steelblue', 'plum'])
+sns.barplot(data=df, ci='sd',  palette=['steelblue'])
 sns.stripplot(data=df, orient="v", color= 'dimgrey',size=4, jitter=False, edgecolor="gray")
 sns.despine()
 plt.show()
@@ -133,7 +133,7 @@ plt.ylim(0,50)
 s1 = pd.Series(Long_Freezes_NS_ALL, name='NS')
 s2 = pd.Series(Long_Freezes_S_ALL, name='S')
 df = pd.concat([s1,s2], axis=1)
-sns.barplot(data=df, ci='sd',  palette=['Steelblue', 'plum'])
+sns.barplot(data=df, ci='sd',  palette=['steelblue'])
 sns.stripplot(data=df, orient="v", color= 'dimgrey',size=4, jitter=False, edgecolor="gray")
 sns.despine()
 plt.show()
@@ -147,7 +147,7 @@ plt.ylim(0,50)
 s1 = pd.Series(Short_Freezes_NS_ALL, name='NS')
 s2 = pd.Series(Short_Freezes_S_ALL, name='S')
 df = pd.concat([s1,s2], axis=1)
-sns.barplot(data=df, ci='sd',  palette=['Steelblue', 'plum'])
+sns.barplot(data=df, ci='sd',  palette=['steelblue'])
 sns.stripplot(data=df, orient="v", color= 'dimgrey',size=4, jitter=False, edgecolor="gray")
 sns.despine()
 plt.show()    

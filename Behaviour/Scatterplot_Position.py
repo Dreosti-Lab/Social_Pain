@@ -31,6 +31,7 @@ Folderlist_Heat = base_path + '/Folderlist_Heat.txt'
 Folderlist_Control = base_path + '/Folderlist_Control.txt' 
 Folderlist_Lidocaine= base_path + '/Folderlist_Lidocaine.txt' 
 Folderlist_Isolated = base_path + '/Folderlist_Isolated.txt'
+Folderlist_L368_899 = base_path + '/Folderlist_L368,899.txt'
 
 #Heat
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(Folderlist_Heat)
@@ -174,6 +175,40 @@ for idx,folder in enumerate(folderNames):
     # Report
     print("Next File: {0}".format(idx))
 
+#L368,899
+groups, ages, folderNames, fishStatus = SPU.read_folder_list(Folderlist_L368_899)
+# XMs
+XMs_L368_899 = []
+
+# Bulk analysis of all folders
+for idx,folder in enumerate(folderNames):
+    
+    # Get Folder Names
+    NS_folder, S_folder, Analysis = SPU.get_folder_names(folder)
+
+    # ---------------------
+    # Analyze Tracking for each fish 
+    for i in range(0,6):
+        fish_number = i + 1
+     
+        # Extract tracking data (NS)     
+        tracking_file = NS_folder + r'/tracking' + str(fish_number) +'.npz'
+        data = np.load(tracking_file)
+        tracking = data['tracking']
+        fx_NS = tracking[:,0] 
+   
+        # Extract tracking data (S)
+        tracking_file = S_folder + r'/tracking' + str(fish_number) +'.npz'
+        data = np.load(tracking_file)
+        tracking = data['tracking'] 
+        fx_S = tracking[:,0]
+       
+        # Store XMs
+        #XMs_Isolated.append([np.mean(fx_NS), np.mean(fx_S)])
+        XMs_L368_899.append([st.mode(fx_NS), st.mode(fx_S)]) #use if you want the mode 
+        L368_899 = np.array(XMs_L368_899)
+    # Report
+    print("Next File: {0}".format(idx))
 Position_Heat = pd.DataFrame(data = Heat, columns = ["Non_Social","Social"])
 Position_Heat['condition']='Heat'
 
@@ -186,13 +221,16 @@ Position_Lidocaine['condition']='Lidocaine'
 Position_Isolated = pd.DataFrame(data = Isolated, columns = ["Non_Social","Social"])
 Position_Isolated['condition']='Isolated'
 
-Position = Position_Heat.append([Position_Control, Position_Lidocaine, Position_Isolated ])
+Position_L368_899 = pd.DataFrame(data = L368_899, columns = ["Non_Social","Social"])
+Position_L368_899['condition']='L368_899'
+
+Position = Position_Heat.append([Position_Control, Position_Lidocaine, Position_Isolated, Position_L368_899 ])
 
 
 
 plt.figure(figsize=(10,10), dpi=300)
 plt.axis([250,900,250,900])
-ax=sns.scatterplot(data=Position, x='Non_Social', y='Social', hue='condition', palette=['steelblue', 'springgreen','coral', 'gold'])
+ax=sns.scatterplot(data=Position, x='Non_Social', y='Social', hue='condition', palette=['steelblue', 'springgreen','coral', 'gold', 'hotpink'])
 ax.set(xlabel='Non_Social XM(px)', ylabel='Social XM(px)')
 plt.title('Most Current Position Non_Social vs Social', size=16)
 #plt.title('Mean Position Non_Social vs Social', size=16)

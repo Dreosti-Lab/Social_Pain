@@ -14,7 +14,7 @@ import SP_Video as SPV
 import SP_Utilities as SPU
 
 # Read Folder List
-folderListFile = base_path + r'\Experiment_20\Folderlist\Exp_20.txt'
+folderListFile = base_path + r'\Experiment_22\Folderlist\Exp_22.txt'
 
 control = False
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(folderListFile)

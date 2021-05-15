@@ -8,13 +8,13 @@ Created on Thu Apr  8 13:36:53 2021
 
 # Set Library Path - Social_Pain Repos
 #lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
-lib_path = r'C:\Repos\Social_Pain\libs'
+lib_path = r'C:/Repos/Social_Pain/libs'
 import sys
 sys.path.append(lib_path)
 
 # Set Base Path
 #base_path = r'/Users/alizeekastler/Desktop'
-base_path = r'S:\WIBR_Dreosti_Lab\Alizee\Behaviour_Heat_Gradient'
+base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
 
 # Import useful libraries
 import glob
@@ -30,7 +30,7 @@ import SP_Utilities as SPU
 import BONSAI_ARK
 
 # Read folder list
-FolderlistFile = base_path + '/FolderList_L368,899.txt' 
+FolderlistFile = base_path + '/Folderlist_Isolated.txt' 
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 NS_Cool = []
@@ -70,11 +70,11 @@ for idx,folder in enumerate(folderNames):
     width=ROIs[:,2]
     height=ROIs[:,3]
                       
-    Threshold_Cool = np.mean(x+(width)/3)
-    Threshold_Noxious = np.mean(x+(width)*2/3)
+    #Threshold_Cool = np.mean(x+(width)/3)
+    #Threshold_Noxious = np.mean(x+(width)*2/3)
     
-    #Threshold_Cool = 400
-    #Threshold_Noxious = 750
+    Threshold_Cool = 400
+    Threshold_Noxious = 750
     
     # Analyze and plot each Fish
     for i in range(0,6):

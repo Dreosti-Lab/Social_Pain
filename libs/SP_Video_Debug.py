@@ -51,14 +51,14 @@ for idx,folder in enumerate(folderNames):
     
     # Allocate space for all ROI backgrounds
     background_ROIs = []
-    for i in range(0,6):
+    for i in range(0,1):
          w = np.int(ROIs[i, 2])
          h = np.int(ROIs[i, 3])
       
          background_ROIs.append(np.zeros((h, w), dtype = np.float32))
     
     # Find initial background for each ROI
-    for i in range(0,6):  
+    for i in range(0,1):  
 
 
         # Allocate space for background stack
@@ -89,7 +89,7 @@ for idx,folder in enumerate(folderNames):
         for f in range(stepFrames, numFrames, stepFrames):
 
             # Read frame
-            vid.set(cv2.CAP_PROP_POS_FRAMES, 100)
+            vid.set(cv2.CAP_PROP_POS_FRAMES, 52078)
             ret, im = vid.read()
             current = np.float32(cv2.cvtColor(im, cv2.COLOR_BGR2GRAY))
             yOff = np.int(ROIs[i, 1])
@@ -128,7 +128,7 @@ for idx,folder in enumerate(folderNames):
     # 7. - Compute Heading
         # Allocate ROI (crop region) space
     previous_ROIs = []
-    for i in range(0,6):
+    for i in range(0,1):
         w = np.int(ROIs[i, 2])
         h = np.int(ROIs[i, 3])
         previous_ROIs.append(np.zeros((h, w), dtype = np.uint8))
@@ -146,7 +146,7 @@ for idx,folder in enumerate(folderNames):
         
     
  
-    vid.set(cv2.CAP_PROP_POS_FRAMES, 100)
+    vid.set(cv2.CAP_PROP_POS_FRAMES, 52078)
     # Read next frame        
     ret, im = vid.read()
     # Convert to grayscale (uint8)
@@ -154,7 +154,7 @@ for idx,folder in enumerate(folderNames):
         
     plt.figure()
     # Process each ROI
-    for i in range(0,6):
+    for i in range(0,1):
         
         print('Processing ROI ' + str(i+1))            
         yOff = np.int(ROIs[i, 1])
@@ -244,8 +244,8 @@ for idx,folder in enumerate(folderNames):
                 pixelpoints = np.transpose(np.nonzero(mask))
                 # Get Area (again)
                 area = np.size(pixelpoints, 0)
-        plt.subplot(2,3,i+1)
-        plt.imshow(mask)
+        # plt.subplot(2,3,i+1)
+        # plt.imshow(mask)
                 # ---------------------------------------------------------------------------------
                 # Compute Frame-by-Frame Motion (absolute changes above threshold)
                 if (f != 0):
@@ -305,8 +305,9 @@ for idx,folder in enumerate(folderNames):
                 values = np.copy(all_values)                   
                 values[values < bodyThreshold] = 0 #black
                 values[values >= bodyThreshold] = 1 #white                                                         
-                values[values > eyeThreshold] = 0  #black                                                          
+                #values[values > eyeThreshold] = 1  #black                                                          
                 acc = np.sum(values)
+                
                 bX = np.float(np.sum(c*values))/acc
                 bY = np.float(np.sum(r*values))/acc
                 
@@ -343,37 +344,37 @@ for idx,folder in enumerate(folderNames):
             background_ROIs[i] = np.copy(updated_background)
             
         # ---------------------------------------------------------------------------------
-        # Plot All Fish in Movie with Tracking Overlay
-        if (f % 100 == 0):
-            plt.clf()
-            enhanced = cv2.multiply(current, 1)
-            color = cv2.cvtColor(enhanced, cv2.COLOR_GRAY2BGR)
-            plt.imshow(color)
-            plt.axis('image')
-            for i in range(0,6):
-                plt.scatter(fxS[f, i],fyS[f, i],s=10, c='b')
-                #plt.plot(exS[f, i],eyS[f, i],'r', markersize = 3)
-                plt.scatter(bxS[f, i],byS[f, i],s=5, c='r')
-               
-            plt.draw()
-            plt.pause(0.001)
+    # Plot All Fish in Movie with Tracking Overlay
+    if (f % 100 == 0):
+        plt.clf()
+        enhanced = cv2.multiply(current, 1)
+        color = cv2.cvtColor(enhanced, cv2.COLOR_GRAY2BGR)
+        plt.imshow(color)
+        plt.axis('image')
+        for fish_index in range(0,6):
+            plt.scatter(fxS[f, fish_index],fyS[f, fish_index],s=10, c='b')
+            #plt.plot(exS[f, i],eyS[f, i],'r', markersize = 3)
+            plt.scatter(bxS[f, i],byS[f, fish_index],s=5, c='r')
+           
+        plt.draw()
+        plt.pause(0.001)
             
         # ---------------------------------------------------------------------------------
         # Save Tracking Summary
         if(f == 0):
             plt.savefig(output_folder+'/initial_tracking.png', dpi=300)
             plt.figure('backgrounds')
-            for i in range(0,6):
+            for fish_index in range(0,6):
                 plt.subplot(2,3,i+1)
-                plt.imshow(background_ROIs[i])
+                plt.imshow(background_ROIs[fish_index])
             plt.savefig(output_folder+'/initial_backgrounds.png', dpi=300)
             plt.close('backgrounds')
         if(f == numFrames-1):
             plt.savefig(output_folder+'/final_tracking.png', dpi=300)
             plt.figure('backgrounds')
-            for i in range(0,6):
+            for fish_index in range(0,6):
                 plt.subplot(2,3,i+1)
-                plt.imshow(background_ROIs[i])
+                plt.imshow(background_ROIs[fish_index])
             plt.savefig(output_folder+'/final_backgrounds.png', dpi=300)
             plt.close('backgrounds')
 
