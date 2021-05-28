@@ -36,7 +36,7 @@ import BONSAI_ARK
 
 
 # Specify Analysis folder
-AnalysisFolder = base_path + '/Analysis_Isolated'
+AnalysisFolder = base_path + '/Analysis_L368,899_Control' 
 
 # Find all the npz files saved for each group and fish with all the information
 npzFiles = glob.glob(AnalysisFolder+'/*.npz')
@@ -98,14 +98,14 @@ for f, filename in enumerate(npzFiles):
 s_DistanceT,pvalue_DistanceT = stats.ttest_rel(DistanceT_NS_ALL, DistanceT_S_ALL) 
 # Plot Distance Traveled
 plt.figure(figsize=(4,8), dpi=300)
-plt.title('Distance Travelled\n p-value:'+ format(pvalue_DistanceT))
+plt.title('Distance Travelled n='+ format(numFiles) +'\n p-value:'+ format(pvalue_DistanceT))
 plt.ylabel('Total Distance Travelled (mm)')
 plt.ylim(0,60000)
 #plt.ylim([0,50000])
-s1 = pd.Series(DistanceT_NS_ALL, name='NS')
-s2 = pd.Series(DistanceT_S_ALL, name='S')
+s1 = pd.Series(DistanceT_NS_ALL, name='Non Social')
+s2 = pd.Series(DistanceT_S_ALL, name='Social')
 df = pd.concat([s1,s2], axis=1)
-sns.barplot(data=df, ci='sd',  palette=['steelblue'])
+sns.barplot(data=df, ci='sd',  palette=['lightsteelblue', 'steelblue'])
 sns.stripplot(data=df,orient="v", color= 'dimgrey',size=4, jitter=False, edgecolor="gray")
 sns.despine()  
 
@@ -113,13 +113,13 @@ sns.despine()
 s_BPS,pvalue_BPS = stats.ttest_rel(BPS_NS_ALL, BPS_S_ALL)    
 #Plot BPS
 plt.figure(figsize=(4,8), dpi=300)
-plt.title('Bouts Per Second\n p-value: '+ format(pvalue_BPS))
+plt.title('Bouts Per Second n=' + format(numFiles) + '\n p-value: '+ format(pvalue_BPS))
 plt.ylabel('Number of Bouts Per Second (s)')
 plt.ylim(0,7)
-s1 = pd.Series(BPS_NS_ALL, name='NS')
-s2 = pd.Series(BPS_S_ALL, name='S')
+s1 = pd.Series(BPS_NS_ALL, name='Non Social')
+s2 = pd.Series(BPS_S_ALL, name='Social')
 df = pd.concat([s1,s2], axis=1)
-sns.barplot(data=df, ci='sd',  palette=['steelblue'])
+sns.barplot(data=df, ci='sd',  palette=['lightsteelblue','steelblue'])
 sns.stripplot(data=df, orient="v", color= 'dimgrey',size=4, jitter=False, edgecolor="gray")
 sns.despine()
 plt.show()
@@ -127,30 +127,31 @@ plt.show()
 s_Freezes,pvalue_Freezes = stats.ttest_rel(Long_Freezes_NS_ALL, Long_Freezes_S_ALL) 
 # Plot Freezes
 plt.figure(figsize=(4,8), dpi=300)
-plt.title('Long Freezes\n p-value: ' + format(pvalue_Freezes))
+plt.title('10s Freezes n=' + format(numFiles)+'\n p-value: ' + format(pvalue_Freezes))
 plt.ylabel('Total Number of Freezes (>10s)')
 plt.ylim(0,50)
-s1 = pd.Series(Long_Freezes_NS_ALL, name='NS')
-s2 = pd.Series(Long_Freezes_S_ALL, name='S')
+s1 = pd.Series(Long_Freezes_NS_ALL, name='Non Social')
+s2 = pd.Series(Long_Freezes_S_ALL, name='Social')
 df = pd.concat([s1,s2], axis=1)
-sns.barplot(data=df, ci='sd',  palette=['steelblue'])
+sns.barplot(data=df, ci='sd',  palette=['lightsteelblue','steelblue'])
 sns.stripplot(data=df, orient="v", color= 'dimgrey',size=4, jitter=False, edgecolor="gray")
 sns.despine()
 plt.show()
 
-s_Frezes,pvalue_Freezes = stats.ttest_rel(Short_Freezes_NS_ALL, Short_Freezes_S_ALL) 
+s_Freezes,pvalue_Freezes = stats.ttest_rel(Short_Freezes_NS_ALL, Short_Freezes_S_ALL) 
 # Plot Freezes
 plt.figure(figsize=(4,8), dpi=300)
-plt.title('Short Freezes\n p-value: ' + format(pvalue_Freezes))
+plt.title('3s Freezes n='+ format(numFiles)+'\n p-value: ' + format(pvalue_Freezes))
 plt.ylabel('Total Number of Freezes (>3s)')
 plt.ylim(0,50)
-s1 = pd.Series(Short_Freezes_NS_ALL, name='NS')
-s2 = pd.Series(Short_Freezes_S_ALL, name='S')
+s1 = pd.Series(Short_Freezes_NS_ALL, name='Non Social')
+s2 = pd.Series(Short_Freezes_S_ALL, name='Social')
 df = pd.concat([s1,s2], axis=1)
-sns.barplot(data=df, ci='sd',  palette=['steelblue'])
+sns.barplot(data=df, ci='sd',  palette=['lightsteelblue','steelblue'])
 sns.stripplot(data=df, orient="v", color= 'dimgrey',size=4, jitter=False, edgecolor="gray")
 sns.despine()
 plt.show()    
+
 
 
 #FIN

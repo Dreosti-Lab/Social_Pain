@@ -33,7 +33,7 @@ import pylab as pl
 import SP_Utilities as SPU
 
 # Read folder list file
-FolderlistFile = base_path + '/Folderlist_New.txt' 
+FolderlistFile = base_path + '/Folderlist_WAY267464_Control.txt' 
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 # XMs

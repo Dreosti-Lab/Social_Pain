@@ -139,7 +139,7 @@ def fish_tracking(input_folder, output_folder, ROIs):
             crop_height, crop_width = np.shape(crop)
 
             # Fish = difference from current background (fish is brighter than background)
-            diff = crop - background_ROIs[i]
+            diff = crop - background_ROIs[i] 
 
             # Sensitivity: How different does it need to be for it to be picked up as a fish (lower threshold if you want to track fish that are not moving much)
             threshold_level = np.median(background_ROIs[i])/4        

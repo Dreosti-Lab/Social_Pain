@@ -16,6 +16,7 @@ sys.path.append(lib_path)
 #base_path = r'/Users/alizeekastler/Desktop'
 base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
 
+
 # Import useful libraries
 import glob
 import numpy as np
@@ -30,7 +31,7 @@ import SP_Utilities as SPU
 import BONSAI_ARK
 
 # Read folder list
-FolderlistFile = base_path + '/Folderlist_Isolated.txt' 
+FolderlistFile = base_path + r'/Experiment_1/Folderlist_Ablated.txt'
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 NS_Cool = []
@@ -70,21 +71,18 @@ for idx,folder in enumerate(folderNames):
     width=ROIs[:,2]
     height=ROIs[:,3]
                       
-    #Threshold_Cool = np.mean(x+(width)/3)
-    #Threshold_Noxious = np.mean(x+(width)*2/3)
+    Threshold_Cool = np.mean(x+(width)/4)
+    Threshold_Noxious = np.mean(x+(width)*3/4)
     
-    Threshold_Cool = 400
-    Threshold_Noxious = 750
     
     # Analyze and plot each Fish
     for i in range(0,6):
 
         if fishStat[i] == 1:
             # Extract tracking data (NS)      
-            tracking_file = NS_folder + r'/tracking' + str(i+1) +'.npz'
-            data = np.load(tracking_file)
-            tracking = data['tracking']
-            fx_NS = tracking[:,0] 
+            tracking_file_NS = NS_folder + r'/tracking' + str(i+1) +'.npz'
+            fx_NS,fy_NS,bx_NS, by_NS, ex_NS, ey_NS, area_NS, ort_NS, motion_NS = SPU.getTracking(tracking_file_NS)
+           
             numFrames = len (fx_NS)
             
             fx_NS[fx_NS < Threshold_Cool] = 1
@@ -112,11 +110,10 @@ for idx,folder in enumerate(folderNames):
             
             
             #Extract tracking data (S)
-            tracking_file = S_folder + r'/tracking' + str(i+1) +'.npz'
-            data = np.load(tracking_file)
-            tracking = data['tracking']
-            fx_S = tracking[:,0][0:60000]
-            numFrames_S = len(fx_S[0:60000])
+            tracking_file_S = S_folder + r'/tracking' + str(i+1) +'.npz'
+            fx_S,fy_S,bx_S, by_S, ex_S, ey_S, area_S, ort_S, motion_S = SPU.getTracking(tracking_file_S)
+            #fx_S = tracking[:,0][0:60000]
+            numFrames_S = len(fx_S)
             
             fx_S[fx_S < Threshold_Cool] = 1
             fx_S[(fx_S >= Threshold_Cool) & (fx_S <= Threshold_Noxious)] = 2
@@ -151,10 +148,10 @@ NS_areadist = pd.concat([NS1,NS2,NS3], axis=1)
 
 plt.figure(figsize=(4,8), dpi=300)
 plt.ylim(0,1)
-sns.barplot(data=NS_areadist, ci ='sd', palette= ['midnightblue','purple','darkorange'], dodge= False)
-#sns.barplot(data=NS_areadist, ci ='sd', palette= ['midnightblue'], dodge= False)
+#sns.barplot(data=NS_areadist, ci ='sd', palette= ['midnightblue','purple','darkorange'], dodge= False)
+sns.barplot(data=NS_areadist, ci ='sd', palette= ['midnightblue'], dodge= False)
 ax=sns.stripplot(data=NS_areadist,orient="v", color= 'dimgrey',size=4, jitter=False, edgecolor="gray") 
-plt.title('Time Spent in each ROI Non Social')
+plt.title('Time Spent in each ROI Non Social (n=11)')
 ax.set(ylabel= 'Proportion of Frames')
 sns.despine() 
 plt.show()
@@ -192,10 +189,10 @@ S_areadist = pd.concat([S1,S2,S3], axis=1)
 
 plt.figure(figsize=(4,8), dpi=300)
 plt.ylim(0,1)
-sns.barplot(data=S_areadist, ci ='sd', palette= ['midnightblue','purple','darkorange'], dodge= False)
-#sns.barplot(data=S_areadist, ci ='sd', palette= ['midnightblue'], dodge= False)
-ax=sns.stripplot(data=NS_areadist,orient="v", color= 'dimgrey',size=4, jitter=False, edgecolor="gray") 
-plt.title('Time Spent in each ROI Social')
+#sns.barplot(data=S_areadist, ci ='sd', palette= ['midnightblue','purple','darkorange'], dodge= False)
+sns.barplot(data=S_areadist, ci ='sd', palette= ['midnightblue'], dodge= False)
+ax=sns.stripplot(data=S_areadist,orient="v", color= 'dimgrey',size=4, jitter=False, edgecolor="gray") 
+plt.title('Time Spent in each ROI Social n=(11)')
 ax.set(ylabel= 'Proportion of Frames')
 sns.despine() 
 plt.show()

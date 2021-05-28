@@ -8,7 +8,8 @@ import sys
 sys.path.append(lib_path)
 
 # Set Base Path
-base_path = r'S:\WIBR_Dreosti_Lab\Alizee\Behaviour_Heat_Gradient'
+#base_path = r'S:\WIBR_Dreosti_Lab\Alizee\Behaviour_Heat_Gradient'
+base_path = r'S:/WIBR_Dreosti_Lab/Tom/Behaviour_Lesion_Social'
 
 # Import useful libraries
 import os
@@ -26,7 +27,7 @@ import BONSAI_ARK
 import SP_Utilities as SPU
 
 # Read Folder List
-FolderlistFile = base_path + r'\Experiment_22\Folderlist\Exp_22.txt'
+FolderlistFile = base_path + r'/Experiment_1/Folderlist_Sham.txt'
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 # Bulk analysis of all folders

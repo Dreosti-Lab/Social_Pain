@@ -8,13 +8,13 @@ Bouts
 """                        
 # Set Library Path - Social_Pain Repos
 #lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
-lib_path = r'C:\Repos\Social_Pain\libs'
+lib_path = r'C:/Repos/Social_Pain/libs'
 import sys
 sys.path.append(lib_path)
 
 # Set Base Path
 #base_path = r'/Users/alizeekastler/Desktop'
-base_path = r'S:\WIBR_Dreosti_Lab\Alizee\Behaviour_Heat_Gradient'
+base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
 
 # Import useful libraries
 import glob
@@ -39,9 +39,9 @@ short_freeze_threshold = 300
 motionStartThreshold = 0.02
 motionStopThreshold = 0.002 
 
-analysisFolder = base_path + '/Analysis_Exp_22' 
+analysisFolder = base_path + '/Analysis_Habituation' 
 # Read folder list
-FolderlistFile = base_path + '/Exp_22.txt' 
+FolderlistFile = base_path + '/Folderlist_Habituation.txt' 
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 
@@ -93,13 +93,43 @@ for idx,folder in enumerate(folderNames):
 
             # Analyze "Bouts" amd "Pauses" (NS)
             Bouts_NS, Pauses_NS = SPA.analyze_bouts_and_pauses(fx_NS, fy_NS,ort_NS, motion_NS, motionStartThreshold, motionStopThreshold)
-            Percent_Moving_NS = 100 * np.sum(Bouts_NS[i,8])/len(motion_NS)
-            Percent_Paused_NS = 100 * np.sum(Pauses_NS[i,8])/len(motion_NS)
+        
+                
+            Short_Freezes_X = Pauses_NS[:,1]
+            Short_Freezes_Y = Pauses_NS[:,2]
+            Short_Freezes_X = Short_Freezes_X[Pauses_NS[:,8]> short_freeze_threshold]
+            Short_Freezes_Y = Short_Freezes_Y[Pauses_NS[:,8]> short_freeze_threshold]
+            
+            Short_Freezes_Time = Pauses_NS[:,0]
+            Short_Freezes_Time = Short_Freezes_Time[Pauses_NS[:,8]> short_freeze_threshold]
+            
+            # length_fr = Pauses_NS[:,0][-1]
+            movieLength=15 # mins
+            FPS=100
+            length_fr=movieLength*60*FPS
+            
+            binsize=1 # bin size in minutes for freezing time plot
+            binsizeFrames=1*60*FPS
+            np.reshape(AllVisibleFrames[:length_fr].T, (binsizeFrames, -1), order='F'), 0
+            xx=linspace(0,)
+            Pauses_NS[:,8]
+            np.sum(Pauses_NS[:,8])
+            plt.figure()
+            
+            
+            plt.figure()
+            plt.scatter(Short_Freezes_X,Short_Freezes_Y)
+            
+            
+            Percent_Moving_NS = 100 * np.sum(Bouts_NS[:,8])/len(motion_NS)
+            Percent_Paused_NS = 100 * np.sum(Pauses_NS[:,8])/len(motion_NS)
             # Count Freezes(NS)
             Long_Freezes_NS = np.array(np.sum(Pauses_NS[:,8]> long_freeze_threshold))
             Short_Freezes_NS = np.array(np.sum(Pauses_NS[:,8]> short_freeze_threshold))
           
-            
+            plt.figure()
+            plt.plot(Pauses_NS, 'steelblue')
+         
             
             if plot: 
                 

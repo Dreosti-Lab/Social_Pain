@@ -9,7 +9,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import scipy.signal as signal
-
+import glob
+import cv2
+import imageio
 #-----------------------------------------------------------------------------
 # Utilities for loading and ploting "social pain" data
 def getTracking(path):
@@ -62,5 +64,15 @@ def get_folder_names(folder):
     
     return NS_folder, S_folder, Analysis
 
+def load_video (folder):
+    
+    aviFiles = glob.glob(folder+'/*.avi')#finds any avi file in the folder
+    aviFile = aviFiles[0]
+    vid = cv2.VideoCapture(aviFile)
+    numFrames = int(vid.get(cv2.CAP_PROP_FRAME_COUNT))-100 # Skip, possibly corrupt, last 100 frames (1 second)
+    width = int(vid.get(cv2.CAP_PROP_FRAME_WIDTH))
+    height = int(vid.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    
+    return vid, numFrames, width, height
 
 # FIN

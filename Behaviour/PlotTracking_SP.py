@@ -15,122 +15,134 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy import stats
 import seaborn as sns
+import glob
 
 # Import local modules
 import SP_Utilities as SPU
+import BONSAI_ARK
 
 # Read folder list file
-FolderlistFile = base_path + '/Folderlist_Isolated.txt' 
+FolderlistFile = base_path + '/Folderlist_Habituation.txt' 
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 # XMs
 XMs = []
+XM_NS = []
+XM_S = []
 
 # Bulk analysis of all folders
 for idx,folder in enumerate(folderNames):
     
     # Get Folder Names
     NS_folder, S_folder, Analysis = SPU.get_folder_names(folder)
+    
+    #Load Crop regions (NS and S are the same)
+    bonsaiFiles = glob.glob(NS_folder + '/*.bonsai')
+    bonsaiFiles = bonsaiFiles[0]
+    ROIs = BONSAI_ARK.read_bonsai_crop_rois(bonsaiFiles)
+    ROIs[:,:]
 
     # ---------------------
-    # Analyse Tracking for each fish 
+    # Get Tracking for each fish 
     for i in range(0,6):
         fish_number = i + 1
      
         # Extract tracking data (NS)     
-        tracking_file = NS_folder + r'/tracking' + str(fish_number) +'.npz'
-        data = np.load(tracking_file)
-        tracking = data['tracking']
-        fx_NS = tracking[:,0] 
-        fy_NS = tracking[:,1]
-        bx_NS = tracking[:,2]
-        by_NS = tracking[:,3]
-        ex_NS = tracking[:,4]
-        ey_NS = tracking[:,5]
-        area_NS = tracking[:,6]
-        ort_NS = tracking[:,7]
-        motion_NS = tracking[:,8]
-   
-        # Extract tracking data (S)
-        tracking_file = S_folder + r'/tracking' + str(fish_number) +'.npz'
-        data = np.load(tracking_file)
-        tracking = data['tracking'] 
-        fx_S = tracking[:,0] 
-        fy_S = tracking[:,1]
-        bx_S = tracking[:,2]
-        by_S = tracking[:,3]
-        ex_S = tracking[:,4]
-        ey_S = tracking[:,5]
-        area_S = tracking[:,6]
-        ort_S = tracking[:,7]
-        motion_S = tracking[:,8] 
-
-        # Filter out bad data
-        min_x = 250
-        max_x = 900
-# #=============================================================================
-#         if fish_number == 1:
-#             min_y = 150
-#             max_y = 250
-#         if fish_number == 2:
-#             min_y = 270
-#             max_y = 370
-#         if fish_number == 3:
-#             min_y = 390
-#             max_y = 490
-#         if fish_number == 4:
-#             min_y = 510
-#             max_y = 610
-#         if fish_number == 5:
-#             min_y = 630
-#             max_y = 730
-#         if fish_number == 6:
-#             min_y = 750
-#             max_y = 850    
-# =============================================================================
- 
-        # # Find good tracking (NS)
-        # num_total_frames_NS = len(fx_NS)
-        # good_frame_NS = (fx_NS > min_x) * (fx_NS < max_x) * (fy_NS > min_y) * (fy_NS < max_y)
-        # num_good_frames_NS = np.sum(good_frame_NS)
-        # lost_frame_NS = num_total_frames_NS-num_good_frames_NS
-        
-        # # Find good tracking (S)         
-        # num_total_frames_S = len(fx_S)
-        # good_frame_S = (fx_S > min_x) * (fx_S < max_x) * (fy_S > min_y) * (fy_S < max_y)
-        # num_good_frames_S = np.sum(good_frame_S)
-        # lost_frame_S = num_total_frames_S-num_good_frames_S         
-
-        # # All lost frames
-        # lost_frame = lost_frame_S + lost_frame_NS
-        
-        plt. figure ()
-        plt.plot(fx_NS, fy_NS, 'b.', alpha = 0.15)
-        plt.plot(fx_S, fy_S, 'm.', alpha = 0.15)  
-        plt.title("Fish #{0}".format(fish_number))
-    
-        for i in range(0,6):
-            plt.savefig(Analysis + '/tracking_summary'+ str(fish_number) + '.png', dpi=300)
+        tracking_file_NS = NS_folder + r'/tracking' + str(fish_number) +'.npz'
+        fx_NS,fy_NS,bx_NS, by_NS, ex_NS, ey_NS, area_NS, ort_NS, motion_NS = SPU.getTracking(tracking_file_NS)
        
+        # Extract tracking data (S)
+        tracking_file_S = S_folder + r'/tracking' + str(fish_number) +'.npz'
+        fx_S,fy_S,bx_S, by_S, ex_S, ey_S, area_S, ort_S, motion_S = SPU.getTracking(tracking_file_S)
+        
+        #Filter out bad data 
+        min_x = 285
+        max_x = 860
+        
+        #=============================================================================
+        if fish_number == 1:
+            min_y = 268
+            max_y = 340
+        if fish_number == 2:
+            min_y = 384
+            max_y = 457
+        if fish_number == 3:
+            min_y = 498
+            max_y = 575
+        if fish_number == 4:
+            min_y = 614
+            max_y = 694
+        if fish_number == 5:
+            min_y = 733
+            max_y = 812
+        if fish_number == 6:
+            min_y = 849
+            max_y = 925    
+#=============================================================================
+ 
+        # Find good tracking (NS)
+        numFrames_NS = len(fx_NS)
+        good_frame_NS = (fx_NS > min_x) * (fx_NS < max_x) * (fy_NS > min_y) * (fy_NS < max_y)
+        num_good_frames_NS = np.sum(good_frame_NS)
+        bad_frame_NS = numFrames_NS-num_good_frames_NS
+        XM_NS.append(np.mean(fx_NS[good_frame_NS]))
+        NS_values = np.array(XM_NS)
+        
+        # Find good tracking (S)         
+        numFrames_S = len(fx_S)
+        good_frame_S = (fx_S > min_x) * (fx_S < max_x) * (fy_S > min_y) * (fy_S < max_y)
+        num_good_frames_S = np.sum(good_frame_S)
+        bad_frame_S = numFrames_S-num_good_frames_S         
+        XM_S.append(np.mean(fx_S[good_frame_S]))
+        S_values = np.array(XM_S)
+        
+        # All lost frames
+        lost_frames = bad_frame_S + bad_frame_NS
+        
         # Store XMs
         XMs.append([np.mean(fx_NS[good_frame_NS]), np.mean(fx_S[good_frame_S])])
+        
+        plt.figure()
+        plt.xlim([250,900])
+        plt.plot(fx_NS[good_frame_NS], fy_NS[good_frame_NS], 'steelblue', alpha = 0.5)
+        plt.plot(fx_S[good_frame_S], fy_S[good_frame_S], 'steelblue')  
+        plt.title("Fish #{0}".format(fish_number))
+        
+        for i in range(0,6):
+           plt.savefig(Analysis + '/tracking_summary'+ str(fish_number) + '.png', dpi=600)
+        
 
-    # Report
-    print("Next File: {0}".format(idx))
-    
-XM_values = np.array(XMs)
+NS_values = np.array(XM_NS)
+S_values = np.array(XM_S)
 
-plt.figure(figsize=(10,10))
-plt.axis([250,900,250,900])
-sns.scatterplot(x=XM_values[:,0], y=XM_values[:,1])
-plt.xlabel('Non_Social')
-plt.ylabel('Social')
-plt.title('Mean Position Non_Social vs Social', size=16)
+
+# Plot histogram
+plt.figure(figsize = (6,4))
+sns.histplot(NS_values, bins=20, color ='white')
+     
+plt.title('Mean Position Non Social n='+ format(len(NS_values)))
+plt.ylabel('Fish Count')
+plt.xlim([280,860])
+plt.ylim([0,6])
+plt.xticks([])
+sns.despine()
 plt.show()
-    
+
+
+# Plot histogram
+plt.figure(figsize = (6,4))
+sns.histplot(S_values, bins=20, color ='white')
+
+plt.title('Mean Position Social n='+ format(len(S_values)))
+plt.ylabel('Fish Count')
+plt.xlim([280,860])
+plt.xticks([])
+sns.despine()
+plt.show()
+
 
 # Crude calibration: 300 = 28 deg, 800 = 36 deg (900/8) pixels per degree
-XM_values = np.array(XMs)/62.5
+XM_values = np.array(XMs)/36.25
 TTSs = XM_values[:,1] - XM_values[:,0]
 
 # Stats: paired Ttest mean position of each fish in NS vs S
@@ -154,8 +166,38 @@ sns.despine()
 plt.show()
 
 plt.savefig(base_path + '/Figures/TTS_Histplot.png')
-#plt.savefig(base_path + '/Figures/TTS_Histplot.eps')
 
+
+# Make a Plot using Color Gradient Function 
+#cm = plt.cm.get_cmap('plasma') #Choose color map 
+
+# # Plot histogram
+# plt.figure()
+# np, bins, patches = plt.hist(TTSs, 15)
+# bin_centers = 0.5 * (bins[:-1] + bins[1:])
+
+# # scale values to interval [0,1]
+# col = bin_centers - min(bin_centers)
+# col /= max(col)
+
+# for c, p in zip(col, patches):
+#     plt.setp(p, 'facecolor', cm(c))
+
+# plt.vlines(0, 0, 12.5, 'k',)
+# plt.xlabel('Tolerated Temperature Shift (°C)')
+# plt.ylabel('Fish Count')
+# plt.title('Tolerated Temperature Shift (TTS) During Social Cue Viewing\nMean TTS +/- SEM: {0:0.2f} +/- {1:0.2f}\n(p-value: {2:0.4f})'.format(mean_TTS, sem_TTS, pvalue_rel))
+# plt.ylim([0, 12.5])
+# plt.xlim([-2,6])
+# plt.text(4.5, 7, 'n={0}'.format(len(TTSs)))
+# sns.despine()
+# plt.tight_layout() 
+
+# plt.savefig(base_path + '/Figures/TTS_Histplot.png')
+# plt.savefig(base_path + '/Figures/TTS_Histplot.eps')
+
+
+    
 
 
 #FIN
