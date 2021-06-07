@@ -22,7 +22,7 @@ import SP_Utilities as SPU
 import BONSAI_ARK
 
 # Read folder list file
-FolderlistFile = base_path + '/Folderlist_Habituation.txt' 
+FolderlistFile = base_path + '/Folderlist_Heat.txt' 
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 # XMs

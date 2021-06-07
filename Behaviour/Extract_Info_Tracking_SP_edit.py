@@ -39,9 +39,9 @@ short_freeze_threshold = 300
 motionStartThreshold = 0.02
 motionStopThreshold = 0.002 
 
-analysisFolder = base_path + '/Analysis_L368,899' 
+analysisFolder = base_path + '/Analysis_Lidocaine' 
 # Read folder list
-FolderlistFile = base_path + '/Folderlist_L368,899.txt' 
+FolderlistFile = base_path + '/Folderlist_Lidocaine.txt' 
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 
