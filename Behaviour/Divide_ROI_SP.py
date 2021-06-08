@@ -31,7 +31,7 @@ import SP_Utilities as SPU
 import BONSAI_ARK
 
 # Read folder list
-FolderlistFile = base_path + r'/Experiment_30/Folderlist/Exp_30.txt'
+FolderlistFile = base_path + r'/Folderlist_Heat_New.txt'
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 NS_Cool = []
@@ -146,13 +146,19 @@ NS2 = pd.Series(NS_Hot, name='Hot')
 NS3 = pd.Series(NS_Noxious, name='Noxious')
 NS_areadist = pd.concat([NS1,NS2,NS3], axis=1)
 
+# NS1 = pd.Series(NS_Cool, name='1')
+# NS2 = pd.Series(NS_Hot, name='2')
+# NS3 = pd.Series(NS_Noxious, name='3')
+# NS_areadist = pd.concat([NS1,NS2,NS3], axis=1)
+
 plt.figure(figsize=(4,8), dpi=300)
 plt.ylim(0,1)
+sns.set(style="white", font_scale=1.5)
 sns.barplot(data=NS_areadist, ci ='sd', palette= ['midnightblue','purple','darkorange'], dodge= False)
 #sns.barplot(data=NS_areadist, ci ='sd', palette= ['midnightblue'], dodge= False)
-ax=sns.stripplot(data=NS_areadist,orient="v", color= 'dimgrey',size=4, jitter=False, edgecolor="gray") 
-plt.title('Time Spent in each ROI Non Social (n=12)')
-ax.set(ylabel= 'Proportion of Frames')
+ax=sns.stripplot(data=NS_areadist,orient="v", color= 'dimgrey',size=6, jitter=False, edgecolor="gray") 
+plt.title('Time Spent in each ROI Non Social (n=24)', pad=20)
+ax.set_ylabel('Proportion of Frames')
 sns.despine() 
 plt.show()
 
@@ -187,13 +193,18 @@ S2 = pd.Series(S_Hot, name='Hot')
 S3 = pd.Series(S_Noxious, name='Noxious')
 S_areadist = pd.concat([S1,S2,S3], axis=1)
 
+# S1 = pd.Series(S_Cool, name='1')
+# S2 = pd.Series(S_Hot, name='2')
+# S3 = pd.Series(S_Noxious, name='3')
+# S_areadist = pd.concat([S1,S2,S3], axis=1)
+
 plt.figure(figsize=(4,8), dpi=300)
 plt.ylim(0,1)
 sns.barplot(data=S_areadist, ci ='sd', palette= ['midnightblue','purple','darkorange'], dodge= False)
 #sns.barplot(data=S_areadist, ci ='sd', palette= ['midnightblue'], dodge= False)
-ax=sns.stripplot(data=S_areadist,orient="v", color= 'dimgrey',size=4, jitter=False, edgecolor="gray") 
-plt.title('Time Spent in each ROI Social n=(12)')
-ax.set(ylabel= 'Proportion of Frames')
+ax=sns.stripplot(data=S_areadist,orient="v", color= 'dimgrey',size=6, jitter=False, edgecolor="gray") 
+plt.title('Time Spent in each ROI Social n=(24)', pad=20)
+ax.set_ylabel('Proportion of Frames')
 sns.despine() 
 plt.show()
 

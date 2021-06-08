@@ -22,7 +22,7 @@ import SP_Utilities as SPU
 import BONSAI_ARK
 
 # Read folder list file
-FolderlistFile = base_path + '/Folderlist_Heat.txt' 
+FolderlistFile = base_path + '/Folderlist_Heat_New.txt' 
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 # XMs
@@ -104,7 +104,7 @@ for idx,folder in enumerate(folderNames):
         
         plt.figure()
         plt.xlim([250,900])
-        plt.plot(fx_NS[good_frame_NS], fy_NS[good_frame_NS], 'steelblue', alpha = 0.5)
+        #plt.plot(fx_NS[good_frame_NS], fy_NS[good_frame_NS], 'steelblue', alpha = 0.5)
         plt.plot(fx_S[good_frame_S], fy_S[good_frame_S], 'steelblue')  
         plt.title("Fish #{0}".format(fish_number))
         

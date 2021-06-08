@@ -315,7 +315,7 @@ def fish_tracking(input_folder, output_folder, ROIs):
                     numBodyPixels = np.int(np.ceil(area/2))
                     
                     # Highlight 10% of the ??? pixels (eyes)     
-                    numEyePixels = np.int(np.ceil(area/20))
+                    numEyePixels = np.int(np.ceil(area/10))
                     
                     # Fish Pixel Values (difference from background)
                     fishValues = diff[pixelpoints[:,0], pixelpoints[:,1]]

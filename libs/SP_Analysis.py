@@ -124,16 +124,18 @@ def analyze_bouts_and_pauses(fx, fy, ort, motion, startThreshold, stopThreshold)
     pauses[0, 7] = ort[boutStarts[0]]
     pauses[0, 8] = boutStarts[0]
     # Other pauses
+    pauseStarts = boutStops[i-1]
+    pauseStops = boutStarts[i]
     for i in range(1, numBouts):
-        pauses[i, 0] = boutStops[i-1]
-        pauses[i, 1] = fx[boutStops[i-1]]
-        pauses[i, 2] = fy[boutStops[i-1]]
-        pauses[i, 3] = ort[boutStops[i-1]]
-        pauses[i, 4] = boutStarts[i]
-        pauses[i, 5] = fx[boutStarts[i]]
-        pauses[i, 6] = fy[boutStarts[i]]
-        pauses[i, 7] = ort[boutStarts[i]]
-        pauses[i, 8] = boutStarts[i] - boutStops[i-1]
+        pauses[i, 0] = pauseStarts
+        pauses[i, 1] = fx[pauseStarts]
+        pauses[i, 2] = fy[pauseStarts]
+        pauses[i, 3] = ort[np.mean[pauseStarts:pauseStops]]
+        pauses[i, 4] = pauseStops
+        pauses[i, 5] = fx[pauseStops]
+        pauses[i, 6] = fy[pauseStops]
+        pauses[i, 7] = ort[pauseStops]
+        pauses[i, 8] = pauseStops - pauseStarts
     # Last Pause
     pauses[-1, 0] = boutStops[-1]
     pauses[-1, 1] = fx[boutStops[-1]]
