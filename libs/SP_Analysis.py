@@ -130,7 +130,7 @@ def analyze_bouts_and_pauses(fx, fy, ort, motion, startThreshold, stopThreshold)
         pauses[i, 0] = pauseStarts
         pauses[i, 1] = fx[pauseStarts]
         pauses[i, 2] = fy[pauseStarts]
-        pauses[i, 3] = ort[np.mean[pauseStarts:pauseStops]]
+        pauses[i, 3] = np.median(ort[pauseStarts:pauseStops])
         pauses[i, 4] = pauseStops
         pauses[i, 5] = fx[pauseStops]
         pauses[i, 6] = fy[pauseStops]
