@@ -53,10 +53,11 @@ def analyze_bouts_and_pauses(fx, fy, ort, motion, startThreshold, stopThreshold)
     numPauses = numBouts+1
     pauses = np.zeros((numPauses, 9))
 
-    pauseStarts = boutStops[i-1]
-    pauseStops = boutStarts[i]
     
     for i in range(0, numBouts):
+        pauseStarts = boutStops[i-1]
+        pauseStops = boutStarts[i]
+        
         pauses[i, 0] = pauseStarts
         pauses[i, 1] = fx[pauseStarts]
         pauses[i, 2] = fy[pauseStarts]

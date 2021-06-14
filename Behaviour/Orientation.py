@@ -37,9 +37,9 @@ short_freeze_threshold = 300
 motionStartThreshold = 0.02
 motionStopThreshold = 0.002 
 
-analysisFolder = base_path + '/Analysis_Control_New' 
+analysisFolder = base_path + '/Analysis_Heat_New' 
 # Read folder list
-FolderlistFile = base_path + '/Folderlist_Control_New.txt' 
+FolderlistFile = base_path + '/Folderlist_Heat_New.txt' 
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 
@@ -47,16 +47,6 @@ groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 for idx,folder in enumerate(folderNames):
     NS_folder, S_folder, Analysis = SPU.get_folder_names(folder)
 
-    #Load Crop regions NS
-    bonsaiFiles = glob.glob(NS_folder + '/*.bonsai')
-    bonsaiFiles = bonsaiFiles[0]
-    NS_ROIs = BONSAI_ARK.read_bonsai_crop_rois(bonsaiFiles)
-        
-    #Load Crop regions S
-    bonsaiFiles = glob.glob(S_folder + '/*.bonsai')
-    bonsaiFiles = bonsaiFiles[0]
-    S_ROIs = BONSAI_ARK.read_bonsai_crop_rois(bonsaiFiles)
-       
     # Determine Fish Status       
     fishStat = fishStatus[idx, :]
     
@@ -78,18 +68,18 @@ for idx,folder in enumerate(folderNames):
              
             #Orientation 
             Median_ort_NS = Pauses_NS[:,3]
-            #Median_ort_NS = Median_ort_NS[Pauses_NS[:,8]> short_freeze_threshold]
+            Median_ort_NS = Median_ort_NS[Pauses_NS[:,8]> short_freeze_threshold]
             Stop_ort_NS = Pauses_NS[:,7]
-            #Stop_ort_NS = Stop_ort_NS[Pauses_NS[:,8]> short_freeze_threshold]
+            Stop_ort_NS = Stop_ort_NS[Pauses_NS[:,8]> short_freeze_threshold]
             
             # Analyze "Bouts" amd "Pauses" (NS)
             Bouts_S, Pauses_S = SPO.analyze_bouts_and_pauses(fx_S, fy_S,ort_S, motion_S, motionStartThreshold, motionStopThreshold)
             
             #Orientation 
             Median_ort_S = Pauses_S[:,3]
-            #Median_ort_S = Median_ort_S[Pauses_S[:,8]> short_freeze_threshold]
+            Median_ort_S = Median_ort_S[Pauses_S[:,8]> short_freeze_threshold]
             Stop_ort_S = Pauses_S[:,7]
-            #Stop_ort_S = Stop_ort_S[Pauses_S[:,8]> short_freeze_threshold]
+            Stop_ort_S = Stop_ort_S[Pauses_S[:,8]> short_freeze_threshold]
 
 
             plt.scatter(Median_ort_NS, Stop_ort_NS, c ='lightsteelblue')
