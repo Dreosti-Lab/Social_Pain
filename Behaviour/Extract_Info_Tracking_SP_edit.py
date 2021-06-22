@@ -39,9 +39,9 @@ short_freeze_threshold = 300
 motionStartThreshold = 0.02
 motionStopThreshold = 0.002 
 
-analysisFolder = base_path + '/Analysis_L368,899_Control' 
+analysisFolder = base_path + '/Analysis_Control_New' 
 # Read folder list
-FolderlistFile = base_path + '/Folderlist_L368,899_Control.txt' 
+FolderlistFile = base_path + '/Folderlist_Control_New.txt' 
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 
@@ -58,7 +58,16 @@ for idx,folder in enumerate(folderNames):
     bonsaiFiles = glob.glob(S_folder + '/*.bonsai')
     bonsaiFiles = bonsaiFiles[0]
     S_ROIs = BONSAI_ARK.read_bonsai_crop_rois(bonsaiFiles)
-       
+    
+    x=NS_ROIs[:,0]
+    y=NS_ROIs[:,1]
+    width=NS_ROIs[:,2]
+    height=NS_ROIs[:,3]
+    
+    Threshold_Cool = np.mean(x+(width)/4)
+    Threshold_Noxious = np.mean(x+(width)*3/4)
+    
+    
     # Determine Fish Status       
     fishStat = fishStatus[idx, :]
     
@@ -176,6 +185,19 @@ for idx,folder in enumerate(folderNames):
                     Binned_3SFreezes_S.append(np.sum(boo[Short_Freezes_Time_S>(x-binsizeFrames)]))                
             Time_3SFreezes_S.append(Binned_3SFreezes_S)
             
+            #Plot Orientation
+    
+            OrtHist_NS_Cool = SPA.ort_histogram(ort_NS[fx_NS < Threshold_Cool])
+            OrtHist_NS_Hot = SPA.ort_histogram(ort_NS[(fx_NS >= Threshold_Cool) & (fx_NS <= Threshold_Noxious)])
+            OrtHist_NS_Noxious = SPA.ort_histogram(ort_NS[fx_NS > Threshold_Noxious])
+            OrtHist_S_Cool = SPA.ort_histogram(ort_S[fx_S < Threshold_Cool])
+            OrtHist_S_Hot = SPA.ort_histogram(ort_S[(fx_S >= Threshold_Cool) & (fx_S <= Threshold_Noxious)])
+            OrtHist_S_Noxious = SPA.ort_histogram(ort_S[fx_S > Threshold_Noxious])
+            
+            
+            
+            
+            
             if plot: 
                 
                 plt.subplot(2,2,1)
@@ -217,7 +239,9 @@ for idx,folder in enumerate(folderNames):
                       Long_Freezes_NS = Long_Freezes_NS,Short_Freezes_NS = Short_Freezes_NS,Long_Freezes_S = Long_Freezes_S,Short_Freezes_S=Short_Freezes_S,
                       Short_Freezes_X_NS = Short_Freezes_X_NS,Short_Freezes_Y_NS = Short_Freezes_Y_NS,Short_Freezes_X_S = Short_Freezes_X_S,Short_Freezes_Y_S =  Short_Freezes_Y_S,
                       Binned_3SFreezes_NS = Binned_3SFreezes_NS,Binned_3SFreezes_S = Binned_3SFreezes_S,
-                      DistanceT_NS=DistanceT_NS, DistanceT_S=DistanceT_S)
+                      DistanceT_NS = DistanceT_NS, DistanceT_S = DistanceT_S,
+                      OrtHist_NS_Cool = OrtHist_NS_Cool,OrtHist_NS_Noxious = OrtHist_NS_Noxious, OrtHist_S_Cool = OrtHist_S_Cool, OrtHist_S_Noxious = OrtHist_S_Noxious,
+                      OrtHist_NS_Hot = OrtHist_NS_Hot, OrtHist_S_Hot = OrtHist_S_Hot)
     
     # Report Progress
     print (idx)

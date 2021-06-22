@@ -36,7 +36,7 @@ import BONSAI_ARK
 
 
 # Specify Analysis folder
-AnalysisFolder = base_path + '/Analysis_Heat_New' 
+AnalysisFolder = base_path + '/Analysis_Control_New' 
 
 # Find all the npz files saved for each group and fish with all the information
 npzFiles = glob.glob(AnalysisFolder+'/*.npz')
@@ -57,7 +57,12 @@ Bouts_NS_ALL = np.zeros((0,9))
 Bouts_S_ALL = np.zeros((0,9))
 Pauses_NS_ALL = np.zeros((0,9))   
 Pauses_S_ALL = np.zeros((0,9))
-
+OrtHist_NS_Cool_ALL = np.zeros((numFiles,36))
+OrtHist_NS_Hot_ALL = np.zeros((numFiles,36))
+OrtHist_NS_Noxious_ALL = np.zeros((numFiles,36))
+OrtHist_S_Cool_ALL = np.zeros((numFiles,36))
+OrtHist_S_Hot_ALL = np.zeros((numFiles,36))
+OrtHist_S_Noxious_ALL = np.zeros((numFiles,36))
 # Go through all the files contained in the analysis folder
 for f, filename in enumerate(npzFiles):
 
@@ -77,6 +82,12 @@ for f, filename in enumerate(npzFiles):
     Short_Freezes_S = dataobject['Short_Freezes_S']
     DistanceT_NS = dataobject['DistanceT_NS']
     DistanceT_S = dataobject['DistanceT_S']
+    OrtHist_NS_Cool = dataobject['OrtHist_NS_Cool']
+    OrtHist_NS_Hot = dataobject['OrtHist_NS_Hot']
+    OrtHist_NS_Noxious = dataobject['OrtHist_NS_Noxious']
+    OrtHist_S_Cool = dataobject['OrtHist_S_Cool']
+    OrtHist_S_Hot = dataobject['OrtHist_S_Hot']
+    OrtHist_S_Noxious = dataobject['OrtHist_S_Noxious']
     
     # Make an array with all summary stats
     BPS_NS_ALL[f] = BPS_NS
@@ -87,7 +98,12 @@ for f, filename in enumerate(npzFiles):
     Short_Freezes_S_ALL[f] = Short_Freezes_S
     DistanceT_NS_ALL[f] = DistanceT_NS
     DistanceT_S_ALL[f] = DistanceT_S
-
+    OrtHist_NS_Cool_ALL[f,:] = OrtHist_NS_Cool
+    OrtHist_NS_Hot_ALL[f,:] = OrtHist_NS_Hot
+    OrtHist_NS_Noxious_ALL[f,:] = OrtHist_NS_Noxious
+    OrtHist_S_Cool_ALL[f,:] = OrtHist_S_Cool
+    OrtHist_S_Hot_ALL[f,:] = OrtHist_S_Hot
+    OrtHist_S_Noxious_ALL[f,:] = OrtHist_S_Noxious
     # Concat all Pauses/Bouts
     Bouts_NS_ALL = np.vstack([Bouts_NS_ALL, Bouts_NS])
     Bouts_S_ALL = np.vstack([Bouts_S_ALL, Bouts_S])
@@ -152,7 +168,51 @@ sns.stripplot(data=df, orient="v", color= 'dimgrey',size=6, jitter=False, edgeco
 sns.despine()
 plt.show()    
 
+# ORT_HIST Summary Plot
 
+# Accumulate all histogram values and normalize
+Accum_OrtHist_NS_Cool_ALL = np.sum(OrtHist_NS_Cool_ALL, axis=0)
+Accum_OrtHist_NS_Hot_ALL = np.sum(OrtHist_NS_Hot_ALL, axis=0)
+Accum_OrtHist_NS_Noxious_ALL = np.sum(OrtHist_NS_Noxious_ALL, axis=0)
+Accum_OrtHist_S_Cool_ALL = np.sum(OrtHist_S_Cool_ALL, axis=0)
+Accum_OrtHist_S_Hot_ALL = np.sum(OrtHist_S_Hot_ALL, axis=0)
+Accum_OrtHist_S_Noxious_ALL = np.sum(OrtHist_S_Noxious_ALL, axis=0)
+
+Norm_OrtHist_NS_Cool_ALL = Accum_OrtHist_NS_Cool_ALL/np.sum(Accum_OrtHist_NS_Cool_ALL)
+Norm_OrtHist_NS_Hot_ALL = Accum_OrtHist_NS_Hot_ALL/np.sum(Accum_OrtHist_NS_Hot_ALL)
+Norm_OrtHist_NS_Noxious_ALL = Accum_OrtHist_NS_Noxious_ALL/np.sum(Accum_OrtHist_NS_Noxious_ALL)
+Norm_OrtHist_S_Cool_ALL = Accum_OrtHist_S_Cool_ALL/np.sum(Accum_OrtHist_S_Cool_ALL)
+Norm_OrtHist_S_Hot_ALL = Accum_OrtHist_S_Hot_ALL/np.sum(Accum_OrtHist_S_Hot_ALL)
+Norm_OrtHist_S_Noxious_ALL = Accum_OrtHist_S_Noxious_ALL/np.sum(Accum_OrtHist_S_Noxious_ALL)
+
+# Plot Summary
+xAxis = np.arange(-np.pi,np.pi+np.pi/18.0, np.pi/18.0)
+plt.figure('Summary: Orientation Histograms')
+plt.figure()
+
+ax = plt.subplot(221, polar=True)
+plt.title('NS - 1')
+plt.plot(xAxis, np.hstack((Norm_OrtHist_NS_Cool_ALL, Norm_OrtHist_NS_Cool_ALL[0])), color= 'lightsteelblue',  linewidth = 4)
+
+ax = plt.subplot(222, polar=True)
+plt.title('NS - 2')
+plt.plot(xAxis, np.hstack((Norm_OrtHist_NS_Hot_ALL, Norm_OrtHist_NS_Hot_ALL[0])),color='lightsteelblue', linewidth = 4)
+
+ax = plt.subplot(223, polar=True)
+plt.title('NS - 3')
+plt.plot(xAxis, np.hstack((Norm_OrtHist_NS_Noxious_ALL, Norm_OrtHist_NS_Noxious_ALL[0])),color='lightsteelblue', linewidth = 4)
+
+ax = plt.subplot(224, polar=True)
+plt.title('S - Cool')
+plt.plot(xAxis, np.hstack((Norm_OrtHist_S_Cool_ALL, Norm_OrtHist_S_Cool_ALL[0])), color = 'steelblue', linewidth = 4)
+
+ax = plt.subplot(225, polar=True)
+plt.title('S - Hot')
+plt.plot(xAxis, np.hstack((Norm_OrtHist_S_Hot_ALL, Norm_OrtHist_S_Hot_ALL[0])), color= 'steelblue', linewidth = 4)
+
+ax = plt.subplot(226, polar=True)
+plt.title('S - Noxious')
+plt.plot(xAxis, np.hstack((Norm_OrtHist_S_Noxious_ALL, Norm_OrtHist_S_Noxious_ALL[0])), color= 'steelblue', linewidth = 4)
 
 #FIN
 

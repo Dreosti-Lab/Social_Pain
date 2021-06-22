@@ -147,7 +147,16 @@ def analyze_bouts_and_pauses(fx, fy, ort, motion, startThreshold, stopThreshold)
 
     return bouts, pauses
 
+# Build a histogram of all orientation values
+def ort_histogram(ort):
 
+    # ORIENTATION ---------------------------
+    numOrts = 36
+    interval = 360/numOrts
+    ortRange = np.arange(-180,180+interval, interval)    
+    ortHistogram, bins = np.histogram(ort, ortRange)
+
+    return ortHistogram
 
 # FIN
     

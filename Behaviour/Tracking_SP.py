@@ -22,12 +22,12 @@ import scipy.misc as misc
 from scipy import stats
 
 # Import local modules
-import SP_Video as SPV
+import SP_video_ARK as SPV
 import BONSAI_ARK
 import SP_Utilities as SPU
 
 # Read Folder List
-FolderlistFile = base_path + r'/Experiment_32/Folderlist/Exp_32.txt'
+FolderlistFile = base_path + r'\Folderlist_L368,899.txt'
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 # Bulk analysis of all folders
