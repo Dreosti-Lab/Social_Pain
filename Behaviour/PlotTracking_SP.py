@@ -22,7 +22,7 @@ import SP_Utilities as SPU
 import BONSAI_ARK
 
 # Read folder list file
-FolderlistFile = base_path + '/Experiment_32/Folderlist/Exp_32.txt' 
+FolderlistFile = base_path + '/Folderlist_Control_New.txt' 
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 # XMs
@@ -56,28 +56,28 @@ for idx,folder in enumerate(folderNames):
         fx_S,fy_S,bx_S, by_S, ex_S, ey_S, area_S, ort_S, motion_S = SPU.getTracking(tracking_file_S)
         
         #Filter out bad data 
-        min_x = 170
-        max_x = 625
+        min_x = 200
+        max_x = 900
         
         #=============================================================================
         if fish_number == 1:
-            min_y = 149
-            max_y = 226
+            min_y = 150
+            max_y = 240
         if fish_number == 2:
-            min_y = 268
-            max_y = 351
+            min_y = 280
+            max_y = 390
         if fish_number == 3:
-            min_y = 399
-            max_y = 481
+            min_y = 430
+            max_y = 520
         if fish_number == 4:
-            min_y = 518
-            max_y = 612
+            min_y = 560
+            max_y = 650
         if fish_number == 5:
-            min_y = 653
-            max_y = 738
+            min_y = 690
+            max_y = 780
         if fish_number == 6:
-            min_y = 779
-            max_y = 863    
+            min_y = 820
+            max_y = 910    
 #=============================================================================
  
         # Find good tracking (NS)
@@ -103,9 +103,9 @@ for idx,folder in enumerate(folderNames):
         XMs.append([np.mean(fx_NS[good_frame_NS]), np.mean(fx_S[good_frame_S])])
         
         plt.figure()
-        plt.xlim([170,625])
-        plt.plot(fx_NS[good_frame_NS], fy_NS[good_frame_NS], 'steelblue', alpha = 0.5)
-        plt.plot(fx_S[good_frame_S], fy_S[good_frame_S], 'steelblue')  
+        plt.xlim([200,900])
+        plt.plot(fx_NS[good_frame_NS], fy_NS[good_frame_NS], 'lightsteelblue', alpha = 0.5)
+        #plt.plot(fx_S[good_frame_S], fy_S[good_frame_S], 'steelblue')  
         plt.title("Fish #{0}".format(fish_number))
         
         for i in range(0,6):

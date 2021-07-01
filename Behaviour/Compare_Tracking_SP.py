@@ -36,7 +36,7 @@ import BONSAI_ARK
 
 
 # Specify Analysis folder
-AnalysisFolder = base_path + '/Analysis_Control_New' 
+AnalysisFolder = base_path + '/Analysis_Naloxone_150_Control' 
 
 # Find all the npz files saved for each group and fish with all the information
 npzFiles = glob.glob(AnalysisFolder+'/*.npz')
@@ -51,6 +51,10 @@ Long_Freezes_NS_ALL = np.zeros(numFiles)
 Short_Freezes_NS_ALL = np.zeros(numFiles)
 Long_Freezes_S_ALL = np.zeros(numFiles)
 Short_Freezes_S_ALL = np.zeros(numFiles)
+Short_Freezes_X_NS_ALL = np.zeros(numFiles)
+Short_Freezes_Y_NS_ALL = np.zeros(numFiles)
+Short_Freezes_X_S_ALL = np.zeros(numFiles)
+Short_Freezes_Y_S_ALL = np.zeros(numFiles)
 DistanceT_NS_ALL = np.zeros(numFiles)
 DistanceT_S_ALL = np.zeros(numFiles)
 Bouts_NS_ALL = np.zeros((0,9))
@@ -80,6 +84,10 @@ for f, filename in enumerate(npzFiles):
     Short_Freezes_NS = dataobject['Short_Freezes_NS']
     Long_Freezes_S = dataobject['Long_Freezes_S']
     Short_Freezes_S = dataobject['Short_Freezes_S']
+    Short_Freezes_X_NS = dataobject['Short_Freezes_X_NS']
+    Short_Freezes_X_S = dataobject['Short_Freezes_X_S']
+    Short_Freezes_Y_S = dataobject['Short_Freezes_Y_S']
+    Short_Freezes_Y_NS = dataobject['Short_Freezes_Y_NS']
     DistanceT_NS = dataobject['DistanceT_NS']
     DistanceT_S = dataobject['DistanceT_S']
     OrtHist_NS_Cool = dataobject['OrtHist_NS_Cool']
@@ -96,6 +104,10 @@ for f, filename in enumerate(npzFiles):
     Short_Freezes_NS_ALL[f] = Short_Freezes_NS
     Long_Freezes_S_ALL[f] = Long_Freezes_S
     Short_Freezes_S_ALL[f] = Short_Freezes_S
+    Short_Freezes_X_NS_ALL[f] = Short_Freezes_X_NS
+    Short_Freezes_X_S_ALL[f] = Short_Freezes_X_S
+    Short_Freezes_Y_NS_ALL[f] = Short_Freezes_Y_NS
+    Short_Freezes_Y_S_ALL[f] = Short_Freezes_Y_S
     DistanceT_NS_ALL[f] = DistanceT_NS
     DistanceT_S_ALL[f] = DistanceT_S
     OrtHist_NS_Cool_ALL[f,:] = OrtHist_NS_Cool
@@ -113,60 +125,68 @@ for f, filename in enumerate(npzFiles):
      
 s_DistanceT,pvalue_DistanceT = stats.ttest_rel(DistanceT_NS_ALL, DistanceT_S_ALL) 
 # Plot Distance Traveled
-plt.figure(figsize=(4,8), dpi=300)
-plt.title('Distance Travelled n='+ format(numFiles) +'\n p-value:'+ format(pvalue_DistanceT),pad=20)
+plt.figure(figsize=(3,8), dpi=300)
+plt.title('Distance Travelled n='+ format(numFiles) +'\n p-value:'+ format(pvalue_DistanceT),pad=10, fontsize= 20, y=-0.2)
 plt.ylabel('Total Distance Travelled (mm)')
-plt.ylim(0,60000)
+plt.ylim(0,12000)
 #plt.ylim([0,50000])
 s1 = pd.Series(DistanceT_NS_ALL, name='Non Social')
 s2 = pd.Series(DistanceT_S_ALL, name='Social')
 df = pd.concat([s1,s2], axis=1)
 sns.barplot(data=df, ci='sd',  palette=['lightsteelblue', 'steelblue'])
-sns.stripplot(data=df,orient="v", color= 'dimgrey',size=4, jitter=False, edgecolor="gray")
+sns.stripplot(data=df,orient="v", color= 'dimgrey',size=6, jitter=True, edgecolor="gray")
 sns.despine()  
 
 
 s_BPS,pvalue_BPS = stats.ttest_rel(BPS_NS_ALL, BPS_S_ALL)    
 #Plot BPS
-plt.figure(figsize=(4,8), dpi=300)
-plt.title('Bouts Per Second n=' + format(numFiles) + '\n p-value: '+ format(pvalue_BPS), pad=20)
+plt.figure(figsize=(3,8), dpi=300)
+plt.title('Bouts Per Second n=' + format(numFiles) + '\n p-value: '+ format(pvalue_BPS), pad=10, fontsize= 20, y=-0.2)
 plt.ylabel('Number of Bouts Per Second (s)')
 plt.ylim(0,7)
 s1 = pd.Series(BPS_NS_ALL, name='Non Social')
 s2 = pd.Series(BPS_S_ALL, name='Social')
 df = pd.concat([s1,s2], axis=1)
 sns.barplot(data=df, ci='sd',  palette=['lightsteelblue','steelblue'])
-sns.stripplot(data=df, orient="v", color= 'dimgrey',size=4, jitter=False, edgecolor="gray")
+sns.stripplot(data=df, orient="v", color= 'dimgrey',size=6, jitter=True, edgecolor="gray")
 sns.despine()
 plt.show()
 
 s_Freezes,pvalue_Freezes = stats.ttest_rel(Long_Freezes_NS_ALL, Long_Freezes_S_ALL) 
 # Plot Freezes
-plt.figure(figsize=(4,8), dpi=300)
-plt.title('10s Freezes n=' + format(numFiles)+'\n p-value: ' + format(pvalue_Freezes), pad=20)
+plt.figure(figsize=(3,8), dpi=300)
+plt.title('10s Freezes n=' + format(numFiles)+'\n p-value: ' + format(pvalue_Freezes),pad=10, fontsize= 20, y=-0.2)
 plt.ylabel('Total Number of Freezes (>10s)')
 plt.ylim(0,50)
 s1 = pd.Series(Long_Freezes_NS_ALL, name='Non Social')
 s2 = pd.Series(Long_Freezes_S_ALL, name='Social')
 df = pd.concat([s1,s2], axis=1)
 sns.barplot(data=df, ci='sd',  palette=['lightsteelblue','steelblue'])
-sns.stripplot(data=df, orient="v", color= 'dimgrey',size=4, jitter=False, edgecolor="gray")
+sns.stripplot(data=df, orient="v", color= 'dimgrey',size=6, jitter=True, edgecolor="gray")
 sns.despine()
-plt.show()
+
 
 s_Freezes,pvalue_Freezes = stats.ttest_rel(Short_Freezes_NS_ALL, Short_Freezes_S_ALL) 
 # Plot Freezes
-plt.figure(figsize=(4,8), dpi=300)
-plt.title('3s Freezes n='+ format(numFiles)+'\n p-value: ' + format(pvalue_Freezes), pad=60)
+plt.figure(figsize=(3,8), dpi=300)
+plt.title('3s Freezes n='+ format(numFiles)+'\n p-value: ' + format(pvalue_Freezes), pad=10, fontsize= 20, y=-0.2)
 plt.ylabel('Total Number of Freezes (>3s)')
 plt.ylim(0,50)
 s1 = pd.Series(Short_Freezes_NS_ALL, name='Non Social')
 s2 = pd.Series(Short_Freezes_S_ALL, name='Social')
 df = pd.concat([s1,s2], axis=1)
 sns.barplot(data=df, ci='sd',  palette=['lightsteelblue','steelblue'])
-sns.stripplot(data=df, orient="v", color= 'dimgrey',size=6, jitter=False, edgecolor="gray")
+sns.stripplot(data=df, orient="v", color= 'dimgrey',size=6, jitter=True, edgecolor="gray")
 sns.despine()
-plt.show()    
+ 
+
+# plt.figure()
+# df = pd.DataFrame({'XPosition Freezes NS': Short_Freezes_X_NS_ALL,
+#                     'XPosition Freezes S':Short_Freezes_X_S_ALL })
+# df.plot.scatter(rot=0, color={"XPosition Freezes NS": "lightsteelblue", "XPosition Freezes S": "steelblue"}, figsize= (10,6), width=0.8)
+
+
+#FIN 
 
 # ORT_HIST Summary Plot
 
@@ -190,31 +210,27 @@ xAxis = np.arange(-np.pi,np.pi+np.pi/18.0, np.pi/18.0)
 plt.figure('Summary: Orientation Histograms')
 plt.figure()
 
-ax = plt.subplot(221, polar=True)
-plt.title('NS - 1')
-plt.plot(xAxis, np.hstack((Norm_OrtHist_NS_Cool_ALL, Norm_OrtHist_NS_Cool_ALL[0])), color= 'lightsteelblue',  linewidth = 4)
+ax = plt.subplot(131, polar=True)
+plt.title('Cool', fontweight="bold",fontsize= 25, y=-0.2)
+plt.plot(xAxis, np.hstack((Norm_OrtHist_NS_Cool_ALL, Norm_OrtHist_NS_Cool_ALL[0])), color= 'lightsteelblue',  linewidth = 3)
+plt.plot(xAxis, np.hstack((Norm_OrtHist_S_Cool_ALL, Norm_OrtHist_S_Cool_ALL[0])), color = 'steelblue', linewidth = 3)
 
-ax = plt.subplot(222, polar=True)
-plt.title('NS - 2')
-plt.plot(xAxis, np.hstack((Norm_OrtHist_NS_Hot_ALL, Norm_OrtHist_NS_Hot_ALL[0])),color='lightsteelblue', linewidth = 4)
+plt.legend(labels=('Non Social', 'Social'), loc='upper right', bbox_to_anchor=(0.2, 1.2))
 
-ax = plt.subplot(223, polar=True)
-plt.title('NS - 3')
-plt.plot(xAxis, np.hstack((Norm_OrtHist_NS_Noxious_ALL, Norm_OrtHist_NS_Noxious_ALL[0])),color='lightsteelblue', linewidth = 4)
+ax = plt.subplot(132, polar=True)
+plt.title('Hot', fontweight="bold", fontsize= 25, y=-0.2)
+plt.plot(xAxis, np.hstack((Norm_OrtHist_NS_Hot_ALL, Norm_OrtHist_NS_Hot_ALL[0])),color='lightsteelblue', linewidth = 3)
+plt.plot(xAxis, np.hstack((Norm_OrtHist_S_Hot_ALL, Norm_OrtHist_S_Hot_ALL[0])), color= 'steelblue', linewidth = 3)
 
-ax = plt.subplot(224, polar=True)
-plt.title('S - Cool')
-plt.plot(xAxis, np.hstack((Norm_OrtHist_S_Cool_ALL, Norm_OrtHist_S_Cool_ALL[0])), color = 'steelblue', linewidth = 4)
+ax = plt.subplot(133, polar=True)
+plt.title('Noxious', fontweight="bold",fontsize= 25, y=-0.2)
+plt.plot(xAxis, np.hstack((Norm_OrtHist_NS_Noxious_ALL, Norm_OrtHist_NS_Noxious_ALL[0])),color='lightsteelblue', linewidth = 3)
+plt.plot(xAxis, np.hstack((Norm_OrtHist_S_Noxious_ALL, Norm_OrtHist_S_Noxious_ALL[0])), color= 'steelblue', linewidth = 3)
 
-ax = plt.subplot(225, polar=True)
-plt.title('S - Hot')
-plt.plot(xAxis, np.hstack((Norm_OrtHist_S_Hot_ALL, Norm_OrtHist_S_Hot_ALL[0])), color= 'steelblue', linewidth = 4)
 
-ax = plt.subplot(226, polar=True)
-plt.title('S - Noxious')
-plt.plot(xAxis, np.hstack((Norm_OrtHist_S_Noxious_ALL, Norm_OrtHist_S_Noxious_ALL[0])), color= 'steelblue', linewidth = 4)
 
-#FIN
+
+
 
 
 

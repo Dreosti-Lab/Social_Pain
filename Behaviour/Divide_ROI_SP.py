@@ -69,10 +69,10 @@ for idx,folder in enumerate(folderNames):
     y=ROIs[:,1]
     width=ROIs[:,2]
     height=ROIs[:,3]
-                      
-    Threshold_Cool = np.mean(x+(width)/4)
-    Threshold_Noxious = np.mean(x+(width)*3/4)
     
+    Threshold_Cool = np.mean(x+(width)/4)
+    Threshold_Noxious = np.mean(x+(width)*3/4)                  
+   
     
     # Analyze and plot each Fish
     for i in range(0,6):
@@ -82,8 +82,20 @@ for idx,folder in enumerate(folderNames):
             tracking_file_NS = NS_folder + r'/tracking' + str(i+1) +'.npz'
             fx_NS,fy_NS,bx_NS, by_NS, ex_NS, ey_NS, area_NS, ort_NS, motion_NS = SPU.getTracking(tracking_file_NS)
            
-            numFrames = len (fx_NS)
             
+            #Only look at last 10min of Movie
+            fx_NS = fx_NS[30000:90000]
+            fy_NS = fy_NS[30000:90000]
+            bx_NS = bx_NS[30000:90000]
+            by_NS = by_NS[30000:90000]
+            ex_NS = ex_NS[30000:90000]
+            ey_NS = ey_NS[30000:90000]
+            area_NS = area_NS[30000:90000]
+            ort_NS = ort_NS[30000:90000]
+            motion_NS = motion_NS[30000:90000]
+           
+            numFrames = len (fx_NS)
+          
             fx_NS[fx_NS < Threshold_Cool] = 1
             fx_NS[(fx_NS >= Threshold_Cool) & (fx_NS <= Threshold_Noxious)] = 2
             fx_NS[fx_NS > Threshold_Noxious] = 4
@@ -112,6 +124,17 @@ for idx,folder in enumerate(folderNames):
             tracking_file_S = S_folder + r'/tracking' + str(i+1) +'.npz'
             fx_S,fy_S,bx_S, by_S, ex_S, ey_S, area_S, ort_S, motion_S = SPU.getTracking(tracking_file_S)
             #fx_S = tracking[:,0][0:60000]
+            
+            fx_S = fx_S[30000:90000]
+            fy_S = fy_S[30000:90000]
+            bx_S = bx_S[30000:90000]
+            by_S = by_S[30000:90000]
+            ex_S = ex_S[30000:90000]
+            ey_S = ey_S[30000:90000]
+            area_S = area_S[30000:90000]
+            ort_S = ort_S[30000:90000]
+            motion_S = motion_S[30000:90000]
+            
             numFrames_S = len(fx_S)
             
             fx_S[fx_S < Threshold_Cool] = 1
@@ -139,7 +162,7 @@ for idx,folder in enumerate(folderNames):
             S_THot_Noxious.append(np.count_nonzero(SDiff[SDiff==-2])) # Hot - Noxious
             S_TNoxious_Hot.append(np.count_nonzero(SDiff[SDiff==2])) # Noxious - Hot
             
-#Plot_NS
+# #Plot_NS
 NS1 = pd.Series(NS_Cool, name='Cool')
 NS2 = pd.Series(NS_Hot, name='Hot')
 NS3 = pd.Series(NS_Noxious, name='Noxious')
@@ -151,12 +174,12 @@ NS_areadist = pd.concat([NS1,NS2,NS3], axis=1)
 # NS_areadist = pd.concat([NS1,NS2,NS3], axis=1)
 
 plt.figure(figsize=(4,8), dpi=300)
-plt.ylim(0,1)
+plt.ylim(0,1.2)
 sns.set(style="white", font_scale=1.5)
 sns.barplot(data=NS_areadist, ci ='sd', palette= ['midnightblue','purple','darkorange'], dodge= False)
 #sns.barplot(data=NS_areadist, ci ='sd', palette= ['midnightblue'], dodge= False)
-ax=sns.stripplot(data=NS_areadist,orient="v", color= 'dimgrey',size=6, jitter=False, edgecolor="gray") 
-plt.title('Time Spent in each ROI Non Social (n=30)', pad=20)
+ax=sns.stripplot(data=NS_areadist,orient="v", color= 'dimgrey',size=6, jitter=True, edgecolor="gray") 
+plt.title('Non Social n=28', pad=10, fontsize=24, y=-0.15)
 ax.set_ylabel('Proportion of Frames')
 sns.despine() 
 plt.show()
@@ -177,7 +200,7 @@ NS_T = pd.concat([NST1,NST2,NST3,NST4], axis=1)
 plt.figure(figsize=(6,8), dpi=300)
 #sns.barplot(data=NS_T, ci ='sd', palette= ['midnightblue','purple', 'purple','darkorange'], dodge= False)
 sns.barplot(data=NS_T, ci ='sd', palette= ['midnightblue'], dodge= False)
-ax=sns.stripplot(data=NS_T,orient="v", color= 'dimgrey',size=4, jitter=False, edgecolor="gray") 
+ax=sns.stripplot(data=NS_T,orient="v", color= 'dimgrey',size=4, jitter=True, edgecolor="gray") 
 ax.set_ylim([0, 250])
 plt.title('Transitions Non Social')
 ax.set(ylabel= 'Number of T')
@@ -198,11 +221,11 @@ S_areadist = pd.concat([S1,S2,S3], axis=1)
 # S_areadist = pd.concat([S1,S2,S3], axis=1)
 
 plt.figure(figsize=(4,8), dpi=300)
-plt.ylim(0,1)
+plt.ylim(0,1.2)
 sns.barplot(data=S_areadist, ci ='sd', palette= ['midnightblue','purple','darkorange'], dodge= False)
 #sns.barplot(data=S_areadist, ci ='sd', palette= ['midnightblue'], dodge= False)
-ax=sns.stripplot(data=S_areadist,orient="v", color= 'dimgrey',size=6, jitter=False, edgecolor="gray") 
-plt.title('Time Spent in each ROI Social n=(30)', pad=20)
+ax=sns.stripplot(data=S_areadist,orient="v", color= 'dimgrey',size=6, jitter=True, edgecolor="gray") 
+plt.title('Social n=28', pad=10, fontsize=24, y=-0.15)
 ax.set_ylabel('Proportion of Frames')
 sns.despine() 
 plt.show()
@@ -221,8 +244,8 @@ S_T = pd.concat([ST1,ST2,ST3,ST4], axis=1)
 # S_T = pd.concat([ST1,ST2,ST3,ST4], axis=1)
 
 plt.figure(figsize=(6,8), dpi=300)
-sns.barplot(data=S_T, ci ='sd', palette= ['midnightblue','purple', 'purple','darkorange'], dodge= False)
-#sns.barplot(data=S_T, ci ='sd', palette= ['midnightblue'], dodge= False)
+#sns.barplot(data=S_T, ci ='sd', palette= ['midnightblue','purple', 'purple','darkorange'], dodge= False)
+sns.barplot(data=S_T, ci ='sd', palette= ['midnightblue'], dodge= False)
 ax=sns.stripplot(data=S_T,orient="v", color= 'dimgrey',size=4, jitter=False, edgecolor="gray") 
 ax.set_ylim([0, 250])
 plt.title('Transitions Social')

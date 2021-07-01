@@ -73,7 +73,6 @@ def measure_BPS(motion, startThreshold, stopThreshold):
 # Analyze bouts and pauses (individual stats)
 def analyze_bouts_and_pauses(fx, fy, ort, motion, startThreshold, stopThreshold):
     
-    
     # Find bouts starts and stops
     boutStarts = []
     boutStops = []
@@ -112,18 +111,6 @@ def analyze_bouts_and_pauses(fx, fy, ort, motion, startThreshold, stopThreshold)
     numPauses = numBouts+1
     pauses = np.zeros((numPauses, 9))
 
-    # -Include first and last as pauses (clipped in video)
-    # First Pause
-    pauses[0, 0] = 0
-    pauses[0, 1] = fx[0]
-    pauses[0, 2] = fy[0]
-    pauses[0, 3] = ort[0]
-    pauses[0, 4] = boutStarts[0]
-    pauses[0, 5] = fx[boutStarts[0]]
-    pauses[0, 6] = fy[boutStarts[0]]
-    pauses[0, 7] = ort[boutStarts[0]]
-    pauses[0, 8] = boutStarts[0]
-    # Other pauses
     for i in range(1, numBouts):
         pauses[i, 0] = boutStops[i-1]
         pauses[i, 1] = fx[boutStops[i-1]]
@@ -134,17 +121,7 @@ def analyze_bouts_and_pauses(fx, fy, ort, motion, startThreshold, stopThreshold)
         pauses[i, 6] = fy[boutStarts[i]]
         pauses[i, 7] = ort[boutStarts[i]]
         pauses[i, 8] = boutStarts[i]- boutStops[i-1]
-    # Last Pause
-    pauses[-1, 0] = boutStops[-1]
-    pauses[-1, 1] = fx[boutStops[-1]]
-    pauses[-1, 2] = fy[boutStops[-1]]
-    pauses[-1, 3] = ort[boutStops[-1]]
-    pauses[-1, 4] = len(motion)-1
-    pauses[-1, 5] = fx[-1]
-    pauses[-1, 6] = fy[-1]
-    pauses[-1, 7] = ort[-1]
-    pauses[-1, 8] = len(motion)-1-boutStops[-1]
-
+  
     return bouts, pauses
 
 # Build a histogram of all orientation values
