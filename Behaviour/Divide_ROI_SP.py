@@ -13,8 +13,8 @@ import sys
 sys.path.append(lib_path)
 
 # Set Base Path
-#base_path = r'/Users/alizeekastler/Desktop'
-base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
+base_path = r'/Volumes/LaCie/Behaviour_Heat_Gradient'
+#base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
 
 
 # Import useful libraries
@@ -27,10 +27,10 @@ import seaborn as sns
 
 # Import local modules
 
-import SP_Utilities as SPU
+import SP_utilities as SPU
 import BONSAI_ARK
 # Read folder list
-FolderlistFile = base_path + r'/Folderlist_Isolated.txt'
+FolderlistFile = base_path + r'/Experiment_57/Folderlist/Exp_57.txt'
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 NS_Cool = []
@@ -178,8 +178,8 @@ plt.ylim(0,1.2)
 sns.set(style="white", font_scale=1.5)
 sns.barplot(data=NS_areadist, ci ='sd', palette= ['midnightblue','purple','darkorange'], dodge= False)
 #sns.barplot(data=NS_areadist, ci ='sd', palette= ['midnightblue'], dodge= False)
-ax=sns.stripplot(data=NS_areadist,orient="v", color= 'dimgrey',size=6, jitter=True, edgecolor="gray") 
-plt.title('Non Social n=28', pad=10, fontsize=24, y=-0.15)
+ax=sns.stripplot(data=NS_areadist,orient="v", color= 'dimgrey',size=4, jitter=True, edgecolor="gray") 
+plt.title('Non Social n=6', pad=10, fontsize=24, y=-0.15)
 ax.set_ylabel('Proportion of Frames')
 sns.despine() 
 plt.show()
@@ -222,10 +222,10 @@ S_areadist = pd.concat([S1,S2,S3], axis=1)
 
 plt.figure(figsize=(4,8), dpi=300)
 plt.ylim(0,1.2)
-sns.barplot(data=S_areadist, ci ='sd', palette= ['midnightblue','purple','darkorange'], dodge= False)
-#sns.barplot(data=S_areadist, ci ='sd', palette= ['midnightblue'], dodge= False)
-ax=sns.stripplot(data=S_areadist,orient="v", color= 'dimgrey',size=6, jitter=True, edgecolor="gray") 
-plt.title('Social n=28', pad=10, fontsize=24, y=-0.15)
+#sns.barplot(data=S_areadist, ci ='sd', palette= ['midnightblue','purple','darkorange'], dodge= False)
+sns.barplot(data=S_areadist, ci ='sd', palette= ['midnightblue'], dodge= False)
+ax=sns.stripplot(data=S_areadist,orient="v", color= 'dimgrey',size=4, jitter=True, edgecolor="gray") 
+plt.title('Social n=6', pad=10, fontsize=24, y=-0.15)
 ax.set_ylabel('Proportion of Frames')
 sns.despine() 
 plt.show()

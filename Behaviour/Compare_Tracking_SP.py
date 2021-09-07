@@ -7,14 +7,13 @@ Created on Tue Apr  6 19:00:40 2021
 Bouts
 """                        
 # Set Library Path - Social_Pain Repos
-#lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
-lib_path = r'C:\Repos\Social_Pain\libs'
+lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
 import sys
 sys.path.append(lib_path)
 
 # Set Base Path
-#base_path = r'/Users/alizeekastler/Desktop'
-base_path = r'S:\WIBR_Dreosti_Lab\Alizee\Behaviour_Heat_Gradient'
+base_path = r'/Volumes/LaCie/Behaviour_Heat_Gradient'
+#base_path = r'S:\WIBR_Dreosti_Lab\Alizee\Behaviour_Heat_Gradient'
 
 
 # Import useful libraries
@@ -29,14 +28,14 @@ from scipy import stats
 
 # Import local modules
 
-import SP_Utilities as SPU
+import SP_utilities as SPU
 import SP_Analysis as SPA
 import BONSAI_ARK
 
 
 
 # Specify Analysis folder
-AnalysisFolder = base_path + '/Analysis_Naloxone_150_Control' 
+AnalysisFolder = base_path + '/Analysis_L368,899_10uM_CTL' 
 
 # Find all the npz files saved for each group and fish with all the information
 npzFiles = glob.glob(AnalysisFolder+'/*.npz')
@@ -125,6 +124,7 @@ for f, filename in enumerate(npzFiles):
      
 s_DistanceT,pvalue_DistanceT = stats.ttest_rel(DistanceT_NS_ALL, DistanceT_S_ALL) 
 # Plot Distance Traveled
+sns.set(style="white", font_scale=1.5)
 plt.figure(figsize=(3,8), dpi=300)
 plt.title('Distance Travelled n='+ format(numFiles) +'\n p-value:'+ format(pvalue_DistanceT),pad=10, fontsize= 20, y=-0.2)
 plt.ylabel('Total Distance Travelled (mm)')
@@ -134,7 +134,7 @@ s1 = pd.Series(DistanceT_NS_ALL, name='Non Social')
 s2 = pd.Series(DistanceT_S_ALL, name='Social')
 df = pd.concat([s1,s2], axis=1)
 sns.barplot(data=df, ci='sd',  palette=['lightsteelblue', 'steelblue'])
-sns.stripplot(data=df,orient="v", color= 'dimgrey',size=6, jitter=True, edgecolor="gray")
+sns.stripplot(data=df,orient="v", color= 'dimgrey',size=4, jitter=True, edgecolor="gray")
 sns.despine()  
 
 
@@ -148,22 +148,22 @@ s1 = pd.Series(BPS_NS_ALL, name='Non Social')
 s2 = pd.Series(BPS_S_ALL, name='Social')
 df = pd.concat([s1,s2], axis=1)
 sns.barplot(data=df, ci='sd',  palette=['lightsteelblue','steelblue'])
-sns.stripplot(data=df, orient="v", color= 'dimgrey',size=6, jitter=True, edgecolor="gray")
+sns.stripplot(data=df, orient="v", color= 'dimgrey',size=4, jitter=True, edgecolor="gray")
 sns.despine()
 plt.show()
 
-s_Freezes,pvalue_Freezes = stats.ttest_rel(Long_Freezes_NS_ALL, Long_Freezes_S_ALL) 
-# Plot Freezes
-plt.figure(figsize=(3,8), dpi=300)
-plt.title('10s Freezes n=' + format(numFiles)+'\n p-value: ' + format(pvalue_Freezes),pad=10, fontsize= 20, y=-0.2)
-plt.ylabel('Total Number of Freezes (>10s)')
-plt.ylim(0,50)
-s1 = pd.Series(Long_Freezes_NS_ALL, name='Non Social')
-s2 = pd.Series(Long_Freezes_S_ALL, name='Social')
-df = pd.concat([s1,s2], axis=1)
-sns.barplot(data=df, ci='sd',  palette=['lightsteelblue','steelblue'])
-sns.stripplot(data=df, orient="v", color= 'dimgrey',size=6, jitter=True, edgecolor="gray")
-sns.despine()
+# s_Freezes,pvalue_Freezes = stats.ttest_rel(Long_Freezes_NS_ALL, Long_Freezes_S_ALL) 
+# # Plot Freezes
+# plt.figure(figsize=(3,8), dpi=300)
+# plt.title('10s Freezes n=' + format(numFiles)+'\n p-value: ' + format(pvalue_Freezes),pad=10, fontsize= 20, y=-0.2)
+# plt.ylabel('Total Number of Freezes (>10s)')
+# plt.ylim(0,50)
+# s1 = pd.Series(Long_Freezes_NS_ALL, name='Non Social')
+# s2 = pd.Series(Long_Freezes_S_ALL, name='Social')
+# df = pd.concat([s1,s2], axis=1)
+# sns.barplot(data=df, ci='sd',  palette=['lightsteelblue','steelblue'])
+# sns.stripplot(data=df, orient="v", color= 'dimgrey',size=4, jitter=True, edgecolor="gray")
+# sns.despine()
 
 
 s_Freezes,pvalue_Freezes = stats.ttest_rel(Short_Freezes_NS_ALL, Short_Freezes_S_ALL) 
@@ -176,7 +176,7 @@ s1 = pd.Series(Short_Freezes_NS_ALL, name='Non Social')
 s2 = pd.Series(Short_Freezes_S_ALL, name='Social')
 df = pd.concat([s1,s2], axis=1)
 sns.barplot(data=df, ci='sd',  palette=['lightsteelblue','steelblue'])
-sns.stripplot(data=df, orient="v", color= 'dimgrey',size=6, jitter=True, edgecolor="gray")
+sns.stripplot(data=df, orient="v", color= 'dimgrey',size=4, jitter=True, edgecolor="gray")
 sns.despine()
  
 
@@ -208,7 +208,7 @@ Norm_OrtHist_S_Noxious_ALL = Accum_OrtHist_S_Noxious_ALL/np.sum(Accum_OrtHist_S_
 # Plot Summary
 xAxis = np.arange(-np.pi,np.pi+np.pi/18.0, np.pi/18.0)
 plt.figure('Summary: Orientation Histograms')
-plt.figure()
+plt.figure(figsize = (20,6),dpi=600 )
 
 ax = plt.subplot(131, polar=True)
 plt.title('Cool', fontweight="bold",fontsize= 25, y=-0.2)

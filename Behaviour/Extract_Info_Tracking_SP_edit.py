@@ -7,14 +7,14 @@ Created on Tue Apr  6 19:00:40 2021
 Bouts
 """                        
 # Set Library Path - Social_Pain Repos
-#lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
-lib_path = r'C:/Repos/Social_Pain/libs'
+lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
+#lib_path = r'C:/Repos/Social_Pain/libs'
 import sys
 sys.path.append(lib_path)
 
 # Set Base Path
-#base_path = r'/Users/alizeekastler/Desktop'
-base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
+base_path = r'/Volumes/LaCie/Behaviour_Heat_Gradient'
+#base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
 
 # Import useful libraries
 import glob
@@ -25,11 +25,11 @@ import pandas as pd
 
 # Import local modules
 
-import SP_Utilities as SPU
+import SP_utilities as SPU
 import SP_Analysis as SPA
 import BONSAI_ARK
 
-plot = False
+plot =False
 
 
 # Set threshold
@@ -38,9 +38,9 @@ short_freeze_threshold = 300
 motionStartThreshold = 0.02
 motionStopThreshold = 0.002 
 
-analysisFolder = base_path + '/Analysis_Naloxone_150_Control' 
+analysisFolder = base_path + '/Analysis_L368,899_10uM_CTL' 
 # Read folder list
-FolderlistFile = base_path + '/Folderlist_Naloxone_150_Control.txt' 
+FolderlistFile = base_path + '/Experiment_56/Folderlist/Exp_56.txt' 
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 
