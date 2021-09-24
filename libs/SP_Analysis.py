@@ -64,7 +64,6 @@ def measure_BPS(motion, startThreshold, stopThreshold):
     # Count number of bouts
     numBouts= len(boutStarts)
     numberOfSeconds = np.size(motion)/100   ## Assume 100 Frames per Second
-    #print(numberOfSeconds)
     # Set the bouts per second (BPS)
     boutsPerSecond = numBouts/numberOfSeconds
 

@@ -22,7 +22,7 @@ import SP_Utilities as SPU
 import BONSAI_ARK
 
 # Read folder list file
-FolderlistFile = base_path + '/Folderlist_Control_New.txt' 
+FolderlistFile = base_path + '/Folderlist_Heat_New.txt' 
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 # XMs
@@ -56,28 +56,28 @@ for idx,folder in enumerate(folderNames):
         fx_S,fy_S,bx_S, by_S, ex_S, ey_S, area_S, ort_S, motion_S = SPU.getTracking(tracking_file_S)
         
         #Filter out bad data 
-        min_x = 200
-        max_x = 900
+        min_x = 170
+        max_x = 800
         
         #=============================================================================
         if fish_number == 1:
             min_y = 150
-            max_y = 240
+            max_y = 250
         if fish_number == 2:
-            min_y = 280
-            max_y = 390
+            min_y = 260
+            max_y = 370
         if fish_number == 3:
-            min_y = 430
-            max_y = 520
+            min_y = 380
+            max_y = 490
         if fish_number == 4:
-            min_y = 560
-            max_y = 650
+            min_y = 510
+            max_y = 620
         if fish_number == 5:
-            min_y = 690
-            max_y = 780
+            min_y = 630
+            max_y = 740
         if fish_number == 6:
-            min_y = 820
-            max_y = 910    
+            min_y = 750
+            max_y = 860    
 #=============================================================================
  
         # Find good tracking (NS)
@@ -102,14 +102,14 @@ for idx,folder in enumerate(folderNames):
         # Store XMs
         XMs.append([np.mean(fx_NS[good_frame_NS]), np.mean(fx_S[good_frame_S])])
         
-        plt.figure()
-        plt.xlim([200,900])
-        plt.plot(fx_NS[good_frame_NS], fy_NS[good_frame_NS], 'lightsteelblue', alpha = 0.5)
-        #plt.plot(fx_S[good_frame_S], fy_S[good_frame_S], 'steelblue')  
-        plt.title("Fish #{0}".format(fish_number))
+        # plt.figure(figsize=(8,2), dpi=600)
+        # plt.xlim([160,810])
+        # #plt.plot(fx_NS, fy_NS, 'lightsteelblue', alpha=1,  linewidth=1)
+        # plt.plot(fx_S, fy_S, 'steelblue', linewidth=1)  
+        # plt.title("Fish #{0}".format(fish_number))
         
-        for i in range(0,6):
-           plt.savefig(Analysis + '/tracking_summary'+ str(fish_number) + '.png', dpi=600)
+        # for i in range(0,6):
+        #     plt.savefig(Analysis + '/tracking_summary'+ str(fish_number) + '.png', dpi=600)
         
 
 NS_values = np.array(XM_NS)

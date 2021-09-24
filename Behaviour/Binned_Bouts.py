@@ -70,6 +70,11 @@ for idx,folder in enumerate(folderNames):
         
         Bouts_S, Pauses_S = SPA.analyze_bouts_and_pauses(fx_S, fy_S, ort_S, motion_S, motionStartThreshold, motionStopThreshold)
 
+    plt.hist2d(Bouts_NS[:,1], Bouts_NS[:,2], bins=14, cmap='Blues')
+    plt.colorbar()
+
+
+
         #Bouts binning 1min
         movieLength=15 # mins
         FPS=100

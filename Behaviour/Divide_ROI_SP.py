@@ -30,8 +30,10 @@ import seaborn as sns
 import SP_Utilities as SPU
 import BONSAI_ARK
 # Read folder list
-FolderlistFile = base_path + r'/Folderlist_Isolated.txt'
+FolderlistFile = base_path + r'/Folderlist_Heat_New.txt'
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
+
+analysisFolder = base_path + r'/Analysis_Heat_New'
 
 NS_Cool = []
 NS_Hot = []
@@ -162,6 +164,16 @@ for idx,folder in enumerate(folderNames):
             S_THot_Noxious.append(np.count_nonzero(SDiff[SDiff==-2])) # Hot - Noxious
             S_TNoxious_Hot.append(np.count_nonzero(SDiff[SDiff==2])) # Noxious - Hot
             
+            # # Save Analyzed Summary Data
+            # filename = analysisFolder + '/' + str(np.int(groups[idx])) + '_ROIs_' + str(i) + '.npz'
+            # np.savez(filename,
+            #           NS_Cool = NS_Cool,
+            #           NS_Hot = NS_Hot,
+            #           NS_Noxious = NS_Noxious,
+            #           S_Cool = S_Cool, 
+            #           S_Hot = S_Hot, 
+            #           S_Noxious = S_Noxious)
+            
 # #Plot_NS
 NS1 = pd.Series(NS_Cool, name='Cool')
 NS2 = pd.Series(NS_Hot, name='Hot')
@@ -179,7 +191,7 @@ sns.set(style="white", font_scale=1.5)
 sns.barplot(data=NS_areadist, ci ='sd', palette= ['midnightblue','purple','darkorange'], dodge= False)
 #sns.barplot(data=NS_areadist, ci ='sd', palette= ['midnightblue'], dodge= False)
 ax=sns.stripplot(data=NS_areadist,orient="v", color= 'dimgrey',size=6, jitter=True, edgecolor="gray") 
-plt.title('Non Social n=28', pad=10, fontsize=24, y=-0.15)
+plt.title('Non Social n=35', pad=10, fontsize=24)
 ax.set_ylabel('Proportion of Frames')
 sns.despine() 
 plt.show()
@@ -225,7 +237,7 @@ plt.ylim(0,1.2)
 sns.barplot(data=S_areadist, ci ='sd', palette= ['midnightblue','purple','darkorange'], dodge= False)
 #sns.barplot(data=S_areadist, ci ='sd', palette= ['midnightblue'], dodge= False)
 ax=sns.stripplot(data=S_areadist,orient="v", color= 'dimgrey',size=6, jitter=True, edgecolor="gray") 
-plt.title('Social n=28', pad=10, fontsize=24, y=-0.15)
+plt.title('Social n=35', pad=10, fontsize=24)
 ax.set_ylabel('Proportion of Frames')
 sns.despine() 
 plt.show()
@@ -244,9 +256,9 @@ S_T = pd.concat([ST1,ST2,ST3,ST4], axis=1)
 # S_T = pd.concat([ST1,ST2,ST3,ST4], axis=1)
 
 plt.figure(figsize=(6,8), dpi=300)
-#sns.barplot(data=S_T, ci ='sd', palette= ['midnightblue','purple', 'purple','darkorange'], dodge= False)
-sns.barplot(data=S_T, ci ='sd', palette= ['midnightblue'], dodge= False)
-ax=sns.stripplot(data=S_T,orient="v", color= 'dimgrey',size=4, jitter=False, edgecolor="gray") 
+sns.barplot(data=S_T, ci ='sd', palette= ['midnightblue','purple', 'purple','darkorange'], dodge= False)
+#sns.barplot(data=S_T, ci ='sd', palette= ['midnightblue'], dodge= False)
+ax=sns.stripplot(data=S_T,orient="v", color= 'dimgrey',size=4, jitter=True, edgecolor="gray") 
 ax.set_ylim([0, 250])
 plt.title('Transitions Social')
 ax.set(ylabel= 'Number of T')
@@ -254,6 +266,53 @@ sns.despine()
 plt.show()
 
 
-          
-    
+
+
+NS1 = pd.Series(NS_Cool, name='NS_Cool')
+S1 = pd.Series(S_Cool, name='S_Cool')
+
+NS2 = pd.Series(NS_Hot, name='NS_Hot')
+S2 = pd.Series(S_Hot, name='S_Hot')
+
+NS3 = pd.Series(NS_Noxious, name='NS_Noxious')
+S3 = pd.Series(S_Noxious, name='S_Noxious')
+areadist = pd.concat([NS1,S1,NS2,S2,NS3,S3], axis=1)
+
+
+plt.figure(figsize=(16,18), dpi=300)
+sns.set(style="white", font_scale=2.5)
+plt.ylim(0,1.2)
+sns.barplot(data=areadist, ci='sd', palette = ['midnightblue', 'midnightblue', 'purple', 'purple', 'darkorange', 'darkorange'] )
+#sns.barplot(data=areadist, ci ='sd', palette= ['midnightblue'], dodge= False)
+ax=sns.stripplot(data=areadist,orient="v", color= 'dimgrey',size=8, jitter=True, edgecolor="gray") 
+plt.title('Control', pad=10, fontsize=32, y=-0.10)
+ax.set_ylabel('Proportion of Frames')
+sns.despine() 
+plt.show()
+
+
+# NS_areadist['condition']='Non Social'
+# S_areadist['condition']='Social'
+
+# areadist = areadist.groupby(['region']).agg({ ['Cool', 'Hot', 'Noxious'],}).reset_index()
+
+
+# sns.barplot(data=area,x=, ci ='sd', palette= ['midnightblue','purple','darkorange'], dodge= False)
+
+# labels = ['Cool', 'Hot', 'Noxious']
+
+# NS_list = NS_areadist.values.tolist()
+# S_list = S_areadist.values.tolist()
+# vector = np.vectorize(np.float)
+# NS_list = vector(NS_list)
+
+# x = np.arange(len(labels))  # the label locations
+# width = 0.35  # the width of the bars
+
+# fig, ax = plt.subplots()
+# rects1 = ax.bar(x - width/2,NS_list, width, label='Non_Social')
+# rects2 = ax.bar(x + width/2,S_list, width, label='Social')
+
+
+
 # FIN

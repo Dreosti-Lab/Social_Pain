@@ -26,17 +26,8 @@ import seaborn as sns
 from scipy import stats
 
 
-
-# Import local modules
-
-import SP_Utilities as SPU
-import SP_Analysis as SPA
-import BONSAI_ARK
-
-
-
 # Specify Analysis folder
-AnalysisFolder = base_path + '/Analysis_Naloxone_150_Control' 
+AnalysisFolder = base_path + '/Analysis_Control' 
 
 # Find all the npz files saved for each group and fish with all the information
 npzFiles = glob.glob(AnalysisFolder+'/*.npz')
@@ -57,6 +48,8 @@ Short_Freezes_X_S_ALL = np.zeros(numFiles)
 Short_Freezes_Y_S_ALL = np.zeros(numFiles)
 DistanceT_NS_ALL = np.zeros(numFiles)
 DistanceT_S_ALL = np.zeros(numFiles)
+Bouts_X_NS_ALL = np.zeros(numFiles)
+Bouts_Y_NS_ALL = np.zeros(numFiles)
 Bouts_NS_ALL = np.zeros((0,9))
 Bouts_S_ALL = np.zeros((0,9))
 Pauses_NS_ALL = np.zeros((0,9))   
@@ -78,6 +71,8 @@ for f, filename in enumerate(npzFiles):
     BPS_S = dataobject['BPS_S']
     Bouts_NS = dataobject['Bouts_NS']   
     Bouts_S = dataobject['Bouts_S']
+    Bouts_X_NS = dataobject['Bouts_X_NS']
+    Bouts_Y_NS = dataobject['Bouts_Y_NS']
     Pauses_NS = dataobject['Pauses_NS']   
     Pauses_S = dataobject['Pauses_S']
     Long_Freezes_NS = dataobject['Long_Freezes_NS']
@@ -120,11 +115,11 @@ for f, filename in enumerate(npzFiles):
     Bouts_NS_ALL = np.vstack([Bouts_NS_ALL, Bouts_NS])
     Bouts_S_ALL = np.vstack([Bouts_S_ALL, Bouts_S])
     Pauses_NS_ALL = np.vstack([Pauses_NS_ALL, Pauses_NS])
-    Pauses_S_ALL = np.vstack([Pauses_S_ALL, Pauses_S])    
+    Pauses_S_ALL = np.vstack([Pauses_S_ALL, Pauses_S])   
 
      
 s_DistanceT,pvalue_DistanceT = stats.ttest_rel(DistanceT_NS_ALL, DistanceT_S_ALL) 
-# Plot Distance Traveled
+# Plot Distance Travelled
 plt.figure(figsize=(3,8), dpi=300)
 plt.title('Distance Travelled n='+ format(numFiles) +'\n p-value:'+ format(pvalue_DistanceT),pad=10, fontsize= 20, y=-0.2)
 plt.ylabel('Total Distance Travelled (mm)')
@@ -153,7 +148,7 @@ sns.despine()
 plt.show()
 
 s_Freezes,pvalue_Freezes = stats.ttest_rel(Long_Freezes_NS_ALL, Long_Freezes_S_ALL) 
-# Plot Freezes
+# Plot Long Freezes
 plt.figure(figsize=(3,8), dpi=300)
 plt.title('10s Freezes n=' + format(numFiles)+'\n p-value: ' + format(pvalue_Freezes),pad=10, fontsize= 20, y=-0.2)
 plt.ylabel('Total Number of Freezes (>10s)')
@@ -167,7 +162,7 @@ sns.despine()
 
 
 s_Freezes,pvalue_Freezes = stats.ttest_rel(Short_Freezes_NS_ALL, Short_Freezes_S_ALL) 
-# Plot Freezes
+# Plot Short Freezes
 plt.figure(figsize=(3,8), dpi=300)
 plt.title('3s Freezes n='+ format(numFiles)+'\n p-value: ' + format(pvalue_Freezes), pad=10, fontsize= 20, y=-0.2)
 plt.ylabel('Total Number of Freezes (>3s)')
@@ -180,13 +175,15 @@ sns.stripplot(data=df, orient="v", color= 'dimgrey',size=6, jitter=True, edgecol
 sns.despine()
  
 
-# plt.figure()
-# df = pd.DataFrame({'XPosition Freezes NS': Short_Freezes_X_NS_ALL,
-#                     'XPosition Freezes S':Short_Freezes_X_S_ALL })
-# df.plot.scatter(rot=0, color={"XPosition Freezes NS": "lightsteelblue", "XPosition Freezes S": "steelblue"}, figsize= (10,6), width=0.8)
+plt.figure()
+plt.subplot
+plt.scatter(Short_Freezes_X_NS_ALL,Short_Freezes_Y_NS_ALL, color= 'lightsteelblue')
+plt.scatter(Short_Freezes_X_S_ALL,Short_Freezes_Y_S_ALL, color= 'steelblue')
 
-
-#FIN 
+# plt.figure() 
+# plt.subplot           
+# plt.hist2d(Bouts_X_NS_ALL, Bouts_Y_NS_ALL, bins=14, cmap='Blues')
+# plt.colorbar()
 
 # ORT_HIST Summary Plot
 
