@@ -15,6 +15,50 @@ import glob
 import cv2
 import imageio
 
+def findBodyFromSeed(numPixels,im,seed):
+    
+    reg = np.zeros(im.shape)
+    
+    #parameters
+    mean_reg = float(im[seed[1], seed[0]])
+    size = 1
+    contour = [] 
+    contour_val = []
+    dist = 0
+    spreadCoord = [(1, 0), (0, 1), (-1, 0), (0, -1)] # 4 connectivity... should really be 8...?
+    
+    #Spreading
+    while(dist<1 and size<numPixels):
+    
+        for j in range(4):
+            #select next pixel
+            cPix = [seed[0] +spreadCoord[j][0], seed[1] +spreadCoord[j][1]]
+            if cPix[0]>im.shape[0]: cPix[0]=im.shape[0]-1
+            if cPix[1]>im.shape[1]: cPix[1]=im.shape[1]-1
+            
+            if reg[cPix[1], cPix[0]]==0:
+                contour.append(cPix)
+                contour_val.append(im[cPix[1], cPix[0]] )
+                reg[cPix[1], cPix[0]] = 255
+        #add the nearest pixel of the contour in it
+        dist = abs(int(np.mean(contour_val)) - mean_reg)
+    
+        dist_list = [abs(i - mean_reg) for i in contour_val ]
+        dist = min(dist_list)    #get min distance
+        index = dist_list.index(dist) #mean distance index
+        size += 1 # updating region size
+
+        #updating mean MUST BE FLOAT
+        mean_reg = (mean_reg*size + float(contour_val[index]))/(size+1)
+        #updating seed
+        cPix = contour[index]
+    
+        #removing pixel from neigborhood
+        del contour[index]
+        del contour_val[index]
+    
+    return reg
+
 # Scripts to find circle edges given origin and radius
 def removeDuplicates(lst):
       
@@ -31,6 +75,7 @@ def findCircleEdge(xo=50,yo=50,r=5,sampleN=144):
         
 #    points_list=removeDuplicates(points_list)
     return points_list
+
 # Process Video : Make Summary Images
 def pre_process_video(folder, social):
     
@@ -96,7 +141,7 @@ def pre_process_video(folder, social):
 #------------------------------------------------------------------------------
     
 # Compute the initial background for each ROI
-def compute_intial_backgrounds(folder, ROIs):
+def compute_intial_backgrounds(folder, ROIs, divisor=7):
 
     # Load Video
     aviFiles = glob.glob(folder+'/*.avi')#finds any avi file in the folder
@@ -144,7 +189,7 @@ def compute_intial_backgrounds(folder, ROIs):
         
             # Measure change from current to previous frame
             absdiff = np.abs(previous-crop)
-            level = np.median(crop)/7
+            level = np.median(crop)/divisor
             change = np.mean(absdiff > level)
             changes.append(change)
             previous = np.copy(crop)
@@ -167,7 +212,7 @@ def compute_intial_backgrounds(folder, ROIs):
 #------------------------------------------------------------------------------
 
 # Process Video : Track fish in AVI
-def fish_tracking(input_folder, output_folder, ROIs):
+def fish_tracking(input_folder, output_folder, ROIs, divisor=7, kSize=3):
     
     # Compute a "Starting" Background
     # - Median value of 20 frames with significant difference between them
@@ -215,6 +260,11 @@ def fish_tracking(input_folder, output_folder, ROIs):
     # Track    
     for f in range(0,numFrames):  
         
+        #### DEBUG ######
+        badFrameList=[82376,82776,82176,81876,81176,80376,80176,79276,79376]
+        badFrameList = [numFrames-x for x in badFrameList]
+        if f in badFrameList:
+            print('BadFrame')
         # Read next frame        
         ret, im = vid.read()
         # Convert to grayscale (uint8)
@@ -232,7 +282,7 @@ def fish_tracking(input_folder, output_folder, ROIs):
 
             # Determine current threshold (Sensitivity : detected range of pixel change)
             # How different does it need to be for it to be picked up as the fish, lower threshold if you want to track fish that are not moving much 
-            threshold_level = np.median(background_ROIs[i])/7 # <-----
+            threshold_level = np.median(background_ROIs[i])/divisor # <-----
                   
             # Within the diff (fish) our threshold value is the median background and max value is 255 (White)
             #if pixel > threshold_level = white and if < threshold_level = Black
@@ -241,7 +291,7 @@ def fish_tracking(input_folder, output_folder, ROIs):
             threshold = np.uint8(threshold)
             
             # Binary Close: Closing eliminates noise ie. closing small holes inside object (black spots)
-            kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(3,3))
+            kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(kSize,kSize))
             closing = cv2.morphologyEx(threshold, cv2.MORPH_CLOSE, kernel)
             
             # DEBUG
@@ -331,16 +381,16 @@ def fish_tracking(input_folder, output_folder, ROIs):
                     area = np.float(area)
 
                     # Highlight 50% of the most different pixels (body)                    
-                    numBodyPixels = np.int(np.ceil(area/2))
+                    numBodyPixels = np.int(np.ceil(area*0.5))
                     
-                    # Highlight 10% of the ??? pixels (eyes)     
-                    numEyePixels = np.int(np.ceil(area/10))
+                    # Highlight 8% of the ??? pixels (eyes)     
+                    numEyePixels = np.int(np.ceil(area*0.08))
                     
                     # Fish Pixel Values (difference from background)
                     fishValues = diff[pixelpoints[:,0], pixelpoints[:,1]]
                     sortedFishValues = np.sort(fishValues)
                     
-                    bodyThreshold = sortedFishValues[-numBodyPixels]                    
+#                    bodyThreshold = sortedFishValues[-numBodyPixels]                    
                     eyeThreshold = sortedFishValues[-numEyePixels]
 
                     # Compute Binary/Weighted Centroids
@@ -377,10 +427,15 @@ def fish_tracking(input_folder, output_folder, ROIs):
                         if a[0]>=crop_height: a[0]=crop_height-1
                         if a[1]>=crop_width: a[1]=crop_width-1
                         circleValsY.append(diff[tuple(a)])
-                    # Find peak of circular profile
-                    bX=circleCoords[np.argmax(circleValsY)][1]
-                    bY=circleCoords[np.argmax(circleValsY)][0]
+                    # Find peak of circular profile 
+                    seed=[]
+                    seed.append(circleCoords[np.argmax(circleValsY)][1])
+                    seed.append(circleCoords[np.argmax(circleValsY)][0])
                     
+                    # Now use this as the seed to find body contour (might be a better way to do this in cv2)
+#                    reg=findBodyFromSeed(60,diff,seed)
+                    bX = seed[0]
+                    bY = seed[1]
 #                    # Body Centroid (a binary centroid, excluding "eye" pixels)
 #                    values = np.copy(all_values)                   
 #                    values[values < bodyThreshold] = 0 #black
