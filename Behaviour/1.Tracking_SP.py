@@ -22,13 +22,17 @@ import scipy.misc as misc
 from scipy import stats
 
 # Import local modules
-import SP_Video_ARK as SPV
+import SP_video_TRARK as SPV
 import BONSAI_ARK
 import SP_Utilities as SPU
 
 # Read Folder List
-FolderlistFile = base_path + r'\Experiment_64\Folderlist\Exp_64.txt'
+FolderlistFile = base_path + r'\Experiment_32\Folderlist\Exp_32.txt'
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
+
+# Divisor and closing kernel parameters (thresholding for mask and background)
+divisor=7
+kernelWidth=3
 
 # Bulk analysis of all folders
 for idx,folder in enumerate(folderNames):

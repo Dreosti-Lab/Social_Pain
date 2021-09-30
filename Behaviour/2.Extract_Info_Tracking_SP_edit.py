@@ -30,7 +30,7 @@ import SP_Analysis as SPA
 import BONSAI_ARK
 
 plot = False
-
+filterTracking = True
 
 # Set threshold
 long_freeze_threshold = 1000
@@ -40,7 +40,7 @@ motionStopThreshold = 0.002
 
 analysisFolder = base_path + '/Analysis_Control' 
 # Read folder list
-FolderlistFile = base_path + '/Folderlist_Control.txt' 
+FolderlistFile = base_path + '/Experiment_32/Folderlist/Exp_32.txt' 
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 
@@ -88,6 +88,11 @@ for idx,folder in enumerate(folderNames):
             tracking_file_S = S_folder + r'/tracking' + str(i+1) +'.npz'
             fx_S,fy_S,bx_S, by_S, ex_S, ey_S, area_S, ort_S, motion_S = SPU.getTracking(tracking_file_S)
         
+            if filterTracking:
+                count_S,ort_S =SPU.filterTrackingFlips(ort_S)
+                count_NS,ort_NS =SPU.filterTrackingFlips(ort_NS)
+                
+                
             #Only look at last 10min of Movie
             fx_NS = fx_NS[30000:90000]
             fy_NS = fy_NS[30000:90000]

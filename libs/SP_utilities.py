@@ -75,4 +75,28 @@ def load_video (folder):
     
     return vid, numFrames, width, height
 
+
+## Identifies and reverses sudden flips in orientation caused by errors in tracking the eyes vs the body resulting in very high frequency tracking flips     
+def filterTrackingFlips(ort):
+    dAngle = np.zeros(len(ort))
+    dAngle[1:] = np.diff(ort)
+    new_dAngle = []    
+    count=0
+    for a in dAngle:
+        if a < -100:
+            new_dAngle.append(a + 180)
+            count+=1
+        elif a > 100:
+            new_dAngle.append(a - 180)
+            count+=1
+        else:
+            new_dAngle.append(a)
+            
+    return count,np.array(new_dAngle)
+
+# Scripts to find circle edges given origin and radius
+def removeDuplicates(lst):
+      
+    return [t for t in (set(tuple(i) for i in lst))]
+
 # FIN

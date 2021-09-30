@@ -59,6 +59,19 @@ def findBodyFromSeed(numPixels,im,seed):
     
     return reg
 
+## Identifies and reverses sudden flips in orientation caused by errors in tracking the eyes vs the body resulting in very high frequency tracking flips     
+def filterTrackingFlips(dAngle):
+    new_dAngle = []    
+    for a in dAngle:
+        if a < -100:
+            new_dAngle.append(a + 180)
+        elif a > 100:
+            new_dAngle.append(a - 180)
+        else:
+            new_dAngle.append(a)
+            
+    return np.array(new_dAngle)
+
 # Scripts to find circle edges given origin and radius
 def removeDuplicates(lst):
       
@@ -141,7 +154,7 @@ def pre_process_video(folder, social):
 #------------------------------------------------------------------------------
     
 # Compute the initial background for each ROI
-def compute_intial_backgrounds(folder, ROIs, divisor=7):
+def compute_initial_backgrounds(folder, ROIs, divisor=7):
 
     # Load Video
     aviFiles = glob.glob(folder+'/*.avi')#finds any avi file in the folder
@@ -216,7 +229,11 @@ def fish_tracking(input_folder, output_folder, ROIs, divisor=7, kSize=3):
     
     # Compute a "Starting" Background
     # - Median value of 20 frames with significant difference between them
-    background_ROIs = compute_intial_backgrounds(input_folder, ROIs)
+    background_ROIs = compute_initial_backgrounds(input_folder, ROIs,divisor=divisor)
+    # raster=background_ROIs[0][:]
+    # centres,hist=np.histogram(raster)
+    # plt.plot(centres[1:],hist)
+    
     
     # Algorithm
     # 1. Find initial background guess for each ROI
@@ -283,7 +300,7 @@ def fish_tracking(input_folder, output_folder, ROIs, divisor=7, kSize=3):
             # Determine current threshold (Sensitivity : detected range of pixel change)
             # How different does it need to be for it to be picked up as the fish, lower threshold if you want to track fish that are not moving much 
             threshold_level = np.median(background_ROIs[i])/divisor # <-----
-                  
+            
             # Within the diff (fish) our threshold value is the median background and max value is 255 (White)
             #if pixel > threshold_level = white and if < threshold_level = Black
             level, threshold = cv2.threshold(diff,threshold_level,255,cv2.THRESH_BINARY)
@@ -541,5 +558,11 @@ def get_largest_contour(contours):
     else:
         return cnt, max_area
 
+def intensities_dist (input_folder, ROIs, numROI, divisor=7):
+    background_ROIs = compute_initial_backgrounds(input_folder, ROIs, divisor=divisor)
+    raster=background_ROIs[numROI][:]
+    centres,hist=np.histogram(raster)
+    plt.plot(centres[numROI:],hist)
+    
 
 # FIN
