@@ -176,7 +176,7 @@ def compute_initial_backgrounds(folder, ROIs, divisor=7):
         # Allocate space for background stack
         crop_width, crop_height = get_ROI_size(ROIs, i)
         stepFrames = 1000 # Check background frame every 10 seconds
-        bFrames = 20
+        bFrames = 50
         backgroundStack = np.zeros((crop_height, crop_width, bFrames), dtype = np.float32)
         background = np.zeros((crop_height, crop_width), dtype = np.float32)
         previous = np.zeros((crop_height, crop_width), dtype = np.float32)

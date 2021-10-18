@@ -22,7 +22,7 @@ import SP_Utilities as SPU
 import BONSAI_ARK
 
 # Read folder list file
-FolderlistFile = base_path + '/Folderlist_Heat_New.txt' 
+FolderlistFile = base_path + '/Experiment_62/Folderlist/Exp_62.txt' 
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 # XMs
@@ -56,28 +56,28 @@ for idx,folder in enumerate(folderNames):
         fx_S,fy_S,bx_S, by_S, ex_S, ey_S, area_S, ort_S, motion_S = SPU.getTracking(tracking_file_S)
         
         #Filter out bad data 
-        min_x = 170
-        max_x = 800
+        min_x = 264
+        max_x = 890
         
         #=============================================================================
         if fish_number == 1:
-            min_y = 150
-            max_y = 250
+            min_y = 180
+            max_y = 280
         if fish_number == 2:
-            min_y = 260
-            max_y = 370
+            min_y = 300
+            max_y = 400
         if fish_number == 3:
-            min_y = 380
-            max_y = 490
+            min_y = 430
+            max_y = 530
         if fish_number == 4:
-            min_y = 510
-            max_y = 620
+            min_y = 550
+            max_y = 650
         if fish_number == 5:
-            min_y = 630
-            max_y = 740
+            min_y = 680
+            max_y = 780
         if fish_number == 6:
-            min_y = 750
-            max_y = 860    
+            min_y = 800
+            max_y = 900 
 #=============================================================================
  
         # Find good tracking (NS)
@@ -112,8 +112,10 @@ for idx,folder in enumerate(folderNames):
         #     plt.savefig(Analysis + '/tracking_summary'+ str(fish_number) + '.png', dpi=600)
         
 
-NS_values = np.array(XM_NS)
-S_values = np.array(XM_S)
+        # NS_values = np.array(XM_NS)
+        # S_values = np.array(XM_S)
+        XM_values = np.array(XMs)
+        TTSs = XM_values[:,1] - XM_values[:,0]
 
 
 # Plot histogram
@@ -141,8 +143,8 @@ sns.despine()
 plt.show()
 
 
-# Crude calibration: 300 = 28 deg, 800 = 36 deg (900/8) pixels per degree
-XM_values = np.array(XMs)/36.25
+# Crude calibration: 280 = 28 deg, 850 = 36 deg (900/8) pixels per degree
+XM_values = np.array(XMs)
 TTSs = XM_values[:,1] - XM_values[:,0]
 
 # Stats: paired Ttest mean position of each fish in NS vs S
