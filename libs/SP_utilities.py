@@ -79,21 +79,25 @@ def load_video (folder):
 
 ## Identifies and reverses sudden flips in orientation caused by errors in tracking the eyes vs the body resulting in very high frequency tracking flips     
 def filterTrackingFlips(ort):
-    dAngle = np.zeros(len(ort))
-    dAngle[1:] = np.diff(ort)
-    new_dAngle = []    
+    dAngle = np.diff(ort)
+    new_dAngle=[]    
     count=0
     for a in dAngle:
-        if a < -100:
+        if a < -90:
             new_dAngle.append(a + 180)
             count+=1
-        elif a > 100:
+        elif a > 90:
             new_dAngle.append(a - 180)
             count+=1
         else:
             new_dAngle.append(a)
-            
-    return count,np.array(new_dAngle)
+    
+        new_dAngle = np.array(new_dAngle)
+        ort_new = np.r_[ort[0], new_dAngle].cumsum()
+        ort_new = ort_new[1:]
+        new_dAngle= list(new_dAngle)
+        
+    return count, ort_new
 
 # Scripts to find circle edges given origin and radius
 def removeDuplicates(lst):
@@ -110,10 +114,9 @@ def smoothSignal(x,N=5):
 
 
 
-def plotMotionMetrics(trackingFile,startFrame,endFrame):
+def plotMotionMetrics(fx,fy,bx,by,ex,ey,area,ort,motion,startFrame,endFrame):
 ## plots tracking trajectory, motion, distance per frame and cumulative distance for defined section of tracking data
     
-    fx,fy,bx,by,ex,ey,area,ort,motion=(trackingFile)
     plt.figure()
     plt.plot(fx[startFrame:endFrame],fy[startFrame:endFrame])
     plt.title('Tracking')

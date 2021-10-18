@@ -169,7 +169,7 @@ def analyze_temporal_bouts(bouts, binning):
     bout_hist_binned = np.sum(np.reshape(bout_hist.T, (binning, -1), order='F'), 0)
 
     plt.figure()
-    plt.plot(bout_hist_binned, 'b')
+    plt.plot(bout_hist_binned, 'r')
     plt.show()
 
 

@@ -7,15 +7,14 @@ Created on Tue Apr  6 19:00:40 2021
 Bouts
 """                        
 # Set Library Path - Social_Pain Repos
-lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
-#lib_path = r'C:/Repos/Social_Pain/libs'
+#lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
+lib_path = r'C:/Repos/Social_Pain/libs'
 import sys
 sys.path.append(lib_path)
 
 # Set Base Path
 #base_path = r'/Users/alizeekastler/Desktop'
-#base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
-base_path = r'/volumes/groupfolders/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
+base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
 
 # Import useful libraries
 import glob
@@ -29,9 +28,10 @@ import pandas as pd
 import SP_utilities as SPU
 import SP_Analysis as SPA
 import BONSAI_ARK
+import SP_video_TRARK as SPV
 
 plot = False
-filterTracking = True
+filterTracking = False
 
 # Set threshold
 long_freeze_threshold = 1000
@@ -39,9 +39,9 @@ short_freeze_threshold = 300
 motionStartThreshold = 0.02
 motionStopThreshold = 0.002 
 
-analysisFolder = base_path + '/Analysis_Control' 
+analysisFolder = base_path + '/Analysis_Heat' 
 # Read folder list
-FolderlistFile = base_path + '/Folderlist_Isolated.txt' 
+FolderlistFile = base_path + '/Folderlist_Heat.txt' 
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 
@@ -84,11 +84,12 @@ for idx,folder in enumerate(folderNames):
 
             # Extract tracking data (NS)     
             tracking_file_NS = NS_folder + r'/tracking' + str(i+1) +'.npz'
-            fx_NS,fy_NS,bx_NS, by_NS, ex_NS, ey_NS, area_NS, ort_NS, motion_NS = SPU.getTracking(tracking_file_NS)
+            fx_NS_1,fy_NS_1,bx_NS_1, by_NS_1, ex_NS_1, ey_NS_1, area_NS, ort_NS, motion_NS = SPU.getTracking(tracking_file_NS)
+            fx_NS,fy_NS,bx_NS, by_NS, ex_NS, ey_NS = SPV.normalizeROIoffset(fx_NS_1,fy_NS_1,bx_NS_1, by_NS_1, ex_NS_1, ey_NS_1, NS_ROIs)
             # Extract tracking data (S)
             tracking_file_S = S_folder + r'/tracking' + str(i+1) +'.npz'
             fx_S,fy_S,bx_S, by_S, ex_S, ey_S, area_S, ort_S, motion_S = SPU.getTracking(tracking_file_S)
-        
+    
             if filterTracking:
                 count_S,ort_S =SPU.filterTrackingFlips(ort_S)
                 count_NS,ort_NS =SPU.filterTrackingFlips(ort_NS)
@@ -129,8 +130,8 @@ for idx,folder in enumerate(folderNames):
             # Analyze "Bouts" and "Pauses" (NS)
             Bouts_NS, Pauses_NS = SPA.analyze_bouts_and_pauses(fx_NS, fy_NS,ort_NS, motion_NS, motionStartThreshold, motionStopThreshold)
                     
-            Percent_Moving_NS = 100 * np.sum(Bouts_NS[:,8])/len(motion_NS)
-            Percent_Paused_NS = 100 * np.sum(Pauses_NS[:,8])/len(motion_NS)
+            Percent_Moving_NS = (100 * np.sum(Bouts_NS[:,8]))/(len(motion_NS))
+            Percent_Paused_NS = (100 * np.sum(Pauses_NS[:,8]))/(len(motion_NS))
             
             #Count Bouts (NS)
             Bouts_X_NS = Bouts_NS[:,1]
@@ -147,8 +148,8 @@ for idx,folder in enumerate(folderNames):
             
             # Analyze "Bouts" and "Pauses" (S)
             Bouts_S, Pauses_S = SPA.analyze_bouts_and_pauses(fx_S, fy_S, ort_S, motion_S, motionStartThreshold, motionStopThreshold)
-            Percent_Moving_S = 100 * np.sum(Bouts_S[:,8])/len(motion_S)
-            Percent_Paused_S = 100 * np.sum(Pauses_S[:,8])/len(motion_S )
+            Percent_Moving_S = (100 * np.sum(Bouts_S[:,8]))/(len(motion_S))
+            Percent_Paused_S = (100 * np.sum(Pauses_S[:,8]))/(len(motion_S))
             
             #Count Bouts (S)
             Bouts_X_S = Bouts_S[:,1]
@@ -259,6 +260,8 @@ for idx,folder in enumerate(folderNames):
             np.savez(filename,BPS_NS = BPS_NS,BPS_S = BPS_S,
                       Bouts_NS = Bouts_NS,Bouts_S = Bouts_S,Bouts_X_NS = Bouts_X_NS, Bouts_Y_NS = Bouts_Y_NS, Bouts_X_S = Bouts_X_S, Bouts_Y_S = Bouts_Y_S,
                       Pauses_NS = Pauses_NS,Pauses_S = Pauses_S,
+                      Percent_Moving_NS = Percent_Moving_NS, Percent_Moving_S = Percent_Moving_S, 
+                      Percent_Paused_NS = Percent_Paused_NS, Percent_Paused_S = Percent_Paused_S, 
                       Long_Freezes_NS = Long_Freezes_NS,Short_Freezes_NS = Short_Freezes_NS,Long_Freezes_S = Long_Freezes_S,Short_Freezes_S=Short_Freezes_S,
                       Short_Freezes_X_NS = Short_Freezes_X_NS,Short_Freezes_Y_NS = Short_Freezes_Y_NS,Short_Freezes_X_S = Short_Freezes_X_S,Short_Freezes_Y_S =  Short_Freezes_Y_S,
                       Binned_3SFreezes_NS = Binned_3SFreezes_NS,Binned_3SFreezes_S = Binned_3SFreezes_S,

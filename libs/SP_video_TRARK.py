@@ -563,6 +563,20 @@ def intensities_dist (input_folder, ROIs, numROI, divisor=7):
     raster=background_ROIs[numROI][:]
     centres,hist=np.histogram(raster)
     plt.plot(centres[numROI:],hist)
+
+def normalizeROIoffset( fx, fy, bx, by, ex, ey,ROIs):
     
+    for i in range(0,6):
+        yOff = np.int(ROIs[i, 1])
+        xOff = np.int(ROIs[i, 0])
+        
+        fxS = fx - xOff
+        fyS = fy - yOff
+        bxS = bx - xOff
+        byS = by - yOff
+        exS = ex - xOff
+        eyS = ey - yOff
+      
+        return fxS, fyS,bxS,byS, exS,eyS 
 
 # FIN

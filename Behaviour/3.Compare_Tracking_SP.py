@@ -27,7 +27,7 @@ from scipy import stats
 
 
 # Specify Analysis folder
-AnalysisFolder = base_path + '/Analysis_Control' 
+AnalysisFolder = base_path + '/Analysis_Heat' 
 
 # Find all the npz files saved for each group and fish with all the information
 npzFiles = glob.glob(AnalysisFolder+'/*.npz')
@@ -46,6 +46,10 @@ Short_Freezes_X_NS_ALL = np.zeros(numFiles)
 Short_Freezes_Y_NS_ALL = np.zeros(numFiles)
 Short_Freezes_X_S_ALL = np.zeros(numFiles)
 Short_Freezes_Y_S_ALL = np.zeros(numFiles)
+Percent_Moving_NS_ALL = np.zeros(numFiles)
+Percent_Moving_S_ALL = np.zeros(numFiles)
+Percent_Paused_NS_ALL = np.zeros(numFiles)
+Percent_Paused_S_ALL = np.zeros(numFiles)
 DistanceT_NS_ALL = np.zeros(numFiles)
 DistanceT_S_ALL = np.zeros(numFiles)
 Bouts_X_NS_ALL = np.zeros(numFiles)
@@ -75,6 +79,10 @@ for f, filename in enumerate(npzFiles):
     Bouts_Y_NS = dataobject['Bouts_Y_NS']
     Pauses_NS = dataobject['Pauses_NS']   
     Pauses_S = dataobject['Pauses_S']
+    Percent_Moving_NS = dataobject['Percent_Moving_NS']
+    Percent_Moving_S = dataobject['Percent_Moving_S']
+    Percent_Paused_NS = dataobject['Percent_Paused_NS']
+    Percent_Paused_S = dataobject['Percent_Paused_S']
     Long_Freezes_NS = dataobject['Long_Freezes_NS']
     Short_Freezes_NS = dataobject['Short_Freezes_NS']
     Long_Freezes_S = dataobject['Long_Freezes_S']
@@ -103,6 +111,10 @@ for f, filename in enumerate(npzFiles):
     Short_Freezes_X_S_ALL[f] = Short_Freezes_X_S
     Short_Freezes_Y_NS_ALL[f] = Short_Freezes_Y_NS
     Short_Freezes_Y_S_ALL[f] = Short_Freezes_Y_S
+    Percent_Moving_NS_ALL[f] = Percent_Moving_NS
+    Percent_Moving_S_ALL[f] = Percent_Moving_S
+    Percent_Paused_NS_ALL[f] = Percent_Paused_NS
+    Percent_Paused_S_ALL[f] = Percent_Paused_S
     DistanceT_NS_ALL[f] = DistanceT_NS
     DistanceT_S_ALL[f] = DistanceT_S
     OrtHist_NS_Cool_ALL[f,:] = OrtHist_NS_Cool
@@ -173,7 +185,33 @@ df = pd.concat([s1,s2], axis=1)
 sns.barplot(data=df, ci='sd',  palette=['lightsteelblue','steelblue'])
 sns.stripplot(data=df, orient="v", color= 'dimgrey',size=6, jitter=True, edgecolor="gray")
 sns.despine()
- 
+
+# Plot Percent time Moving
+s_Moving,pvalue_Moving = stats.ttest_rel(Percent_Moving_NS_ALL, Percent_Moving_S_ALL) 
+plt.figure(figsize=(3,8), dpi=300)
+plt.title('n='+ format(numFiles) +'\n p-value: ' + format(pvalue_Moving), pad=10, fontsize= 20, y=-0.2)
+plt.ylabel('% Time Moving')
+plt.ylim(0,100)
+s1 = pd.Series(Percent_Moving_NS_ALL, name='Non Social')
+s2 = pd.Series(Percent_Moving_S_ALL, name='Social')
+df = pd.concat([s1,s2], axis=1)
+sns.barplot(data=df, ci='sd',  palette=['lightsteelblue','steelblue'])
+sns.stripplot(data=df, orient="v", color= 'dimgrey',size=6, jitter=True, edgecolor="gray")
+sns.despine()
+
+# Plot Percent time Moving
+s_Pausing,pvalue_Pausing = stats.ttest_rel(Percent_Paused_NS_ALL, Percent_Paused_S_ALL) 
+plt.figure(figsize=(3,8), dpi=300)
+plt.title('n='+ format(numFiles) +'\n p-value: ' + format(pvalue_Pausing), pad=10, fontsize= 20, y=-0.2)
+plt.ylabel('% Time Pausing')
+plt.ylim(0,100)
+s1 = pd.Series(Percent_Paused_NS_ALL, name='Non Social')
+s2 = pd.Series(Percent_Paused_S_ALL, name='Social')
+df = pd.concat([s1,s2], axis=1)
+sns.barplot(data=df, ci='sd',  palette=['lightsteelblue','steelblue'])
+sns.stripplot(data=df, orient="v", color= 'dimgrey',size=6, jitter=True, edgecolor="gray")
+sns.despine()
+  
 
 plt.figure()
 plt.subplot
