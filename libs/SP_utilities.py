@@ -12,6 +12,7 @@ import scipy.signal as signal
 import glob
 import cv2
 import imageio
+import SP_Analysis as SPA
 #-----------------------------------------------------------------------------
 # Utilities for loading and ploting "social pain" data
 def getTracking(path):
@@ -98,5 +99,45 @@ def filterTrackingFlips(ort):
 def removeDuplicates(lst):
       
     return [t for t in (set(tuple(i) for i in lst))]
+
+def smoothSignal(x,N=5):
+## performs simple 'box-filter' of any signal, with a defined box kernel size
+    xx=np.convolve(x, np.ones((int(N),))/int(N), mode='valid')
+    n=N-1
+    xpre=np.zeros(n)
+    xxx=np.concatenate((xpre,xx))
+    return xxx
+
+
+
+def plotMotionMetrics(trackingFile,startFrame,endFrame):
+## plots tracking trajectory, motion, distance per frame and cumulative distance for defined section of tracking data
+    
+    fx,fy,bx,by,ex,ey,area,ort,motion=(trackingFile)
+    plt.figure()
+    plt.plot(fx[startFrame:endFrame],fy[startFrame:endFrame])
+    plt.title('Tracking')
+    
+    smoothedMotion=smoothSignal(motion[startFrame:endFrame],100)
+    plt.figure()
+    plt.plot(smoothedMotion)
+    plt.title('Smoothed Motion')
+    
+    distPerFrame,cumDistPerFrame=SPA.computeDistPerFrame(fx[startFrame:endFrame],fy[startFrame:endFrame])
+    plt.figure()
+    plt.plot(distPerFrame)
+    plt.title('Distance per Frame')
+    
+    xx=smoothSignal(distPerFrame,30)
+    plt.figure()
+    plt.plot(xx[startFrame:endFrame])
+    plt.title('Smoothed Distance per Frame (30 seconds)')
+    
+    
+    plt.figure()
+    plt.plot(cumDistPerFrame)
+    plt.title('Cumulative distance')    
+    
+    return cumDistPerFrame
 
 # FIN

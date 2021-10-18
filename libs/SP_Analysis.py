@@ -9,6 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import scipy.signal as signal
+import math
 
 
 
@@ -63,11 +64,18 @@ def measure_BPS(motion, startThreshold, stopThreshold):
 
     # Count number of bouts
     numBouts= len(boutStarts)
-    numberOfSeconds = np.size(motion)/100   ## Assume 100 Frames per Second
+    numberOfSeconds = np.size(motion)/100
     # Set the bouts per second (BPS)
     boutsPerSecond = numBouts/numberOfSeconds
+    
+    # Measure averge bout trajectory
+    boutStarts = boutStarts[(boutStarts > 25) * (boutStarts < (len(motion)-75))]
+    allBouts = np.zeros([len(boutStarts), 100])
+    for b in range(0,len(boutStarts)):
+        allBouts[b,:] = motion[(boutStarts[b]-25):(boutStarts[b]+75)];
+    avgBout = np.mean(allBouts,0);
 
-    return boutsPerSecond
+    return boutsPerSecond, avgBout
     
 # Analyze bouts and pauses (individual stats)
 def analyze_bouts_and_pauses(fx, fy, ort, motion, startThreshold, stopThreshold):
@@ -122,6 +130,89 @@ def analyze_bouts_and_pauses(fx, fy, ort, motion, startThreshold, stopThreshold)
         pauses[i, 8] = boutStarts[i]- boutStops[i-1]
   
     return bouts, pauses
+
+# Analyze temporal bouts
+def analyze_temporal_bouts(bouts, binning):
+
+    # Determine total bout counts
+    num_bouts = bouts.shape[0]
+
+    # Determine largest frame number in all bouts recordings (make multiple of 100)
+    max_frame = np.int(np.max(bouts[:, 4]))
+    max_frame = max_frame + (binning - (max_frame % binning))
+    max_frame = 100 * 60 * 10
+
+    # Temporal bouts
+    bout_hist = np.zeros(max_frame)
+    frames_moving = 0
+    
+    for i in range(0, num_bouts):
+        # Extract bout params
+        start = np.int(bouts[i][0])
+        stop = np.int(bouts[i][4])
+        duration = np.int(bouts[i][8])
+  
+        # Ignore bouts beyond 15 minutes
+        if stop >= max_frame:
+            continue
+
+        # Accumulate bouts in histogram
+        bout_hist[start:stop] = bout_hist[start:stop] + 1
+        frames_moving += duration
+
+
+    plt.figure()
+    plt.plot(bout_hist, 'b')
+    plt.show()
+
+    # Bin bout histogram
+    bout_hist_binned = np.sum(np.reshape(bout_hist.T, (binning, -1), order='F'), 0)
+
+    plt.figure()
+    plt.plot(bout_hist_binned, 'b')
+    plt.show()
+
+
+    return bout_hist, frames_moving
+
+
+def compute_speed(X,Y):
+    # Compute Speed (X-Y)    
+    speed = np.sqrt(np.diff(X)*np.diff(X) + np.diff(Y)*np.diff(Y)) 
+    speed = np.append([0], speed)
+    return speed
+
+
+def computeDistPerBout(fx,fy,boutStarts,boutEnds):
+## Computes total straight line distance travelled over the course of individual bouts
+## Returns a distance travelled for each bout, and a cumDist    
+    absDiffX=np.abs(fx[boutStarts]-fx[boutEnds])
+    absDiffY=np.abs(fy[boutStarts]-fy[boutEnds])
+    
+    cumDistPerBout=np.zeros(len(boutStarts)-1)
+    distPerBout=np.zeros(len(boutStarts))
+    
+    for i in range(len(boutStarts)):
+        distPerBout[i]=math.sqrt(np.square(absDiffX[i])+np.square(absDiffY[i]))
+#        if distPerBout[i]>100:distPerBout[i]=0
+        if i!=0 and i!=len(boutStarts)-1:
+            cumDistPerBout[i]=distPerBout[i]+cumDistPerBout[i-1]
+    
+    return distPerBout,cumDistPerBout
+
+
+def computeDistPerFrame(fx,fy):
+## Computes straight line distance between every frame, given x and y coordinates of tracking data
+    cumDistPerFrame=np.zeros(len(fx)-1)
+    distPerFrame=np.zeros(len(fx))
+    absDiffX=np.abs(np.diff(fx))
+    absDiffY=np.abs(np.diff(fy))
+    for i in range(len(fx)-1):
+        if i!=0:
+            distPerFrame[i]=math.sqrt(np.square(absDiffX[i])+np.square(absDiffY[i]))
+            if distPerFrame[i]>100:distPerFrame[i]=0
+            cumDistPerFrame[i]=distPerFrame[i]+cumDistPerFrame[i-1]
+    return distPerFrame,cumDistPerFrame
 
 # Build a histogram of all orientation values
 def ort_histogram(ort):

@@ -7,14 +7,15 @@ Created on Tue Apr  6 19:00:40 2021
 Bouts
 """                        
 # Set Library Path - Social_Pain Repos
-#lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
-lib_path = r'C:/Repos/Social_Pain/libs'
+lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
+#lib_path = r'C:/Repos/Social_Pain/libs'
 import sys
 sys.path.append(lib_path)
 
 # Set Base Path
 #base_path = r'/Users/alizeekastler/Desktop'
-base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
+#base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
+base_path = r'/volumes/groupfolders/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
 
 # Import useful libraries
 import glob
@@ -25,7 +26,7 @@ import pandas as pd
 
 # Import local modules
 
-import SP_Utilities as SPU
+import SP_utilities as SPU
 import SP_Analysis as SPA
 import BONSAI_ARK
 
@@ -40,7 +41,7 @@ motionStopThreshold = 0.002
 
 analysisFolder = base_path + '/Analysis_Control' 
 # Read folder list
-FolderlistFile = base_path + '/Experiment_32/Folderlist/Exp_32.txt' 
+FolderlistFile = base_path + '/Folderlist_Isolated.txt' 
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 
@@ -116,9 +117,9 @@ for idx,folder in enumerate(folderNames):
         
             
             # Compute BPS (NS)
-            BPS_NS = SPA.measure_BPS(motion_NS, motionStartThreshold, motionStopThreshold)
+            BPS_NS, avgBout_NS = SPA.measure_BPS(motion_NS, motionStartThreshold, motionStopThreshold)
             #Compute BPS (S)
-            BPS_S = SPA.measure_BPS(motion_S, motionStartThreshold, motionStopThreshold)
+            BPS_S, avgBout_S = SPA.measure_BPS(motion_S, motionStartThreshold, motionStopThreshold)
             
             # Compute Distance Traveled (NS)
             DistanceT_NS = SPA.distance_traveled(fx_NS, fy_NS, NS_ROIs[i],len(fx_NS))
