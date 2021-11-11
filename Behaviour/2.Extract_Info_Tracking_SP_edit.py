@@ -23,6 +23,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 
+
 # Import local modules
 
 import SP_utilities as SPU
@@ -34,14 +35,13 @@ plot = False
 filterTracking = False
 
 # Set threshold
-long_freeze_threshold = 1000
-short_freeze_threshold = 300
+freeze_threshold = 300
 motionStartThreshold = 0.02
-motionStopThreshold = 0.002 
+motionStopThreshold = 0 
 
-analysisFolder = base_path + '/Analysis_Heat' 
+analysisFolder = base_path + '/Analysis_Control' 
 # Read folder list
-FolderlistFile = base_path + '/Folderlist_Heat.txt' 
+FolderlistFile = base_path + '/Folderlist_Control.txt' 
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 
@@ -64,6 +64,8 @@ for idx,folder in enumerate(folderNames):
     width=NS_ROIs[:,2]
     height=NS_ROIs[:,3]
     
+    
+    
     Threshold_Cool = np.mean(x+(width)/7)
     Threshold_Noxious = np.mean(x+(width)*3.4/4)
    
@@ -71,8 +73,6 @@ for idx,folder in enumerate(folderNames):
     # Determine Fish Status       
     fishStat = fishStatus[idx, :]
     
-    Time_3SFreezes_NS = []
-    Time_3SFreezes_S = []
     # Analyze and plot each Fish
     for i in range(0,6):
         
@@ -84,8 +84,8 @@ for idx,folder in enumerate(folderNames):
 
             # Extract tracking data (NS)     
             tracking_file_NS = NS_folder + r'/tracking' + str(i+1) +'.npz'
-            fx_NS_1,fy_NS_1,bx_NS_1, by_NS_1, ex_NS_1, ey_NS_1, area_NS, ort_NS, motion_NS = SPU.getTracking(tracking_file_NS)
-            fx_NS,fy_NS,bx_NS, by_NS, ex_NS, ey_NS = SPV.normalizeROIoffset(fx_NS_1,fy_NS_1,bx_NS_1, by_NS_1, ex_NS_1, ey_NS_1, NS_ROIs)
+            fx_NS,fy_NS,bx_NS, by_NS, ex_NS, ey_NS, area_NS, ort_NS, motion_NS = SPU.getTracking(tracking_file_NS)
+            
             # Extract tracking data (S)
             tracking_file_S = S_folder + r'/tracking' + str(i+1) +'.npz'
             fx_S,fy_S,bx_S, by_S, ex_S, ey_S, area_S, ort_S, motion_S = SPU.getTracking(tracking_file_S)
@@ -116,113 +116,82 @@ for idx,folder in enumerate(folderNames):
             ort_S = ort_S[30000:90000]
             motion_S = motion_S[30000:90000]
         
-            
-            # Compute BPS (NS)
+            numFrames = 60000    
+
+#--------------------------------------------------------------------------------------------------------            
+            # Compute BPS 
             BPS_NS, avgBout_NS = SPA.measure_BPS(motion_NS, motionStartThreshold, motionStopThreshold)
-            #Compute BPS (S)
             BPS_S, avgBout_S = SPA.measure_BPS(motion_S, motionStartThreshold, motionStopThreshold)
             
-            # Compute Distance Traveled (NS)
-            DistanceT_NS = SPA.distance_traveled(fx_NS, fy_NS, NS_ROIs[i],len(fx_NS))
-            # Compute Distance Traveled (S)
-            DistanceT_S = SPA.distance_traveled(fx_S, fy_S, S_ROIs[i], len(fx_S))
+            # Compute Distance Travelled 
+            DistanceT_NS, Distance_Frame_NS = SPA.distance_traveled(fx_NS, fy_NS, NS_ROIs[i],len(fx_NS))
+            Binned_DistanceT_NS = SPA.Binning(Distance_Frame_NS, 6000)
+            
+            DistanceT_S, Distance_Frame_S = SPA.distance_traveled(fx_S, fy_S, S_ROIs[i], len(fx_S))
+            Binned_DistanceT_S = SPA.Binning(Distance_Frame_S, 6000)
 
-            # Analyze "Bouts" and "Pauses" (NS)
-            Bouts_NS, Pauses_NS = SPA.analyze_bouts_and_pauses(fx_NS, fy_NS,ort_NS, motion_NS, motionStartThreshold, motionStopThreshold)
-                    
+            # Analyze "Bouts" and "Pauses" 
+            Bouts_NS, Pauses_NS = SPA.analyze_bouts_and_pauses(fx_NS, fy_NS,ort_NS, motion_NS, NS_ROIs[i,1], motionStartThreshold, motionStopThreshold)
+            Bouts_S, Pauses_S = SPA.analyze_bouts_and_pauses(fx_S, fy_S, ort_S, motion_S, S_ROIs[i,1], motionStartThreshold, motionStopThreshold)       
+           
             Percent_Moving_NS = (100 * np.sum(Bouts_NS[:,8]))/(len(motion_NS))
             Percent_Paused_NS = (100 * np.sum(Pauses_NS[:,8]))/(len(motion_NS))
             
-            #Count Bouts (NS)
-            Bouts_X_NS = Bouts_NS[:,1]
-            Bouts_Y_NS = Bouts_NS[:,2]
-            
-            # Count Freezes(NS)
-            Long_Freezes_NS = np.array(np.sum(Pauses_NS[:,8]> long_freeze_threshold))
-            Short_Freezes_NS = np.array(np.sum(Pauses_NS[:,8]> short_freeze_threshold))
-            Short_Freezes_X_NS = np.mean(Pauses_NS[:,1][Pauses_NS[:,8]> short_freeze_threshold])
-            Short_Freezes_Y_NS = np.mean(Pauses_NS[:,2][Pauses_NS[:,8]> short_freeze_threshold])
-            
-            Short_Freezes_Time_NS = Pauses_NS[:,0]
-            Short_Freezes_Time_NS = Short_Freezes_Time_NS[Pauses_NS[:,8]> short_freeze_threshold]
-            
-            # Analyze "Bouts" and "Pauses" (S)
-            Bouts_S, Pauses_S = SPA.analyze_bouts_and_pauses(fx_S, fy_S, ort_S, motion_S, motionStartThreshold, motionStopThreshold)
             Percent_Moving_S = (100 * np.sum(Bouts_S[:,8]))/(len(motion_S))
             Percent_Paused_S = (100 * np.sum(Pauses_S[:,8]))/(len(motion_S))
             
-            #Count Bouts (S)
-            Bouts_X_S = Bouts_S[:,1]
-            Bouts_Y_S = Bouts_S[:,2]
+            # Speed
+            Speed_NS = SPA.compute_speed(fx_NS, fy_NS)
+            Speed_S = np.zeros((numFrames,2))
             
-            # Count Freezes(S)
-            Long_Freezes_S = np.array(np.sum(Pauses_S[:,8] > long_freeze_threshold))
-            Short_Freezes_S = np.array(np.sum(Pauses_S[:,8] > short_freeze_threshold))
-            Short_Freezes_X_S = np.mean(Pauses_S[:,1][Pauses_S[:,8]> short_freeze_threshold])
-            Short_Freezes_Y_S = np.mean(Pauses_S[:,2][Pauses_S[:,8]> short_freeze_threshold])
+            # Count Freezes
+            Freezes_NS, numFreezes_NS = SPA.analyze_freezes(Pauses_NS, freeze_threshold)
+            Binned_Freezes_NS = SPA.Bin_Freezes(Freezes_NS[:,0], 100, 10, 1)
             
-            Short_Freezes_Time_S = Pauses_S[:,0]
-            Short_Freezes_Time_S = Short_Freezes_Time_S[Pauses_S[:,8]> short_freeze_threshold]
-    
+            Freezes_S, numFreezes_S = SPA.analyze_freezes(Pauses_S, freeze_threshold)
+            Binned_Freezes_S = SPA.Bin_Freezes(Freezes_S[:,0], 100, 10, 1) 
             
-            #Freezes binning 1min
-            movieLength=10 # mins
-            FPS=100
-            length_fr=movieLength*60*FPS
-            binsize=1 # bin size in minutes for freezing time plot
-            binsizeFrames=1*60*FPS
-            
-            #(NS)
-            num_pauses=len(Short_Freezes_Time_NS)
-            
-            Binned_3SFreezes_NS=[]
-            for x in range(0, length_fr,binsizeFrames):
-                if x>0:
-                    boo=Short_Freezes_Time_NS<x
-                    Binned_3SFreezes_NS.append(np.sum(boo[Short_Freezes_Time_NS>(x-binsizeFrames)]))                
-            Time_3SFreezes_NS.append(Binned_3SFreezes_NS)
-            
-            #(S)
-            num_pauses=len(Short_Freezes_Time_S)
-            
-            Binned_3SFreezes_S=[]
-            for x in range(0, length_fr,binsizeFrames):
-                if x >0:
-                    boo=Short_Freezes_Time_S<x
-                    Binned_3SFreezes_S.append(np.sum(boo[Short_Freezes_Time_S>(x-binsizeFrames)]))                
-            Time_3SFreezes_S.append(Binned_3SFreezes_S)
-        
-        
-            #(NS)
-            num_pauses=len(Short_Freezes_Time_NS)
-            
-            Binned_3SFreezes_NS=[]
-            for x in range(0, length_fr,binsizeFrames):
-                if x>0:
-                    boo=Short_Freezes_Time_NS<x
-                    Binned_3SFreezes_NS.append(np.sum(boo[Short_Freezes_Time_NS>(x-binsizeFrames)]))                
-            Time_3SFreezes_NS.append(Binned_3SFreezes_NS)
-            
-            #(S)
-            num_pauses=len(Short_Freezes_Time_S)
-            
-            Binned_3SFreezes_S=[]
-            for x in range(0, length_fr,binsizeFrames):
-                if x >0:
-                    boo=Short_Freezes_Time_S<x
-                    Binned_3SFreezes_S.append(np.sum(boo[Short_Freezes_Time_S>(x-binsizeFrames)]))                
-            Time_3SFreezes_S.append(Binned_3SFreezes_S)
-            
-            #Plot Orientation
+#----------------------------------------------------------------------------------------------------------            
+           
+            # Orientation
             OrtHist_NS_Cool = SPA.ort_histogram(ort_NS[fx_NS < Threshold_Cool])
             OrtHist_NS_Hot = SPA.ort_histogram(ort_NS[(fx_NS >= Threshold_Cool) & (fx_NS <= Threshold_Noxious)])
             OrtHist_NS_Noxious = SPA.ort_histogram(ort_NS[fx_NS > Threshold_Noxious])
             OrtHist_S_Cool = SPA.ort_histogram(ort_S[fx_S < Threshold_Cool])
             OrtHist_S_Hot = SPA.ort_histogram(ort_S[(fx_S >= Threshold_Cool) & (fx_S <= Threshold_Noxious)])
             OrtHist_S_Noxious = SPA.ort_histogram(ort_S[fx_S > Threshold_Noxious])
+
+#--------------------------------------------------------------------------------------------------------------            
+            # Divide ROIs
+            fx_NS[fx_NS < Threshold_Cool] = 1
+            fx_NS[(fx_NS >= Threshold_Cool) & (fx_NS <= Threshold_Noxious)] = 2
+            fx_NS[fx_NS > Threshold_Noxious] = 4
             
-        
+            fx_S[fx_S < Threshold_Cool] = 1
+            fx_S[(fx_S >= Threshold_Cool) & (fx_S <= Threshold_Noxious)] = 2
+            fx_S[fx_S > Threshold_Noxious] = 4
             
+            # Total Frames in each ROI
+            Frames_Cool_NS = (np.count_nonzero(fx_NS[fx_NS==1]))/ numFrames
+            Frames_Hot_NS = (np.count_nonzero(fx_NS[fx_NS==2]))/numFrames
+            Frames_Noxious_NS = (np.count_nonzero(fx_NS[fx_NS==4]))/numFrames
+            
+            Frames_Cool_S = (np.count_nonzero(fx_S[fx_S==1]))/numFrames
+            Frames_Hot_S = (np.count_nonzero(fx_S[fx_S==2]))/numFrames
+            Frames_Noxious_S = (np.count_nonzero(fx_S[fx_S==4]))/numFrames
+            
+            #convert to Dataframe
+            Cool_NS = pd.Series(Frames_Cool_NS, name='Cool')
+            Hot_NS = pd.Series(Frames_Hot_NS, name='Hot')
+            Noxious_NS = pd.Series(Frames_Noxious_NS, name='Noxious')
+            Position_NS = pd.concat([Cool_NS,Hot_NS,Noxious_NS], axis=1)
+            
+            Cool_S = pd.Series(Frames_Cool_S, name='Cool')
+            Hot_S = pd.Series(Frames_Hot_S, name='Hot')
+            Noxious_S = pd.Series(Frames_Noxious_S, name='Noxious')
+            Position_S = pd.concat([Cool_S,Hot_S,Noxious_S], axis=1)
+            
+#---------------------------------------------------------------------------------------------------        
             if plot: 
                 
                 plt.subplot(2,2,1)
@@ -255,40 +224,28 @@ for idx,folder in enumerate(folderNames):
                 plt.savefig(filename, dpi=300)
                 plt.close('all')
 
+
+#-----------------------------------------------------------------------------------------
+            
+
             # Save Analyzed Summary Data
             filename = analysisFolder + '/' + str(np.int(groups[idx])) + 'SUMMARY' + str(i+1) + '.npz'
             np.savez(filename,BPS_NS = BPS_NS,BPS_S = BPS_S,
-                      Bouts_NS = Bouts_NS,Bouts_S = Bouts_S,Bouts_X_NS = Bouts_X_NS, Bouts_Y_NS = Bouts_Y_NS, Bouts_X_S = Bouts_X_S, Bouts_Y_S = Bouts_Y_S,
+                      Bouts_NS = Bouts_NS,Bouts_S = Bouts_S,
                       Pauses_NS = Pauses_NS,Pauses_S = Pauses_S,
                       Percent_Moving_NS = Percent_Moving_NS, Percent_Moving_S = Percent_Moving_S, 
                       Percent_Paused_NS = Percent_Paused_NS, Percent_Paused_S = Percent_Paused_S, 
-                      Long_Freezes_NS = Long_Freezes_NS,Short_Freezes_NS = Short_Freezes_NS,Long_Freezes_S = Long_Freezes_S,Short_Freezes_S=Short_Freezes_S,
-                      Short_Freezes_X_NS = Short_Freezes_X_NS,Short_Freezes_Y_NS = Short_Freezes_Y_NS,Short_Freezes_X_S = Short_Freezes_X_S,Short_Freezes_Y_S =  Short_Freezes_Y_S,
-                      Binned_3SFreezes_NS = Binned_3SFreezes_NS,Binned_3SFreezes_S = Binned_3SFreezes_S,
-                      DistanceT_NS = DistanceT_NS, DistanceT_S = DistanceT_S,
+                      Freezes_S = Freezes_S, Freezes_NS = Freezes_NS, numFreezes_NS = numFreezes_NS, numFreezes_S = numFreezes_S,
+                      Binned_Freezes_NS = Binned_Freezes_NS,Binned_Freezes_S = Binned_Freezes_S,    
+                      DistanceT_NS = DistanceT_NS, DistanceT_S = DistanceT_S, Binned_DistanceT_NS= Binned_DistanceT_NS, Binned_DistanceT_S = Binned_DistanceT_S,
                       OrtHist_NS_Cool = OrtHist_NS_Cool,OrtHist_NS_Noxious = OrtHist_NS_Noxious, OrtHist_S_Cool = OrtHist_S_Cool, OrtHist_S_Noxious = OrtHist_S_Noxious,
-                      OrtHist_NS_Hot = OrtHist_NS_Hot, OrtHist_S_Hot = OrtHist_S_Hot)
+                      OrtHist_NS_Hot = OrtHist_NS_Hot, OrtHist_S_Hot = OrtHist_S_Hot,
+                      Position_NS=Position_NS, Position_S = Position_S)
     
     # Report Progress
     print (idx)
     
-    # Binned_Freezes_NS = np.sum(Time_3SFreezes_NS, axis=0)
-    # Binned_Freezes_S = np.sum(Time_3SFreezes_S, axis=0)
-    # index = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
-    # df = pd.DataFrame({'Freezes NS': Binned_Freezes_NS,
-    #                 'Freezes S':Binned_Freezes_S }, index=index)
-    # df.plot.bar(rot=0, color={"Freezes NS": "lightsteelblue", "Freezes S": "steelblue"}, figsize= (10,6), width=0.8)
-    # plt.title('Total Number of Freezes over time',y=-0.15)
-    
-    # XPosition_Short_Freezes_NS = np.mean(Short_Freezes_X_NS, axis=0)
-    # YPosition_Short_Freezes_NS = np.mean(Short_Freezes_Y_NS, axis=0)
-    # XPosition_Short_Freezes_S = np.mean(Short_Freezes_X_S, axis=0)
-    # YPosition_Short_Freezes_S = np.mean(Short_Freezes_Y_S, axis=0)
-    
-    # plt.subplot()
-    # plt.scatter(XPosition_Short_Freezes_NS,YPosition_Short_Freezes_NS, color= 'lightsteelblue')
-    # plt.scatter(XPosition_Short_Freezes_S,YPosition_Short_Freezes_S, color= 'steelblue')
-    
+
     
 #FIN
 

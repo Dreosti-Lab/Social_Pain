@@ -23,17 +23,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
+import matplotlib.patches as mpatches
 
 
 # Import local modules
 
-import SP_Utilities as SPU
+import SP_utilities as SPU
 import BONSAI_ARK
 # Read folder list
-FolderlistFile = base_path + r'/Folderlist_Heat_New.txt'
+FolderlistFile = base_path + r'/Folderlist_Control.txt'
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
-analysisFolder = base_path + r'/Analysis_Heat_New'
+analysisFolder = base_path + r'/Analysis_Control'
 
 NS_Cool = []
 NS_Hot = []
@@ -179,7 +180,8 @@ NS1 = pd.Series(NS_Cool, name='Cool')
 NS2 = pd.Series(NS_Hot, name='Hot')
 NS3 = pd.Series(NS_Noxious, name='Noxious')
 NS_areadist = pd.concat([NS1,NS2,NS3], axis=1)
-
+Position_NS = pd.DataFrame(data = NS_areadist*100/len(NS_Cool), columns = ["Cool","Hot","Noxious"])
+Position_NS['condition']='Non Social'
 # NS1 = pd.Series(NS_Cool, name='1')
 # NS2 = pd.Series(NS_Hot, name='2')
 # NS3 = pd.Series(NS_Noxious, name='3')
@@ -191,7 +193,7 @@ sns.set(style="white", font_scale=1.5)
 sns.barplot(data=NS_areadist, ci ='sd', palette= ['midnightblue','purple','darkorange'], dodge= False)
 #sns.barplot(data=NS_areadist, ci ='sd', palette= ['midnightblue'], dodge= False)
 ax=sns.stripplot(data=NS_areadist,orient="v", color= 'dimgrey',size=6, jitter=True, edgecolor="gray") 
-plt.title('Non Social n=35', pad=10, fontsize=24)
+plt.title('Non Social n=94', pad=10, fontsize=24)
 ax.set_ylabel('Proportion of Frames')
 sns.despine() 
 plt.show()
@@ -202,6 +204,8 @@ S1 = pd.Series(S_Cool, name='Cool')
 S2 = pd.Series(S_Hot, name='Hot')
 S3 = pd.Series(S_Noxious, name='Noxious')
 S_areadist = pd.concat([S1,S2,S3], axis=1)
+Position_S = pd.DataFrame(data = S_areadist*100/len(S_Cool), columns = ["Cool","Hot","Noxious"])
+Position_S['condition']='Social'
 
 # S1 = pd.Series(S_Cool, name='1')
 # S2 = pd.Series(S_Hot, name='2')
@@ -213,11 +217,10 @@ plt.ylim(0,1.2)
 sns.barplot(data=S_areadist, ci ='sd', palette= ['midnightblue','purple','darkorange'], dodge= False)
 #sns.barplot(data=S_areadist, ci ='sd', palette= ['midnightblue'], dodge= False)
 ax=sns.stripplot(data=S_areadist,orient="v", color= 'dimgrey',size=6, jitter=True, edgecolor="gray") 
-plt.title('Social n=35', pad=10, fontsize=24)
+plt.title('Social n=94', pad=10, fontsize=24)
 ax.set_ylabel('Proportion of Frames')
 sns.despine() 
 plt.show()
-
 
 
 NS1 = pd.Series(NS_Cool, name='NS_Cool')
@@ -234,14 +237,36 @@ areadist = pd.concat([NS1,S1,NS2,S2,NS3,S3], axis=1)
 plt.figure(figsize=(16,18), dpi=300)
 sns.set(style="white", font_scale=2.5)
 plt.ylim(0,1.2)
-sns.barplot(data=areadist, ci='sd', palette = ['midnightblue', 'midnightblue', 'purple', 'purple', 'darkorange', 'darkorange'] )
-#sns.barplot(data=areadist, ci ='sd', palette= ['midnightblue'], dodge= False)
+#sns.barplot(data=areadist, ci='sd', palette = ['midnightblue', 'midnightblue', 'purple', 'purple', 'darkorange', 'darkorange'] )
+sns.barplot(data=areadist, ci ='sd', palette= ['midnightblue'], dodge= False)
 ax=sns.stripplot(data=areadist,orient="v", color= 'dimgrey',size=8, jitter=True, edgecolor="gray") 
 plt.title('Control', pad=10, fontsize=32, y=-0.10)
 ax.set_ylabel('Proportion of Frames')
 sns.despine() 
 plt.show()
 
+
+
+#stacked_Histogram
+Position = Position_NS.append([Position_S])
+total = Position.groupby('condition')['Cool','Hot','Noxious'].sum().reset_index()
+total['CoolHot'] = total['Cool'] + total['Hot']
+total['Total'] = total['Cool']+ total['Hot'] + total['Noxious']
+
+plt.figure(figsize=(3,6), dpi=300)
+sns.set(style="white", font_scale=1.5)
+sns.barplot(x="condition",  y='Total' , data=total, color='skyblue')
+sns.barplot(x="condition", y="CoolHot", data=total, estimator=sum, ci=None,  color='royalblue')
+sns.barplot(x="condition", y="Cool", data=total, estimator=sum, ci=None,  color='midnightblue')
+plt.ylabel('Proportion of Frames')
+plt.xlabel(None)
+sns.despine()
+#setLabels
+Cool = mpatches.Patch(color= 'midnightblue', label = 'area 1')
+Hot = mpatches.Patch(color= 'royalblue', label = 'area 2')
+Noxious = mpatches.Patch(color= 'skyblue', label = 'area 3')
+plt.legend(handles=[Noxious, Hot, Cool], bbox_to_anchor=(1, 1))
+plt.show()
 
 # NS_areadist['condition']='Non Social'
 # S_areadist['condition']='Social'

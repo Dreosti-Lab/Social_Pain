@@ -276,12 +276,7 @@ def fish_tracking(input_folder, output_folder, ROIs, divisor=7, kSize=3):
 
     # Track    
     for f in range(0,numFrames):  
-        
-        #### DEBUG ######
-        badFrameList=[82376,82776,82176,81876,81176,80376,80176,79276,79376]
-        badFrameList = [numFrames-x for x in badFrameList]
-        if f in badFrameList:
-            print('BadFrame')
+      
         # Read next frame        
         ret, im = vid.read()
         # Convert to grayscale (uint8)

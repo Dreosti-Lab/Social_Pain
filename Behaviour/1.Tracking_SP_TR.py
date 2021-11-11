@@ -25,10 +25,10 @@ from scipy import stats
 # Import local modules
 import SP_video_TRARK as SPV
 import BONSAI_ARK
-import SP_Utilities as SPU
+import SP_utilities as SPU
 
 # Read Folder List
-FolderlistFile = base_path + '\Experiment_32\Folderlist\Exp_32.txt'
+FolderlistFile = base_path + '\Folderlist_Heat2.txt'
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 # Divisor and closing kernel parameters (thresholding for mask and background)
@@ -71,7 +71,6 @@ for idx,folder in enumerate(folderNames):
     #Close Plots
     plt.close('all')
     
-    raster = SPV.intensities_dist(NS_folder, ROIs, 0, divisor=divisor) 
     
 # FIN
     

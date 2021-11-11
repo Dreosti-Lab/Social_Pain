@@ -25,19 +25,29 @@ def distance_traveled(fx, fy, ROI, numFrames):
     
     # Sample position every 10 frames (10 Hz) and accumulate distance swum
     # - Only add increments greater than 0.5 mm
+    
+    distance_frame = np.zeros((60000,2)) 
     prev_x = fx[0]
     prev_y = fy[0]
     distanceT = 0
     for f in range(9,numFrames,10):
+        
+        distance_frame[f,0] = f
+        
         dx = ((fx[f]-prev_x)/chamber_Width_px) * chamber_Width_mm
         dy = ((fy[f]-prev_y)/chamber_Height_px) * chamber_Height_mm
         d = np.sqrt(dx*dx + dy*dy)
-        if(d > 0.5):
+        
+        if d > 0.5:
+            
+            distance_frame[f,1]=d
+            
             distanceT = distanceT + d
             prev_x = fx[f]
-            prev_y = fy[f]           
-    
-    return distanceT
+            prev_y = fy[f] 
+
+            
+    return distanceT, distance_frame
 
 # Compute activity level of the fish in bouts per second (BPS)
 def measure_BPS(motion, startThreshold, stopThreshold):
@@ -46,15 +56,17 @@ def measure_BPS(motion, startThreshold, stopThreshold):
     boutStarts = []
     boutStops = []
     moving = 0
-    for i, m in enumerate(motion):
+    # f=frames, m=motion
+    for f, m in enumerate(motion):
         if(moving == 0):
             if m > startThreshold:
                 moving = 1
-                boutStarts.append(i)
+                boutStarts.append(f)
         else:
-            if m < stopThreshold:
+            if np.sum(motion[f:(f+30)]) == stopThreshold:
+            #bout stops only if at 0 for more than 30 frames (eliminate lost tracking)    
                 moving = 0
-                boutStops.append(i)
+                boutStops.append(f)
     
     # Extract all bouts (ignore last, if clipped)
     boutStarts = np.array(boutStarts)
@@ -78,21 +90,22 @@ def measure_BPS(motion, startThreshold, stopThreshold):
     return boutsPerSecond, avgBout
     
 # Analyze bouts and pauses (individual stats)
-def analyze_bouts_and_pauses(fx, fy, ort, motion, startThreshold, stopThreshold):
+def analyze_bouts_and_pauses(fx, fy, ort, motion, ROI, startThreshold, stopThreshold):
     
+
     # Find bouts starts and stops
     boutStarts = []
     boutStops = []
     moving = 0
-    for i, m in enumerate(motion):
+    for f, m in enumerate(motion):
         if(moving == 0):
             if m > startThreshold:
                 moving = 1
-                boutStarts.append(i)
+                boutStarts.append(f)
         else:
-            if m < stopThreshold:
+            if np.sum(motion[f:(f+30)]) == stopThreshold:
                 moving = 0
-                boutStops.append(i)
+                boutStops.append(f)
     
     # Extract all bouts (ignore last, if clipped)
     boutStarts = np.array(boutStarts)
@@ -106,11 +119,11 @@ def analyze_bouts_and_pauses(fx, fy, ort, motion, startThreshold, stopThreshold)
     for i in range(0, numBouts):
         bouts[i, 0] = boutStarts[i]
         bouts[i, 1] = fx[boutStarts[i]]
-        bouts[i, 2] = fy[boutStarts[i]]
+        bouts[i, 2] = (fy[boutStarts[i]])-ROI
         bouts[i, 3] = ort[boutStarts[i]]
         bouts[i, 4] = boutStops[i]
         bouts[i, 5] = fx[boutStops[i]]
-        bouts[i, 6] = fy[boutStops[i]]
+        bouts[i, 6] = (fy[boutStops[i]])-ROI
         bouts[i, 7] = ort[boutStops[i]]
         bouts[i, 8] = boutStops[i] - boutStarts[i]
         
@@ -121,15 +134,29 @@ def analyze_bouts_and_pauses(fx, fy, ort, motion, startThreshold, stopThreshold)
     for i in range(1, numBouts):
         pauses[i, 0] = boutStops[i-1]
         pauses[i, 1] = fx[boutStops[i-1]]
-        pauses[i, 2] = fy[boutStops[i-1]]
+        pauses[i, 2] = (fy[boutStops[i-1]])-ROI
         pauses[i, 3] = ort[boutStops[i-1]]
         pauses[i, 4] = boutStarts[i]
         pauses[i, 5] = fx[boutStarts[i]]
-        pauses[i, 6] = fy[boutStarts[i]]
+        pauses[i, 6] = (fy[boutStarts[i]])-ROI
         pauses[i, 7] = ort[boutStarts[i]]
         pauses[i, 8] = boutStarts[i]- boutStops[i-1]
   
     return bouts, pauses
+
+
+def analyze_freezes(pauses, freeze_threshold):
+    
+    numFreezes = np.sum(pauses[:,8]>freeze_threshold)
+    
+    freezeStart = pauses[:,0][(pauses[:,8]> freeze_threshold)]
+    fx_freezeStart = pauses[:,1][(pauses[:,8]> freeze_threshold)]
+    fy_freezeStart = pauses[:,2][(pauses[:,8]> freeze_threshold)]
+    ort_freezeStart = pauses[:,3][(pauses[:,8]> freeze_threshold)]
+
+    freezes = np.stack((freezeStart,fx_freezeStart, fy_freezeStart, ort_freezeStart), axis=-1)
+   
+    return freezes, numFreezes
 
 # Analyze temporal bouts
 def analyze_temporal_bouts(bouts, binning):
@@ -174,6 +201,33 @@ def analyze_temporal_bouts(bouts, binning):
 
 
     return bout_hist, frames_moving
+
+def Binning (parameter_2D_array, binsize_frames):
+    
+            f,d = np.transpose(parameter_2D_array) 
+            f = (f//binsize_frames). astype(int) 
+            binned_parameter = np.bincount(f,d).astype(np.int64)
+            
+            return binned_parameter
+        
+        
+def Bin_Freezes(Freeze_Start, FPS, movieLength, binsize) :
+    
+    FPS = 100
+    
+    movieLengthFrames= movieLength*60*FPS #in frames
+    binsizeFrames = binsize*60*FPS
+
+    Binned_Freezes=[]
+    for x in range(0, movieLengthFrames,binsizeFrames):
+      
+        if x>0:
+            boo=Freeze_Start<x
+            Binned_Freezes.append(np.sum(boo[Freeze_Start>(x-binsizeFrames)]))
+            
+    
+    return Binned_Freezes       
+
 
 
 def compute_speed(X,Y):
