@@ -58,8 +58,8 @@ def read_folder_list(folderlistFile):
  
 def get_folder_names(folder):
     # Specifiy Folder Names
-    NS_folder = folder + '/Non_Social_1'
-    S_folder = folder + '/Social_1'
+    NS_folder = folder + '/Non_Social'
+    S_folder = folder + '/Social'
     Analysis = folder + '/Analysis'
     
     

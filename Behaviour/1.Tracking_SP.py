@@ -8,7 +8,7 @@ import sys
 sys.path.append(lib_path)
 
 # Set Base Path
-base_path = r'S:\WIBR_Dreosti_Lab\Alizee\Behaviour_Heat_Gradient'
+base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
 #base_path = r'S:/WIBR_Dreosti_Lab/Tom/Behaviour_Lesion_Social'
 
 # Import useful libraries
@@ -24,10 +24,10 @@ from scipy import stats
 # Import local modules
 import SP_video_TRARK as SPV
 import BONSAI_ARK
-import SP_Utilities as SPU
+import SP_utilities as SPU
 
 # Read Folder List
-FolderlistFile = base_path + r'\Experiment_32\Folderlist\Exp_32.txt'
+FolderlistFile = base_path + r'/Heat_NewChamber/Folderlist_NewChamber_HEAT_2.txt'
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 # Divisor and closing kernel parameters (thresholding for mask and background)

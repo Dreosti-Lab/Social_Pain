@@ -28,7 +28,7 @@ from scipy import stats
 
 
 # Specify Analysis folder
-AnalysisFolder = base_path + '/Analysis_Heat' 
+AnalysisFolder = base_path + '/Control_NewChamber/Analysis' 
 
 # Find all the npz files saved for each group and fish with all the information
 npzFiles = glob.glob(AnalysisFolder+'/*.npz')
@@ -368,18 +368,18 @@ total = Position.groupby('condition')['Cool','Hot','Noxious'].sum().reset_index(
 total['CoolHot'] = total['Cool'] + total['Hot']
 total['Total'] = total['Cool']+ total['Hot'] + total['Noxious']
 
-plt.figure(figsize=(3,6), dpi=300)
+plt.figure(figsize=(6,3), dpi=300)
 sns.set(style="white", font_scale=1.5)
-sns.barplot(x="condition",  y='Total' , data=total, color='skyblue')
-sns.barplot(x="condition", y="CoolHot", data=total, estimator=sum, ci=None,  color='royalblue')
-sns.barplot(x="condition", y="Cool", data=total, estimator=sum, ci=None,  color='midnightblue')
-plt.ylabel('Proportion of Frames')
-plt.xlabel(None)
+sns.barplot(x='Total', y="condition" , data=total, color='darkorange')
+sns.barplot(x="CoolHot", y="condition", data=total, estimator=sum, ci=None,  color='purple')
+sns.barplot(x="Cool",y= "condition", data=total, estimator=sum, ci=None,  color='midnightblue')
+plt.xlabel('Proportion of Frames')
+plt.ylabel(None)
 sns.despine()
 #setLabels
-Cool = mpatches.Patch(color= 'midnightblue', label = 'area 1')
-Hot = mpatches.Patch(color= 'royalblue', label = 'area 2')
-Noxious = mpatches.Patch(color= 'skyblue', label = 'area 3')
+Cool = mpatches.Patch(color= 'midnightblue', label = 'cool')
+Hot = mpatches.Patch(color= 'purple', label = 'hot')
+Noxious = mpatches.Patch(color= 'darkorange', label = 'noxious')
 plt.legend(handles=[Noxious, Hot, Cool], bbox_to_anchor=(1, 1))
 plt.show()
 

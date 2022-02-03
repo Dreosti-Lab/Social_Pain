@@ -39,9 +39,9 @@ freeze_threshold = 300
 motionStartThreshold = 0.02
 motionStopThreshold = 0 
 
-analysisFolder = base_path + '/Analysis_Control' 
+analysisFolder = base_path + '/Control_NewChamber/Analysis' 
 # Read folder list
-FolderlistFile = base_path + '/Folderlist_Control.txt' 
+FolderlistFile = base_path + '/Control_NewChamber/Folderlist_NewChamber_CTL.txt'
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 

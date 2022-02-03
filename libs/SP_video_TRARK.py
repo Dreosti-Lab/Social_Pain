@@ -495,7 +495,26 @@ def fish_tracking(input_folder, output_folder, ROIs, divisor=7, kSize=3):
             updated_background = (np.float32(crop) * 0.01) + (current_background * 0.99)
             updated_background[dilated_fish==1] = current_background[dilated_fish==1]            
             background_ROIs[i] = np.copy(updated_background)
-                    
+        
+        # Save Tracking Summary
+        if(f == 0):
+            plt.savefig(output_folder+'/initial_tracking.png', dpi=300)
+            plt.figure('backgrounds')
+            for i in range(0,6):
+                plt.subplot(2,3,i+1)
+                plt.imshow(background_ROIs[i])
+            plt.savefig(output_folder+'/initial_backgrounds.png', dpi=300)
+            plt.close('backgrounds')
+        if(f == numFrames-1):
+            plt.savefig(output_folder+'/final_tracking.png', dpi=300)
+            plt.figure('backgrounds')
+            for i in range(0,6):
+                plt.subplot(2,3,i+1)
+                plt.imshow(background_ROIs[i])
+            plt.savefig(output_folder+'/final_backgrounds.png', dpi=300)
+            plt.close('backgrounds')
+
+            
         # Report Progress
         if (f%100) == 0:
             bs = '\b' * 1000            # The backspace
