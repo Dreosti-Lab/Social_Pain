@@ -2,13 +2,16 @@
 """
 Plot Tracking data
 """
-
 # Set Library Path - Social_Pain Repos
-lib_path = r'C:/Repos/Social_Pain/libs'
+lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
+#lib_path = r'C:\Repos\Social_Pain\libs'
 import sys
 sys.path.append(lib_path)
+
 # Set Base Path
-base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
+base_path = r'/Users/alizeekastler/Desktop/Project_Pain_Social/Behaviour_Heat_Gradient'
+#base_path = r'S:\WIBR_Dreosti_Lab\Alizee\Behaviour_Heat_Gradient'
+
 
 # Import useful libraries
 import numpy as np
@@ -22,7 +25,7 @@ import SP_utilities as SPU
 import BONSAI_ARK
 
 # Read folder list file
-FolderlistFile = base_path + '/Folderlist_Heat.txt' 
+FolderlistFile = base_path + '/Folderlist.txt' 
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 # XMs
@@ -143,7 +146,7 @@ for idx,folder in enumerate(folderNames):
 
 # Crude calibration: 280 = 28 deg, 850 = 36 deg (600/8) pixels per degree
 XM_values = (np.array(XMs)/75)
-TTSs = XM_values[:,1] - XM_values[:,0]
+TTS = XM_values[:,1] - XM_values[:,0]
 
 # Stats: paired Ttest mean position of each fish in NS vs S
 s, pvalue_rel = stats.ttest_rel(XM_values[:,1], XM_values[:,0])

@@ -7,14 +7,14 @@ Created on Tue Apr  6 19:00:40 2021
 Bouts
 """                        
 # Set Library Path - Social_Pain Repos
-#lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
-lib_path = r'C:\Repos\Social_Pain\libs'
+lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
+#lib_path = r'C:\Repos\Social_Pain\libs'
 import sys
 sys.path.append(lib_path)
 
 # Set Base Path
-#base_path = r'/Users/alizeekastler/Desktop'
-base_path = r'S:\WIBR_Dreosti_Lab\Alizee\Behaviour_Heat_Gradient'
+base_path = r'/Users/alizeekastler/Desktop/Project_Pain_Social/Behaviour_Heat_Gradient'
+#base_path = r'S:\WIBR_Dreosti_Lab\Alizee\Behaviour_Heat_Gradient'
 
 
 # Import useful libraries
@@ -28,7 +28,7 @@ from scipy import stats
 
 
 # Specify Analysis folder
-AnalysisFolder = base_path + '/Control_NewChamber/Analysis' 
+AnalysisFolder = base_path + '/Analysis' 
 
 # Find all the npz files saved for each group and fish with all the information
 npzFiles = glob.glob(AnalysisFolder+'/*.npz')
@@ -39,6 +39,8 @@ numFiles = np.size(npzFiles, 0)
 # Allocate space for summary data
 BPS_NS_ALL = np.zeros(numFiles)
 BPS_S_ALL = np.zeros(numFiles)
+avgPosition_NS_ALL = np.zeros(numFiles)
+avgPosition_S_ALL = np.zeros(numFiles)
 numFreezes_NS_ALL = np.zeros(numFiles)
 numFreezes_S_ALL = np.zeros(numFiles)
 Binned_Freezes_NS_ALL = np.zeros((numFiles,9))
@@ -100,6 +102,8 @@ for f, filename in enumerate(npzFiles):
     OrtHist_S_Noxious = dataobject['OrtHist_S_Noxious']
     Position_NS = dataobject['Position_NS']
     Position_S = dataobject['Position_S']
+    avgPosition_NS = dataobject['avgPosition_NS']
+    avgPosition_S = dataobject['avgPosition_S']
     
     # Make an array with all summary stats
     BPS_NS_ALL[f] = BPS_NS
@@ -116,6 +120,8 @@ for f, filename in enumerate(npzFiles):
     Percent_Paused_S_ALL[f] = Percent_Paused_S
     Position_NS_ALL[f] = Position_NS
     Position_S_ALL[f] = Position_S
+    avgPosition_NS_ALL[f] = avgPosition_NS
+    avgPosition_S_ALL[f] = avgPosition_S
     DistanceT_NS_ALL[f] = DistanceT_NS
     DistanceT_S_ALL[f] = DistanceT_S
     OrtHist_NS_Cool_ALL[f,:] = OrtHist_NS_Cool
@@ -238,12 +244,6 @@ plt.xticks(fontsize=32)
 plt.yticks(fontsize=32) 
 plt.colorbar()
 
-ax = plt.subplot(223)
-plt.hist2d(Bouts_NS_ALL[:,5], Bouts_NS_ALL[:,6],bins=10, cmap='Blues' )
-plt.title('Bout Stops', fontweight="bold", fontsize= 32, y=-0.25)
-plt.xticks(fontsize=32)  
-plt.yticks(fontsize=32) 
-plt.colorbar()
 
 ax = plt.subplot(222)  
 plt.hist2d(Bouts_S_ALL[:,1], Bouts_S_ALL[:,2],bins=10, cmap='Blues')
@@ -252,12 +252,6 @@ plt.xticks(fontsize=32)
 plt.yticks(fontsize=32) 
 plt.colorbar()
 
-ax = plt.subplot(224) 
-plt.hist2d(Bouts_S_ALL[:,5], Bouts_S_ALL[:,6],bins=10, cmap='Blues' )
-plt.title('Bout Stops', fontweight="bold", fontsize= 32, y=-0.25)
-plt.xticks(fontsize=32)  
-plt.yticks(fontsize=32)  
-plt.colorbar()
 
 fig.tight_layout(pad=2)
 
@@ -384,7 +378,44 @@ plt.legend(handles=[Noxious, Hot, Cool], bbox_to_anchor=(1, 1))
 plt.show()
 
 
-        
+
+#Plot TTS
+XMs = np.column_stack((avgPosition_NS_ALL, avgPosition_S_ALL))
+
+# Crude calibration: 280 = 28 deg, 850 = 36 deg (600/8) pixels per degree
+XM_values = (np.array(XMs)/75)
+TTSs = XM_values[:,1] - XM_values[:,0]
+
+
+# Stats: paired Ttest mean position of each fish in NS vs S
+s, pvalue_rel = stats.ttest_rel(XM_values[:,1], XM_values[:,0])
+s, pvalue_1samp = stats.ttest_1samp(TTSs, 0)
+
+mean_TTS = np.mean(XM_values[:,1] - XM_values[:,0])
+sem_TTS = np.std(XM_values[:,1] - XM_values[:,0])/np.sqrt(len(TTSs)-1)
+
+# Scatterplot Position Colormap
+TTS_data = pd.DataFrame({'avgPosition Non Social': XM_values[:, 0], 'avgPosition Social': XM_values[:, 1], 'Tolerated Temperature Shift (°C)': TTSs})
+ax=TTS_data.plot.scatter(x='avgPosition Social', y='avgPosition Non Social',c='Tolerated Temperature Shift (°C)', colormap='plasma', fontsize=14)
+ax.set_title('Mean TTS +/- SEM: {0:0.2f} +/- {1:0.2f}\n(p-value: {2:0.4f})'.format(mean_TTS, sem_TTS, pvalue_rel) + '\n n={0}'.format(len(TTSs)), fontsize=14)
+sns.despine()
+
+
+#Plot TTS Histogram
+plt.figure(dpi=300)
+plt.vlines(0, 0, 28, 'k')
+sns.histplot(TTSs,bins=14, color = 'xkcd:royal', kde=True,line_kws={"linewidth":3})
+plt.xlabel('Tolerated Temperature Shift (°C)', fontsize=30)
+plt.ylabel('Fish Count', fontsize=30)
+plt.title('Mean position of Test fish in Social vs Non_Social trials\nMean TTS +/- SEM: {0:0.2f} +/- {1:0.2f}\n(p-value: {2:0.4f})'.format(mean_TTS, sem_TTS, pvalue_rel)+ '\n={0}'.format(len(TTSs)), fontsize=30)
+plt.ylim([0, 28])
+plt.xlim([-2,3])
+#plt.text(4.5, 14, 'n={0}'.format(len(TTSs)))
+sns.despine()
+plt.show()
+
+
+  
         
         
         

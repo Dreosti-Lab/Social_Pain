@@ -7,14 +7,14 @@ Created on Tue Apr  6 19:00:40 2021
 Bouts
 """                        
 # Set Library Path - Social_Pain Repos
-#lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
-lib_path = r'C:/Repos/Social_Pain/libs'
+lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
+#lib_path = r'C:/Repos/Social_Pain/libs'
 import sys
 sys.path.append(lib_path)
 
 # Set Base Path
-#base_path = r'/Users/alizeekastler/Desktop'
-base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
+base_path = r'/Users/alizeekastler/Desktop/Project_Pain_Social'
+#base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
 
 # Import useful libraries
 import glob
@@ -39,9 +39,9 @@ freeze_threshold = 300
 motionStartThreshold = 0.02
 motionStopThreshold = 0 
 
-analysisFolder = base_path + '/Control_NewChamber/Analysis' 
+analysisFolder = base_path + '/Behaviour_Heat_Gradient/Analysis' 
 # Read folder list
-FolderlistFile = base_path + '/Control_NewChamber/Folderlist_NewChamber_CTL.txt'
+FolderlistFile = base_path + '/Behaviour_Heat_Gradient/Folderlist.txt'
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 
@@ -118,6 +118,9 @@ for idx,folder in enumerate(folderNames):
         
             numFrames = 60000    
 
+
+            avgPosition_NS = np.mean(fx_NS)
+            avgPosition_S = np.mean(fx_S)
 #--------------------------------------------------------------------------------------------------------            
             # Compute BPS 
             BPS_NS, avgBout_NS = SPA.measure_BPS(motion_NS, motionStartThreshold, motionStopThreshold)
@@ -150,6 +153,7 @@ for idx,folder in enumerate(folderNames):
             
             Freezes_S, numFreezes_S = SPA.analyze_freezes(Pauses_S, freeze_threshold)
             Binned_Freezes_S = SPA.Bin_Freezes(Freezes_S[:,0], 100, 10, 1) 
+            
             
 #----------------------------------------------------------------------------------------------------------            
            
@@ -190,6 +194,7 @@ for idx,folder in enumerate(folderNames):
             Hot_S = pd.Series(Frames_Hot_S, name='Hot')
             Noxious_S = pd.Series(Frames_Noxious_S, name='Noxious')
             Position_S = pd.concat([Cool_S,Hot_S,Noxious_S], axis=1)
+            
             
 #---------------------------------------------------------------------------------------------------        
             if plot: 
@@ -240,7 +245,7 @@ for idx,folder in enumerate(folderNames):
                       DistanceT_NS = DistanceT_NS, DistanceT_S = DistanceT_S, Binned_DistanceT_NS= Binned_DistanceT_NS, Binned_DistanceT_S = Binned_DistanceT_S,
                       OrtHist_NS_Cool = OrtHist_NS_Cool,OrtHist_NS_Noxious = OrtHist_NS_Noxious, OrtHist_S_Cool = OrtHist_S_Cool, OrtHist_S_Noxious = OrtHist_S_Noxious,
                       OrtHist_NS_Hot = OrtHist_NS_Hot, OrtHist_S_Hot = OrtHist_S_Hot,
-                      Position_NS=Position_NS, Position_S = Position_S)
+                      Position_NS=Position_NS, Position_S = Position_S, avgPosition_NS = avgPosition_NS, avgPosition_S=avgPosition_S)
     
     # Report Progress
     print (idx)
