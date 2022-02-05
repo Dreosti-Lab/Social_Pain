@@ -7,14 +7,14 @@ Created on Tue Apr  6 19:00:40 2021
 Bouts
 """                        
 # Set Library Path - Social_Pain Repos
-lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
-#lib_path = r'C:\Repos\Social_Pain\libs'
+#lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
+lib_path = r'C:/ReposSocial_Pain/libs'
 import sys
 sys.path.append(lib_path)
 
 # Set Base Path
-base_path = r'/Users/alizeekastler/Desktop/Project_Pain_Social/Behaviour_Heat_Gradient'
-#base_path = r'S:\WIBR_Dreosti_Lab\Alizee\Behaviour_Heat_Gradient'
+#base_path = r'/Users/alizeekastler/Desktop/Project_Pain_Social/Behaviour_Heat_Gradient'
+base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
 
 
 # Import useful libraries
@@ -28,7 +28,7 @@ from scipy import stats
 
 
 # Specify Analysis folder
-AnalysisFolder = base_path + '/Analysis' 
+AnalysisFolder = base_path + '/Control/Analysis' 
 
 # Find all the npz files saved for each group and fish with all the information
 npzFiles = glob.glob(AnalysisFolder+'/*.npz')
@@ -43,10 +43,10 @@ avgPosition_NS_ALL = np.zeros(numFiles)
 avgPosition_S_ALL = np.zeros(numFiles)
 numFreezes_NS_ALL = np.zeros(numFiles)
 numFreezes_S_ALL = np.zeros(numFiles)
-Binned_Freezes_NS_ALL = np.zeros((numFiles,9))
-Binned_Freezes_S_ALL = np.zeros((numFiles,9))
-Binned_DistanceT_NS_ALL = np.zeros((numFiles,10))
-Binned_DistanceT_S_ALL = np.zeros((numFiles,10))
+Binned_Freezes_NS_ALL = np.zeros((numFiles,14))
+Binned_Freezes_S_ALL = np.zeros((numFiles,14))
+Binned_DistanceT_NS_ALL = np.zeros((numFiles,15))
+Binned_DistanceT_S_ALL = np.zeros((numFiles,15))
 Percent_Moving_NS_ALL = np.zeros(numFiles)
 Percent_Moving_S_ALL = np.zeros(numFiles)
 Percent_Paused_NS_ALL = np.zeros(numFiles)
@@ -168,8 +168,8 @@ sns.stripplot(data=df, orient="v", color= 'dimgrey',size=6, jitter=True, edgecol
 sns.despine()
 plt.show()
 
-nBouts_NS = BPS_NS_ALL * (60000/120)
-nBouts_S = BPS_S_ALL * (60000/120)
+nBouts_NS = BPS_NS_ALL * (90000/100)
+nBouts_S = BPS_S_ALL * (90000/100)
 
 s_nBouts,pvalue_nBouts = stats.ttest_rel(nBouts_NS, nBouts_S) 
 plt.figure(figsize=(3,8), dpi=300)
@@ -280,7 +280,7 @@ plt.fill_between(np.arange(mean_Freezes_S.shape[0]), mean_Freezes_S + sem_Freeze
 
 plt.title('3s Freezes over time', fontweight="bold",fontsize= 18)
 plt.legend(labels=('Non Social', 'Social'), loc='upper right', bbox_to_anchor=(0.2, 1.2))
-plt.xticks(np.arange(0, 10, step= 1), ('1', '2','3','4','5','6','7', '8', '9', '10'))
+plt.xticks(np.arange(0, 15, step= 1), ('1', '2','3','4','5','6','7', '8', '9', '10', '11','12','13','14','15'))
 plt.xlabel('minutes')
 plt.ylabel('mean nb Freezes')
 plt.ylim(0,2)
@@ -305,7 +305,7 @@ plt.fill_between(np.arange(mean_DistanceT_S.shape[0]), mean_DistanceT_S + sem_Di
 plt.title('Distance Travelled over time', fontweight="bold",fontsize= 12)
 
 plt.legend(labels=('Non Social', 'Social'), loc='upper right', bbox_to_anchor=(0.2, 1.2))
-plt.xticks(np.arange(0, 10, step= 1), ('1', '2','3','4','5','6','7', '8', '9', '10'))
+plt.xticks(np.arange(0, 15, step= 1), ('1', '2','3','4','5','6','7', '8', '9', '10','11','12','13', '14','15'))
 plt.xlabel('minutes')
 plt.ylabel('Distance Travelled (mm)')
 plt.ylim(200,700)
@@ -404,9 +404,9 @@ sns.despine()
 #Plot TTS Histogram
 plt.figure(dpi=300)
 plt.vlines(0, 0, 28, 'k')
-sns.histplot(TTSs,bins=14, color = 'xkcd:royal', kde=True,line_kws={"linewidth":3})
+sns.histplot(TTSs,bins=8, color = 'xkcd:royal', kde=True,line_kws={"linewidth":3})
 plt.xlabel('Tolerated Temperature Shift (°C)', fontsize=30)
-plt.ylabel('Fish Count', fontsize=30)
+plt.ylabel('Relative Frequency', fontsize=30)
 plt.title('Mean position of Test fish in Social vs Non_Social trials\nMean TTS +/- SEM: {0:0.2f} +/- {1:0.2f}\n(p-value: {2:0.4f})'.format(mean_TTS, sem_TTS, pvalue_rel)+ '\n={0}'.format(len(TTSs)), fontsize=30)
 plt.ylim([0, 28])
 plt.xlim([-2,3])
@@ -415,7 +415,44 @@ sns.despine()
 plt.show()
 
 
-  
+#Make histogram and plot it with lines 
+a_ns,c=np.histogram(TTSs,  bins=8, range=(-4,6))
+centers = (c[:-1]+c[1:])/2
+
+#Normalize by tot number of fish
+Tot_Fish_NS=numFiles
+
+a_ns_float = np.float32(a_ns)
+a_ns_nor_medium=a_ns_float/Tot_Fish_NS
+ 
+plt.figure()
+sns.histplot(a_ns_nor_medium, bins=8, color=[0.5,0.5,0.5,1.0], linewidth=4.0)
+plt.title('Non Social/Social VPI', fontsize=12)
+plt.xlabel('Preference Index (PI_)', fontsize=12)
+plt.ylabel('Rel. Frequency', fontsize=12)
+
+
+bar_width=0.25
+plt.subplot(1,3,2)
+plt.bar(centers, a_ns_nor_medium, width=0.25, color=[0.5,0.5,0.5,1.0], linewidth=4.0)
+plt.title('Non Social VPI', fontsize=12)
+plt.xlabel('Preference Index (PI_)', fontsize=12)
+plt.ylabel('Rel. Frequency', fontsize=12)
+plt.axis([-1.1, 1.1, 0, 0.5])
+pl.yticks([0, 0.1, 0.2, 0.3, 0.4, 0.5], fontsize=12)
+pl.xticks([-1, -0.5, 0, 0.5, 1.0], fontsize=12)
+
+plt.subplot(1,3,3)
+plt.bar(centers, a_s_nor_medium, width=0.25, color=[1.0,0.0,0.0,1.0], linewidth=4.0)
+plt.title('Social VPI', fontsize=12)
+plt.xlabel('Preference Index (PI_)', fontsize=12)
+plt.ylabel('Rel. Frequency', fontsize=12)
+plt.axis([-1.1, 1.1, 0, 0.5])
+pl.yticks([0, 0.1, 0.2, 0.3, 0.4, 0.5], fontsize=12)
+pl.xticks([-1, -0.5, 0, 0.5, 1.0], fontsize=12)
+filename = analysisFolder + '/VPI.png'  
+plt.savefig(filename, dpi=600)
+plt.close('all')  
         
         
         

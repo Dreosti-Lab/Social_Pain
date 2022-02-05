@@ -26,7 +26,7 @@ def distance_traveled(fx, fy, ROI, numFrames):
     # Sample position every 10 frames (10 Hz) and accumulate distance swum
     # - Only add increments greater than 0.5 mm
     
-    distance_frame = np.zeros((60000,2)) 
+    distance_frame = np.zeros((90000,2)) 
     prev_x = fx[0]
     prev_y = fy[0]
     distanceT = 0
@@ -63,7 +63,7 @@ def measure_BPS(motion, startThreshold, stopThreshold):
                 moving = 1
                 boutStarts.append(f)
         else:
-            if np.sum(motion[f:(f+30)]) == stopThreshold:
+            if np.sum(motion[f:(f+100)]) == stopThreshold:
             #bout stops only if at 0 for more than 30 frames (eliminate lost tracking)    
                 moving = 0
                 boutStops.append(f)
@@ -103,7 +103,7 @@ def analyze_bouts_and_pauses(fx, fy, ort, motion, ROI, startThreshold, stopThres
                 moving = 1
                 boutStarts.append(f)
         else:
-            if np.sum(motion[f:(f+30)]) == stopThreshold:
+            if np.sum(motion[f:(f+100)]) == stopThreshold:
                 moving = 0
                 boutStops.append(f)
     
@@ -167,7 +167,7 @@ def analyze_temporal_bouts(bouts, binning):
     # Determine largest frame number in all bouts recordings (make multiple of 100)
     max_frame = np.int(np.max(bouts[:, 4]))
     max_frame = max_frame + (binning - (max_frame % binning))
-    max_frame = 100 * 60 * 10
+    max_frame = 100 * 60 * 15
 
     # Temporal bouts
     bout_hist = np.zeros(max_frame)

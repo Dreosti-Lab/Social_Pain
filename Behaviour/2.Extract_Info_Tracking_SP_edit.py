@@ -7,14 +7,14 @@ Created on Tue Apr  6 19:00:40 2021
 Bouts
 """                        
 # Set Library Path - Social_Pain Repos
-lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
-#lib_path = r'C:/Repos/Social_Pain/libs'
+#lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
+lib_path = r'C:/Repos/Social_Pain/libs'
 import sys
 sys.path.append(lib_path)
 
 # Set Base Path
-base_path = r'/Users/alizeekastler/Desktop/Project_Pain_Social'
-#base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
+#base_path = r'/Users/alizeekastler/Desktop/Project_Pain_Social'
+base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
 
 # Import useful libraries
 import glob
@@ -39,9 +39,9 @@ freeze_threshold = 300
 motionStartThreshold = 0.02
 motionStopThreshold = 0 
 
-analysisFolder = base_path + '/Behaviour_Heat_Gradient/Analysis' 
+AnalysisFolder = base_path + '/Control/Analysis' 
 # Read folder list
-FolderlistFile = base_path + '/Behaviour_Heat_Gradient/Folderlist.txt'
+FolderlistFile = base_path + '/Control/Folderlist_Control.txt'
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 
@@ -96,27 +96,27 @@ for idx,folder in enumerate(folderNames):
                 
                 
             #Only look at last 10min of Movie
-            fx_NS = fx_NS[30000:90000]
-            fy_NS = fy_NS[30000:90000]
-            bx_NS = bx_NS[30000:90000]
-            by_NS = by_NS[30000:90000]
-            ex_NS = ex_NS[30000:90000]
-            ey_NS = ey_NS[30000:90000]
-            area_NS = area_NS[30000:90000]
-            ort_NS = ort_NS[30000:90000]
-            motion_NS = motion_NS[30000:90000]
+            fx_NS = fx_NS[0:90000]
+            fy_NS = fy_NS[0:90000]
+            bx_NS = bx_NS[0:90000]
+            by_NS = by_NS[0:90000]
+            ex_NS = ex_NS[0:90000]
+            ey_NS = ey_NS[0:90000]
+            area_NS = area_NS[0:90000]
+            ort_NS = ort_NS[0:90000]
+            motion_NS = motion_NS[0:90000]
            
-            fx_S = fx_S[30000:90000]
-            fy_S = fy_S[30000:90000]
-            bx_S = bx_S[30000:90000]
-            by_S = by_S[30000:90000]
-            ex_S = ex_S[30000:90000]
-            ey_S = ey_S[30000:90000]
-            area_S = area_S[30000:90000]
-            ort_S = ort_S[30000:90000]
-            motion_S = motion_S[30000:90000]
+            fx_S = fx_S[0:90000]
+            fy_S = fy_S[0:90000]
+            bx_S = bx_S[0:90000]
+            by_S = by_S[0:90000]
+            ex_S = ex_S[0:90000]
+            ey_S = ey_S[0:90000]
+            area_S = area_S[0:90000]
+            ort_S = ort_S[0:90000]
+            motion_S = motion_S[0:90000]
         
-            numFrames = 60000    
+            numFrames = 90000    
 
 
             avgPosition_NS = np.mean(fx_NS)
@@ -128,10 +128,10 @@ for idx,folder in enumerate(folderNames):
             
             # Compute Distance Travelled 
             DistanceT_NS, Distance_Frame_NS = SPA.distance_traveled(fx_NS, fy_NS, NS_ROIs[i],len(fx_NS))
-            Binned_DistanceT_NS = SPA.Binning(Distance_Frame_NS, 6000)
+            Binned_DistanceT_NS = SPA.Binning(Distance_Frame_NS, 9000)
             
             DistanceT_S, Distance_Frame_S = SPA.distance_traveled(fx_S, fy_S, S_ROIs[i], len(fx_S))
-            Binned_DistanceT_S = SPA.Binning(Distance_Frame_S, 6000)
+            Binned_DistanceT_S = SPA.Binning(Distance_Frame_S, 9000)
 
             # Analyze "Bouts" and "Pauses" 
             Bouts_NS, Pauses_NS = SPA.analyze_bouts_and_pauses(fx_NS, fy_NS,ort_NS, motion_NS, NS_ROIs[i,1], motionStartThreshold, motionStopThreshold)
@@ -149,10 +149,10 @@ for idx,folder in enumerate(folderNames):
             
             # Count Freezes
             Freezes_NS, numFreezes_NS = SPA.analyze_freezes(Pauses_NS, freeze_threshold)
-            Binned_Freezes_NS = SPA.Bin_Freezes(Freezes_NS[:,0], 100, 10, 1)
+            Binned_Freezes_NS = SPA.Bin_Freezes(Freezes_NS[:,0], 100, 15, 1)
             
             Freezes_S, numFreezes_S = SPA.analyze_freezes(Pauses_S, freeze_threshold)
-            Binned_Freezes_S = SPA.Bin_Freezes(Freezes_S[:,0], 100, 10, 1) 
+            Binned_Freezes_S = SPA.Bin_Freezes(Freezes_S[:,0], 100, 15, 1) 
             
             
 #----------------------------------------------------------------------------------------------------------            
@@ -225,7 +225,7 @@ for idx,folder in enumerate(folderNames):
                 plt.plot(area_S, c='teal')
                 
                 # Save figure and data for each fish 
-                filename = analysisFolder + '/' + str(np.int(groups[idx])) + 'Motion' + str(i+1) + '.png'  
+                filename = AnalysisFolder + '/' + str(np.int(groups[idx])) + 'Motion' + str(i+1) + '.png'  
                 plt.savefig(filename, dpi=300)
                 plt.close('all')
 
@@ -234,7 +234,7 @@ for idx,folder in enumerate(folderNames):
             
 
             # Save Analyzed Summary Data
-            filename = analysisFolder + '/' + str(np.int(groups[idx])) + 'SUMMARY' + str(i+1) + '.npz'
+            filename = AnalysisFolder + '/' + str(np.int(groups[idx])) + 'SUMMARY' + str(i+1) + '.npz'
             np.savez(filename,BPS_NS = BPS_NS,BPS_S = BPS_S,
                       Bouts_NS = Bouts_NS,Bouts_S = Bouts_S,
                       Pauses_NS = Pauses_NS,Pauses_S = Pauses_S,
@@ -245,7 +245,7 @@ for idx,folder in enumerate(folderNames):
                       DistanceT_NS = DistanceT_NS, DistanceT_S = DistanceT_S, Binned_DistanceT_NS= Binned_DistanceT_NS, Binned_DistanceT_S = Binned_DistanceT_S,
                       OrtHist_NS_Cool = OrtHist_NS_Cool,OrtHist_NS_Noxious = OrtHist_NS_Noxious, OrtHist_S_Cool = OrtHist_S_Cool, OrtHist_S_Noxious = OrtHist_S_Noxious,
                       OrtHist_NS_Hot = OrtHist_NS_Hot, OrtHist_S_Hot = OrtHist_S_Hot,
-                      Position_NS=Position_NS, Position_S = Position_S, avgPosition_NS = avgPosition_NS, avgPosition_S=avgPosition_S)
+                      Position_NS=Position_NS, Position_S = Position_S, avgPosition_NS = avgPosition_NS, avgPosition_S = avgPosition_S)
     
     # Report Progress
     print (idx)
