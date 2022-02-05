@@ -28,7 +28,7 @@ from scipy import stats
 
 
 # Specify Analysis folder
-AnalysisFolder = base_path + '/Control/Analysis' 
+AnalysisFolder = base_path + '/Analysis' 
 
 # Find all the npz files saved for each group and fish with all the information
 npzFiles = glob.glob(AnalysisFolder+'/*.npz')
@@ -394,6 +394,22 @@ s, pvalue_1samp = stats.ttest_1samp(TTSs, 0)
 mean_TTS = np.mean(XM_values[:,1] - XM_values[:,0])
 sem_TTS = np.std(XM_values[:,1] - XM_values[:,0])/np.sqrt(len(TTSs)-1)
 
+
+#Make histogram and plot it with lines 
+bins = np.arange(-8,8,2)
+hist,edges=np.histogram(TTSs,bins)
+
+freq = hist/float(hist.sum())
+plt.bar(bins[:-1], freq, width=2, align="edge", ec="k" )
+plt.ylim(0, 1)
+plt.xlim(-8,8)
+plt.title('Mean TTS +/- SEM: {0:0.2f} +/- {1:0.2f}\n(p-value: {2:0.4f})'.format(mean_TTS, sem_TTS, pvalue_rel) + '\n n={0}'.format(len(TTSs)))
+plt.xlabel('Tolerated Temperature Shift (°C)')
+plt.ylabel('Relative Frequency')
+sns.despine()
+plt.show()
+
+
 # Scatterplot Position Colormap
 TTS_data = pd.DataFrame({'avgPosition Non Social': XM_values[:, 0], 'avgPosition Social': XM_values[:, 1], 'Tolerated Temperature Shift (°C)': TTSs})
 ax=TTS_data.plot.scatter(x='avgPosition Social', y='avgPosition Non Social',c='Tolerated Temperature Shift (°C)', colormap='plasma', fontsize=14)
@@ -401,58 +417,10 @@ ax.set_title('Mean TTS +/- SEM: {0:0.2f} +/- {1:0.2f}\n(p-value: {2:0.4f})'.form
 sns.despine()
 
 
-#Plot TTS Histogram
-plt.figure(dpi=300)
-plt.vlines(0, 0, 28, 'k')
-sns.histplot(TTSs,bins=8, color = 'xkcd:royal', kde=True,line_kws={"linewidth":3})
-plt.xlabel('Tolerated Temperature Shift (°C)', fontsize=30)
-plt.ylabel('Relative Frequency', fontsize=30)
-plt.title('Mean position of Test fish in Social vs Non_Social trials\nMean TTS +/- SEM: {0:0.2f} +/- {1:0.2f}\n(p-value: {2:0.4f})'.format(mean_TTS, sem_TTS, pvalue_rel)+ '\n={0}'.format(len(TTSs)), fontsize=30)
-plt.ylim([0, 28])
-plt.xlim([-2,3])
-#plt.text(4.5, 14, 'n={0}'.format(len(TTSs)))
-sns.despine()
-plt.show()
 
 
-#Make histogram and plot it with lines 
-a_ns,c=np.histogram(TTSs,  bins=8, range=(-4,6))
-centers = (c[:-1]+c[1:])/2
-
-#Normalize by tot number of fish
-Tot_Fish_NS=numFiles
-
-a_ns_float = np.float32(a_ns)
-a_ns_nor_medium=a_ns_float/Tot_Fish_NS
- 
-plt.figure()
-sns.histplot(a_ns_nor_medium, bins=8, color=[0.5,0.5,0.5,1.0], linewidth=4.0)
-plt.title('Non Social/Social VPI', fontsize=12)
-plt.xlabel('Preference Index (PI_)', fontsize=12)
-plt.ylabel('Rel. Frequency', fontsize=12)
 
 
-bar_width=0.25
-plt.subplot(1,3,2)
-plt.bar(centers, a_ns_nor_medium, width=0.25, color=[0.5,0.5,0.5,1.0], linewidth=4.0)
-plt.title('Non Social VPI', fontsize=12)
-plt.xlabel('Preference Index (PI_)', fontsize=12)
-plt.ylabel('Rel. Frequency', fontsize=12)
-plt.axis([-1.1, 1.1, 0, 0.5])
-pl.yticks([0, 0.1, 0.2, 0.3, 0.4, 0.5], fontsize=12)
-pl.xticks([-1, -0.5, 0, 0.5, 1.0], fontsize=12)
-
-plt.subplot(1,3,3)
-plt.bar(centers, a_s_nor_medium, width=0.25, color=[1.0,0.0,0.0,1.0], linewidth=4.0)
-plt.title('Social VPI', fontsize=12)
-plt.xlabel('Preference Index (PI_)', fontsize=12)
-plt.ylabel('Rel. Frequency', fontsize=12)
-plt.axis([-1.1, 1.1, 0, 0.5])
-pl.yticks([0, 0.1, 0.2, 0.3, 0.4, 0.5], fontsize=12)
-pl.xticks([-1, -0.5, 0, 0.5, 1.0], fontsize=12)
-filename = analysisFolder + '/VPI.png'  
-plt.savefig(filename, dpi=600)
-plt.close('all')  
         
         
         

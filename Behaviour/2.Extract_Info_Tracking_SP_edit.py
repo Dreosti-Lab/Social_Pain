@@ -13,7 +13,7 @@ import sys
 sys.path.append(lib_path)
 
 # Set Base Path
-#base_path = r'/Users/alizeekastler/Desktop/Project_Pain_Social'
+#base_path = r'/Users/alizeekastler/Desktop/Project_Pain_Social/Behaviour_Heat_Gradient'
 base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
 
 # Import useful libraries
@@ -29,7 +29,7 @@ import pandas as pd
 import SP_utilities as SPU
 import SP_Analysis as SPA
 import BONSAI_ARK
-import SP_video_TRARK as SPV
+
 
 plot = False
 filterTracking = False
@@ -39,9 +39,9 @@ freeze_threshold = 300
 motionStartThreshold = 0.02
 motionStopThreshold = 0 
 
-AnalysisFolder = base_path + '/Control/Analysis' 
+AnalysisFolder = base_path + '/Analysis' 
 # Read folder list
-FolderlistFile = base_path + '/Control/Folderlist_Control.txt'
+FolderlistFile = base_path + '/Folderlist.txt'
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 
@@ -63,11 +63,10 @@ for idx,folder in enumerate(folderNames):
     y=NS_ROIs[:,1]
     width=NS_ROIs[:,2]
     height=NS_ROIs[:,3]
+
     
-    
-    
-    Threshold_Cool = np.mean(x+(width)/7)
-    Threshold_Noxious = np.mean(x+(width)*3.4/4)
+    Threshold_Cool = np.mean(x+(width)/3)
+    Threshold_Noxious = np.mean(x+(width)*2/3)
    
 
     # Determine Fish Status       
@@ -128,10 +127,10 @@ for idx,folder in enumerate(folderNames):
             
             # Compute Distance Travelled 
             DistanceT_NS, Distance_Frame_NS = SPA.distance_traveled(fx_NS, fy_NS, NS_ROIs[i],len(fx_NS))
-            Binned_DistanceT_NS = SPA.Binning(Distance_Frame_NS, 9000)
+            Binned_DistanceT_NS = SPA.Binning(Distance_Frame_NS, 6000)
             
             DistanceT_S, Distance_Frame_S = SPA.distance_traveled(fx_S, fy_S, S_ROIs[i], len(fx_S))
-            Binned_DistanceT_S = SPA.Binning(Distance_Frame_S, 9000)
+            Binned_DistanceT_S = SPA.Binning(Distance_Frame_S, 6000)
 
             # Analyze "Bouts" and "Pauses" 
             Bouts_NS, Pauses_NS = SPA.analyze_bouts_and_pauses(fx_NS, fy_NS,ort_NS, motion_NS, NS_ROIs[i,1], motionStartThreshold, motionStopThreshold)
