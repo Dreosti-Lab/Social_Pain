@@ -3,19 +3,19 @@
 PreProcessing check immediately if the tracking has worked: Summary Background image + Difference
 """
 # Set Library Path - Social Pain Repo
-lib_path = r'C:\Repos\Social_Pain\libs'
+lib_path = r'C:/Repos/Social_Pain/libs'
 import sys
 sys.path.append(lib_path)
 # Set Base Path
-base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Social_Behaviour'
+base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
 #base_path = r'S:\WIBR_Dreosti_Lab\Alizee\Behaviour_Heat_Gradient'
 
 # Import local modules
-import SP_Video as SPV
-import SP_Utilities as SPU
+import SP_video_TRARK as SPV
+import SP_utilities as SPU
 
 # Read Folder List
-folderListFile = base_path + r'\Experiment_1\Folderlist\Exp_1.txt'
+folderListFile = base_path + r'\Heat_NewChamber38\Folderlist_NewChamber_HEAT38.txt'
 
 control = False
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(folderListFile)

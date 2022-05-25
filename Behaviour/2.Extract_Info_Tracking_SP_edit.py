@@ -35,13 +35,13 @@ plot = False
 filterTracking = False
 
 # Set threshold
-freeze_threshold = 300
+freeze_threshold = 500
 motionStartThreshold = 0.02
-motionStopThreshold = 0 
+motionStopThreshold = 0
 
-AnalysisFolder = base_path + '/Analysis' 
+AnalysisFolder = base_path + '/Heat_NewChamber38/Analysis' 
 # Read folder list
-FolderlistFile = base_path + '/Folderlist.txt'
+FolderlistFile = base_path + '/Heat_NewChamber38/Folderlist_NewChamber_HEAT38.txt'
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 
@@ -65,8 +65,8 @@ for idx,folder in enumerate(folderNames):
     height=NS_ROIs[:,3]
 
     
-    Threshold_Cool = np.mean(x+(width)/3)
-    Threshold_Noxious = np.mean(x+(width)*2/3)
+    Threshold_Cool = np.mean(x+(width)/7)
+    Threshold_Noxious = np.mean(x+(width)*3.4/4)
    
 
     # Determine Fish Status       

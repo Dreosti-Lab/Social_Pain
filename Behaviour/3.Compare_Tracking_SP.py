@@ -8,7 +8,7 @@ Bouts
 """                        
 # Set Library Path - Social_Pain Repos
 #lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
-lib_path = r'C:/ReposSocial_Pain/libs'
+lib_path = r'C:/Repos/Social_Pain/libs'
 import sys
 sys.path.append(lib_path)
 
@@ -28,8 +28,8 @@ from scipy import stats
 
 
 # Specify Analysis folder
-AnalysisFolder = base_path + '/Analysis' 
-
+AnalysisFolder = base_path + '/Heat_NewChamber38/Analysis' 
+FigureFolder = base_path + '/Heat_NewChamber38/Figures'
 # Find all the npz files saved for each group and fish with all the information
 npzFiles = glob.glob(AnalysisFolder+'/*.npz')
 
@@ -375,15 +375,15 @@ Cool = mpatches.Patch(color= 'midnightblue', label = 'cool')
 Hot = mpatches.Patch(color= 'purple', label = 'hot')
 Noxious = mpatches.Patch(color= 'darkorange', label = 'noxious')
 plt.legend(handles=[Noxious, Hot, Cool], bbox_to_anchor=(1, 1))
-plt.show()
+plt.savefig(FigureFolder + '/HistStack.eps', format='eps', dpi=600)
 
 
 
 #Plot TTS
 XMs = np.column_stack((avgPosition_NS_ALL, avgPosition_S_ALL))
 
-# Crude calibration: 280 = 28 deg, 850 = 36 deg (600/8) pixels per degree
-XM_values = (np.array(XMs)/75)
+# Crude calibration: 600 pixels / 100mm
+XM_values = (np.array(XMs)/6)
 TTSs = XM_values[:,1] - XM_values[:,0]
 
 
@@ -396,18 +396,19 @@ sem_TTS = np.std(XM_values[:,1] - XM_values[:,0])/np.sqrt(len(TTSs)-1)
 
 
 #Make histogram and plot it with lines 
-bins = np.arange(-8,8,2)
+bins = np.arange(-40,80,10)
 hist,edges=np.histogram(TTSs,bins)
-
 freq = hist/float(hist.sum())
-plt.bar(bins[:-1], freq, width=2, align="edge", ec="k" )
-plt.ylim(0, 1)
-plt.xlim(-8,8)
+
+plt.figure(figsize=(6,4), dpi=300)
+plt.bar(bins[:-1], freq, width=10, ec="k" )
+plt.ylim(0,0.5)
+plt.xlim(-70,70)
 plt.title('Mean TTS +/- SEM: {0:0.2f} +/- {1:0.2f}\n(p-value: {2:0.4f})'.format(mean_TTS, sem_TTS, pvalue_rel) + '\n n={0}'.format(len(TTSs)))
-plt.xlabel('Tolerated Temperature Shift (°C)')
+plt.xlabel('Position Shift (mm)')
 plt.ylabel('Relative Frequency')
 sns.despine()
-plt.show()
+plt.savefig(FigureFolder + '/TTS.eps', format='eps', dpi=600)
 
 
 # Scatterplot Position Colormap

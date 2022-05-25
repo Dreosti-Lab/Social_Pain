@@ -20,7 +20,7 @@ def distance_traveled(fx, fy, ROI, numFrames):
     # Rescale by chamber dimensions
     chamber_Width_px = ROI[2]
     chamber_Height_px = ROI[3]
-    chamber_Width_mm = 109
+    chamber_Width_mm = 100
     chamber_Height_mm = 14
     
     # Sample position every 10 frames (10 Hz) and accumulate distance swum
@@ -63,7 +63,7 @@ def measure_BPS(motion, startThreshold, stopThreshold):
                 moving = 1
                 boutStarts.append(f)
         else:
-            if np.sum(motion[f:(f+100)]) == stopThreshold:
+            if np.sum(motion[f:(f+30)]) == stopThreshold:
             #bout stops only if at 0 for more than 30 frames (eliminate lost tracking)    
                 moving = 0
                 boutStops.append(f)
@@ -103,7 +103,7 @@ def analyze_bouts_and_pauses(fx, fy, ort, motion, ROI, startThreshold, stopThres
                 moving = 1
                 boutStarts.append(f)
         else:
-            if np.sum(motion[f:(f+100)]) == stopThreshold:
+            if np.sum(motion[f:(f+30)]) == stopThreshold:
                 moving = 0
                 boutStops.append(f)
     
