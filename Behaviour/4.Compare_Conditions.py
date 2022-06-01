@@ -20,17 +20,18 @@ from scipy import stats
 import seaborn as sns
 import pandas as pd
 
+FigureFolder = base_path + '/NewChamber/Summary'
 
 # Set analysis folder and label for experiment/condition A
-analysisFolder_A = base_path + r'/L368,899_100uM_Control/Analysis'
+analysisFolder_A = base_path + r'/NewChamber/Control_NewChamber38/Analysis' 
 conditionName_A = "SC"
 
 # Set analysis folder and label for experiment/condition B
-analysisFolder_B = base_path + r'/L368,899_100uM_Habituation/Analysis'
+analysisFolder_B = base_path + r'/NewChamber/Gradient_NewChamber38/Analysis' 
 conditionName_B = "HC"
 
 # Set analysis folder and label for experiment/condition B
-analysisFolder_C = base_path + r'/L368,899_100uM_Heat/Analysis'
+analysisFolder_C = base_path + r'/NewChamber/Gradient_NewChamber38/Analysis' 
 conditionName_C = "HS"
 
 # Assemble lists
@@ -48,12 +49,13 @@ Percent_Moving_NS_summary = []
 Percent_Moving_S_summary = []
 TTSs_summary = []
 stat_TTS_summary = []
+cue_motion_summary = []
 
 # Go through each condition (analysis folder)
 for i, analysisFolder in enumerate(analysisFolders):
     
     # Freeze time threshold
-    freeze_threshold = 500 # more than 5 seconds
+    freeze_threshold = 300 # more than 3 seconds
 
     # Find all the npz files saved for each group and fish with all the information
     npzFiles = glob.glob(analysisFolder+'/*.npz')
@@ -72,7 +74,7 @@ for i, analysisFolder in enumerate(analysisFolders):
     Percent_Moving_S_ALL = np.zeros(numFiles)
     avgPosition_NS_ALL = np.zeros(numFiles)
     avgPosition_S_ALL = np.zeros(numFiles)
-    
+    avg_cue_motion_ALL = np.zeros(numFiles)
     
     # Go through all the files contained in the analysis folder
     for f, filename in enumerate(npzFiles):
@@ -91,6 +93,7 @@ for i, analysisFolder in enumerate(analysisFolders):
         Percent_Moving_S = dataobject['Percent_Moving_S']
         avgPosition_NS = dataobject['avgPosition_NS']
         avgPosition_S = dataobject['avgPosition_S']
+        avg_cue_motion = dataobject['avg_cue_motion']
         
         # Make an array with all summary stats
         Freezes_NS_ALL = np.vstack([Freezes_NS_ALL, Freezes_NS])
@@ -103,6 +106,7 @@ for i, analysisFolder in enumerate(analysisFolders):
         Percent_Moving_S_ALL[f] = Percent_Moving_S
         avgPosition_NS_ALL[f] = avgPosition_NS
         avgPosition_S_ALL[f] = avgPosition_S
+        avg_cue_motion_ALL[f] = avg_cue_motion
     
     
     XMs = np.column_stack((avgPosition_NS_ALL, avgPosition_S_ALL))
@@ -126,6 +130,9 @@ for i, analysisFolder in enumerate(analysisFolders):
     
     TTSs_summary.append(TTSs)
     stat_TTS_summary.append(pvalue_rel)
+    
+    cue_motion_ALL = np.nan_to_num(avg_cue_motion_ALL)
+    cue_motion_summary.append(cue_motion_ALL)
 
 
     #TTS
@@ -138,8 +145,10 @@ TTSs = XM_values[:,1] - XM_values[:,0]
 s, pvalue_rel = stats.ttest_rel(XM_values[:,1], XM_values[:,0])
 
 # Summary plots
+
+
 # BPS
-plt.figure(figsize = (8,10), dpi=300)
+BPS = plt.figure(figsize = (8,10), dpi=300)
 plt.title('BPS')
 series_list = []
 for i, name in enumerate(conditionNames):
@@ -150,21 +159,21 @@ for i, name in enumerate(conditionNames):
     s = pd.Series(BPS_S_summary[i], name= '2' + name)
     series_list.append(s)
     
-BPS = pd.concat(series_list, axis=1)
+BPS_data = pd.concat(series_list, axis=1)
 plt.ylabel('Number of Bouts Per Second (s)')
 plt.ylim(0,1.5)
-ax=sns.barplot(data=BPS,ci=95,  palette=['steelblue','steelblue','steelblue','lightsteelblue','lightsteelblue','lightsteelblue'])
-ax=sns.stripplot(data=BPS, orient="v", color= 'dimgrey',size=6, jitter=True, edgecolor="gray")
+ax=sns.barplot(data=BPS_data,ci=95,  palette=['steelblue','steelblue','steelblue','lightsteelblue','lightsteelblue','lightsteelblue'])
+ax=sns.stripplot(data=BPS_data, orient="v", color= 'dimgrey',size=6, jitter=True, edgecolor="gray")
 ax.set_xticklabels(ax.get_xticklabels(), rotation=30)
 sns.despine()
-plt.savefig(base_path + '/Summary/BPS.eps', format='eps', dpi=600)
 
+BPS.savefig(FigureFolder + '/BPS_WT.png', dpi=300, bbox_inches='tight')
 
 test = stats.ttest_ind(series_list[4],series_list[5])
 
 
 # Distance
-plt.figure(figsize= (8,10), dpi=300)
+DistanceT=plt.figure(figsize= (8,10), dpi=300)
 plt.title('Distance Travelled')
 series_list = []
 for i, name in enumerate(conditionNames):
@@ -174,20 +183,23 @@ for i, name in enumerate(conditionNames):
 for i, name in enumerate(conditionNames):
     s = pd.Series(DistanceT_S_summary[i], name="2" + name)
     series_list.append(s)
-df = pd.concat(series_list, axis=1)
+distance_data = pd.concat(series_list, axis=1)
 plt.ylabel('Total Distance Travelled (mm)')
 plt.ylim(0,14000)
-ax=sns.barplot(data=df,ci=95,  palette=['steelblue','steelblue','steelblue','lightsteelblue','lightsteelblue','lightsteelblue'])
-ax=sns.stripplot(data=df, orient="v", color= 'dimgrey',size=6, jitter=True, edgecolor="gray")
+ax=sns.barplot(data=distance_data,ci=95,  palette=['steelblue','steelblue','steelblue','lightsteelblue','lightsteelblue','lightsteelblue'])
+ax=sns.stripplot(data=distance_data, orient="v", color= 'dimgrey',size=6, jitter=True, edgecolor="gray")
 ax.set_xticklabels(ax.get_xticklabels(), rotation=30)
 sns.despine()
-plt.savefig(base_path + '/Summary/DistanceT.eps', format='eps', dpi=600)
+
+
+DistanceT.savefig(FigureFolder + '/DistanceT_WT.png', dpi=300, bbox_inches='tight')
 
 test = stats.ttest_rel(series_list[2],series_list[5])
 
 
+
 # Percent Moving
-plt.figure(figsize= (8,10), dpi=300)
+Moving= plt.figure(figsize= (8,10), dpi=300)
 plt.title('Percent Time Moving')
 series_list = []
 for i, name in enumerate(conditionNames):
@@ -197,19 +209,19 @@ for i, name in enumerate(conditionNames):
 for i, name in enumerate(conditionNames):
     s = pd.Series(Percent_Moving_S_summary[i], name="2" + name)
     series_list.append(s)
-df = pd.concat(series_list, axis=1)
+moving_data = pd.concat(series_list, axis=1)
 plt.ylabel('% Time Moving')
 plt.ylim(0,100)
-ax=sns.barplot(data=df,ci=95,  palette=['steelblue','steelblue','steelblue','lightsteelblue','lightsteelblue','lightsteelblue'])
-ax=sns.stripplot(data=df, orient="v", color= 'dimgrey',size=6, jitter=True, edgecolor="gray")
+ax=sns.barplot(data=moving_data,ci=95,  palette=['steelblue','steelblue','steelblue','lightsteelblue','lightsteelblue','lightsteelblue'])
+ax=sns.stripplot(data=moving_data, orient="v", color= 'dimgrey',size=6, jitter=True, edgecolor="gray")
 ax.set_xticklabels(ax.get_xticklabels(), rotation=30)
 sns.despine()
-plt.savefig(base_path + '/Summary/PercentMoving.eps', format='eps', dpi=600)
 
 
-# Percent time freezing Summary Plot (NS)
-plt.figure(figsize=(8,6), dpi=300)
+Moving.savefig(FigureFolder + '/Moving_WT.png', dpi=300, bbox_inches='tight')
 
+
+Shift= plt.figure(figsize= (12,10),dpi=300)
 series_list = []
 for i, name in enumerate(conditionNames):
     s = pd.Series(TTSs_summary[i], name="S: " + name)
@@ -223,6 +235,25 @@ plt.hlines(0,-1,3, 'red',linestyles='dotted')
 plt.ylabel('Relative Position Shift (mm)')
 sns.despine()
 
+Shift.savefig(FigureFolder + '/RPS_WT.png', dpi=300, bbox_inches='tight')
+
 test = stats.ttest_ind(series_list[0], series_list[1], 
                       equal_var=True)
+
+
+# cue motion
+cueMotion = plt.figure(figsize=(5,8), dpi=300)
+plt.title('Average Motion, Social Cue', fontsize=18)
+motion_list = []
+for i, name in enumerate(conditionNames):
+    s = pd.Series(cue_motion_summary[i],name=name)
+    motion_list.append(s)
+
+sns.boxplot(data=motion_list, color = '#BBBBBB', linewidth=2)
+sns.stripplot(data=motion_list, palette = ['steelblue', 'darkblue', 'fuchsia'],size=6, jitter=True, edgecolor="gray")
+plt.ylabel('Average Motion', fontsize=14)
+plt.xticks(np.arange(0, 3, step= 1), ('SC', 'HC','HS'), fontsize=12)
+
+cueMotion.savefig(FigureFolder + '/cueMotion_WT.png', dpi=300, bbox_inches='tight')
+
 

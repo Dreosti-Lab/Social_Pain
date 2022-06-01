@@ -28,8 +28,8 @@ from scipy import stats
 
 
 # Specify Analysis folder
-AnalysisFolder = base_path + '/Heat_NewChamber38/Analysis' 
-FigureFolder = base_path + '/Heat_NewChamber38/Figures'
+AnalysisFolder = base_path + '/NewChamber/Control_NewChamber38/Analysis' 
+FigureFolder = base_path + '/NewChamber/Control_NewChamber38/Figures'
 # Find all the npz files saved for each group and fish with all the information
 npzFiles = glob.glob(AnalysisFolder+'/*.npz')
 
@@ -41,6 +41,7 @@ BPS_NS_ALL = np.zeros(numFiles)
 BPS_S_ALL = np.zeros(numFiles)
 avgPosition_NS_ALL = np.zeros(numFiles)
 avgPosition_S_ALL = np.zeros(numFiles)
+avg_cue_motion_ALL = np.zeros(numFiles)
 numFreezes_NS_ALL = np.zeros(numFiles)
 numFreezes_S_ALL = np.zeros(numFiles)
 Binned_Freezes_NS_ALL = np.zeros((numFiles,14))
@@ -104,6 +105,7 @@ for f, filename in enumerate(npzFiles):
     Position_S = dataobject['Position_S']
     avgPosition_NS = dataobject['avgPosition_NS']
     avgPosition_S = dataobject['avgPosition_S']
+    avg_cue_motion = dataobject['avg_cue_motion']
     
     # Make an array with all summary stats
     BPS_NS_ALL[f] = BPS_NS
@@ -122,6 +124,7 @@ for f, filename in enumerate(npzFiles):
     Position_S_ALL[f] = Position_S
     avgPosition_NS_ALL[f] = avgPosition_NS
     avgPosition_S_ALL[f] = avgPosition_S
+    avg_cue_motion_ALL[f] = avg_cue_motion
     DistanceT_NS_ALL[f] = DistanceT_NS
     DistanceT_S_ALL[f] = DistanceT_S
     OrtHist_NS_Cool_ALL[f,:] = OrtHist_NS_Cool
@@ -141,10 +144,10 @@ for f, filename in enumerate(npzFiles):
      
 s_DistanceT,pvalue_DistanceT = stats.ttest_rel(DistanceT_NS_ALL, DistanceT_S_ALL) 
 # Plot Distance Travelled
-plt.figure(figsize=(3,8), dpi=300)
-plt.title('Distance Travelled n='+ format(numFiles) +'\n p-value:'+ format(pvalue_DistanceT),pad=10, fontsize= 20, y=-0.2)
+DistanceT = plt.figure(figsize=(3,8), dpi=300)
+plt.title('Distance Travelled n='+ format(numFiles) +'\n p-value:'+ format(pvalue_DistanceT),fontsize=20, y=-0.2)
 plt.ylabel('Total Distance Travelled (mm)')
-plt.ylim(0,12000)
+plt.ylim(0,20000)
 #plt.ylim([0,50000])
 s1 = pd.Series(DistanceT_NS_ALL, name='Non Social')
 s2 = pd.Series(DistanceT_S_ALL, name='Social')
@@ -153,10 +156,12 @@ sns.barplot(data=df, ci='sd',  palette=['lightsteelblue', 'steelblue'])
 sns.stripplot(data=df,orient="v", color= 'dimgrey',size=6, jitter=True, edgecolor="gray")
 sns.despine()  
 
+DistanceT.savefig(FigureFolder + '/DistanceT.png', dpi=300, bbox_inches='tight')
+
 
 s_BPS,pvalue_BPS = stats.ttest_rel(BPS_NS_ALL, BPS_S_ALL)    
 #Plot BPS
-plt.figure(figsize=(3,8), dpi=300)
+BoutsperSecond = plt.figure(figsize=(3,8), dpi=300)
 plt.title('Bouts Per Second n=' + format(numFiles) + '\n p-value: '+ format(pvalue_BPS), pad=10, fontsize= 20, y=-0.2)
 plt.ylabel('Number of Bouts Per Second (s)')
 plt.ylim(0,2)
@@ -168,14 +173,17 @@ sns.stripplot(data=df, orient="v", color= 'dimgrey',size=6, jitter=True, edgecol
 sns.despine()
 plt.show()
 
+BoutsperSecond.savefig(FigureFolder + '/BPS.png', dpi=300, bbox_inches='tight')
+
+
 nBouts_NS = BPS_NS_ALL * (90000/100)
 nBouts_S = BPS_S_ALL * (90000/100)
 
 s_nBouts,pvalue_nBouts = stats.ttest_rel(nBouts_NS, nBouts_S) 
-plt.figure(figsize=(3,8), dpi=300)
+nBouts = plt.figure(figsize=(3,8), dpi=300)
 plt.title(' Total number of Bouts n=' + format(numFiles) + '\n p-value: '+ format(pvalue_nBouts), pad=10, fontsize= 20, y=-0.2)
 plt.ylabel('Number of Bouts')
-plt.ylim(0,650)
+plt.ylim(0,800)
 s1 = pd.Series(nBouts_NS, name='Non Social')
 s2 = pd.Series(nBouts_S, name='Social')
 df = pd.concat([s1,s2], axis=1)
@@ -184,12 +192,14 @@ sns.stripplot(data=df, orient="v", color= 'dimgrey',size=6, jitter=True, edgecol
 sns.despine()
 plt.show()
 
+
+
 s_Freezes,pvalue_Freezes = stats.ttest_rel(numFreezes_NS_ALL, numFreezes_S_ALL) 
 # Plot Short Freezes
-plt.figure(figsize=(3,8), dpi=300)
+shortFreezes = plt.figure(figsize=(3,8), dpi=300)
 plt.title('3s Freezes n='+ format(numFiles)+'\n p-value: ' + format(pvalue_Freezes), pad=10, fontsize= 20, y=-0.2)
 plt.ylabel('Total Number of Freezes (>3s)')
-plt.ylim(0,40)
+plt.ylim(-1,40)
 s1 = pd.Series(numFreezes_NS_ALL, name='Non Social')
 s2 = pd.Series(numFreezes_S_ALL, name='Social')
 df = pd.concat([s1,s2], axis=1)
@@ -197,10 +207,11 @@ sns.barplot(data=df, ci='sd',  palette=['lightsteelblue','steelblue'])
 sns.stripplot(data=df, orient="v", color= 'dimgrey',size=6, jitter=True, edgecolor="gray")
 sns.despine()
 
+shortFreezes.savefig(FigureFolder + '/3sFreezes.png', dpi=300, bbox_inches='tight')
 
 # Plot Percent time Moving
 s_Moving,pvalue_Moving = stats.ttest_rel(Percent_Moving_NS_ALL, Percent_Moving_S_ALL) 
-plt.figure(figsize=(3,8), dpi=300)
+Moving = plt.figure(figsize=(3,8), dpi=300)
 plt.title('n='+ format(numFiles) +'\n p-value: ' + format(pvalue_Moving), pad=10, fontsize= 20, y=-0.2)
 plt.ylabel('% Time Moving')
 plt.ylim(0,100)
@@ -211,9 +222,11 @@ sns.barplot(data=df, ci='sd',  palette=['lightsteelblue','steelblue'])
 sns.stripplot(data=df, orient="v", color= 'dimgrey',size=6, jitter=True, edgecolor="gray")
 sns.despine()
 
+Moving.savefig(FigureFolder + '/%Moving.png', dpi=300, bbox_inches='tight')
+
 # Plot Percent time Moving
 s_Pausing,pvalue_Pausing = stats.ttest_rel(Percent_Paused_NS_ALL, Percent_Paused_S_ALL) 
-plt.figure(figsize=(3,8), dpi=300)
+Pausing = plt.figure(figsize=(3,8), dpi=300)
 plt.title('n='+ format(numFiles) +'\n p-value: ' + format(pvalue_Pausing), pad=10, fontsize= 20, y=-0.2)
 plt.ylabel('% Time Pausing')
 plt.ylim(0,100)
@@ -223,38 +236,41 @@ df = pd.concat([s1,s2], axis=1)
 sns.barplot(data=df, ci='sd',  palette=['lightsteelblue','steelblue'])
 sns.stripplot(data=df, orient="v", color= 'dimgrey',size=6, jitter=True, edgecolor="gray")
 sns.despine()
+
+Pausing.savefig(FigureFolder + '/%Pausing.png', dpi=300, bbox_inches='tight')
   
 # Scatterplot Position of Freezes
-plt.figure(figsize=(8,2), dpi=300)
+xFreezes = plt.figure(figsize=(8,2), dpi=300)
 plt.title("Position of Freezes"+ '\n n='+ format(numFiles))  
 plt.scatter(Freezes_NS_ALL[:,1],Freezes_NS_ALL[:,2],color= 'lightsteelblue', label ="Non_Social")
 plt.scatter(Freezes_S_ALL[:,1],Freezes_S_ALL[:,2],color= 'steelblue', label = "Social")
 plt.legend(bbox_to_anchor=(0.3, 1.6))
 plt.show()
 
+xFreezes.savefig(FigureFolder + '/Pos_Freezes.png', dpi=300, bbox_inches='tight')
+
 #Plot distribution of Bouts // NS vs S
 
-fig = plt.figure(figsize=(48,18), dpi=300)
+Bouts_map = plt.figure(figsize=(45,16), dpi=300)
 plt.suptitle("Distribution of Bouts"+ '\n n='+ format(numFiles), fontweight="bold", fontsize=64, y=1) 
 
 ax = plt.subplot(221)
 plt.hist2d(Bouts_NS_ALL[:,1], Bouts_NS_ALL[:,2], bins=10, cmap='Blues')
-plt.title('Bout Starts', fontweight="bold", fontsize= 32, y=-0.25)
-plt.xticks(fontsize=32)  
+plt.title('Non Social', fontweight="bold", fontsize= 32, y=-0.25) 
+plt.xticks(fontsize=32)
 plt.yticks(fontsize=32) 
 plt.colorbar()
-
 
 ax = plt.subplot(222)  
 plt.hist2d(Bouts_S_ALL[:,1], Bouts_S_ALL[:,2],bins=10, cmap='Blues')
-plt.title('Bout Starts', fontweight="bold", fontsize= 32, y=-0.25)
+plt.title('Social', fontweight="bold", fontsize= 32, y=-0.25)
 plt.xticks(fontsize=32)  
 plt.yticks(fontsize=32) 
 plt.colorbar()
 
 
-fig.tight_layout(pad=2)
-
+Bouts_map.tight_layout(pad=2)
+Bouts_map.savefig(FigureFolder + '/BoutsMap.png', dpi=300, bbox_inches='tight')
 
 
 #Binned Freezes
@@ -268,22 +284,38 @@ std_Freezes_S = np.std(Binned_Freezes_S_ALL, axis=0)
 
 
 # Plot Freezes_Time
-plt.figure(figsize=(8,6), dpi=300)
+Binned_Freezes = plt.figure(figsize=(25,20), dpi=300)
+plt.suptitle("3s Freezes over time"+ '\n n='+ format(numFiles), fontweight="bold", fontsize=30, y=0.9) 
+
+ax = plt.subplot(221)
+plt.title('Non Social', fontweight="bold", fontsize= 25, y=-0.2)
 plt.plot(mean_Freezes_NS, color = 'lightsteelblue', linewidth= 3)
 plt.fill_between(np.arange(mean_Freezes_NS.shape[0]), mean_Freezes_NS + sem_Freezes_NS,
                  mean_Freezes_NS - sem_Freezes_NS,color= 'lightsteelblue',alpha=0.2)
 #plt.errorbar(np.arange(mean_Freezes_NS.shape[0]), mean_Freezes_NS,std_Freezes_NS, color ='lightsteelblue', linewidth=1)
+plt.ylabel('mean nb Freezes')
+plt.ylim(0,2)
+plt.xticks(np.arange(0, 15, step= 1), ('1', '2','3','4','5','6','7', '8', '9', '10', '11','12','13','14','15'))
+plt.xlabel('minutes')
+ax.spines['right'].set_visible(False)
+ax.spines['top'].set_visible(False)
+
+ax = plt.subplot(222)
+plt.title('Social', fontweight="bold", fontsize= 25, y=-0.2)
 plt.plot(mean_Freezes_S, color = 'steelblue', linewidth= 3)
 plt.fill_between(np.arange(mean_Freezes_S.shape[0]), mean_Freezes_S + sem_Freezes_S,
                  mean_Freezes_S - sem_Freezes_S,color= 'steelblue',alpha=0.2)
 #plt.errorbar(np.arange(mean_Freezes_S.shape[0]), mean_Freezes_S,std_Freezes_S, color ='steelblue', linewidth=1)
-
-plt.title('3s Freezes over time', fontweight="bold",fontsize= 18)
-plt.legend(labels=('Non Social', 'Social'), loc='upper right', bbox_to_anchor=(0.2, 1.2))
+plt.ylim(0,2)
 plt.xticks(np.arange(0, 15, step= 1), ('1', '2','3','4','5','6','7', '8', '9', '10', '11','12','13','14','15'))
 plt.xlabel('minutes')
-plt.ylabel('mean nb Freezes')
-plt.ylim(0,2)
+ax.spines['right'].set_visible(False)
+ax.spines['top'].set_visible(False)
+ax.spines['left'].set_visible(False)
+ax.get_yaxis().set_ticks([])
+
+
+Binned_Freezes.savefig(FigureFolder + '/BinnedFreezes.png', dpi=300, bbox_inches='tight', transparent=True)
 
 # Plot Distance Travelled Time
 mean_DistanceT_NS = np.mean(Binned_DistanceT_NS_ALL, axis=0)
@@ -294,21 +326,38 @@ mean_DistanceT_S = np.mean(Binned_DistanceT_S_ALL, axis=0)
 sem_DistanceT_S = stats.sem(Binned_DistanceT_S_ALL)
 std_DistanceT_S = np.std(Binned_DistanceT_S_ALL, axis=0)
 
-plt.figure(figsize=(8,6), dpi=300)
+Binned_DistanceT = plt.figure(figsize=(25,20), dpi=300)
+plt.suptitle("Distance Travelled over time"+ '\n n='+ format(numFiles), fontweight="bold", fontsize=30, y=0.9) 
+
+ax = plt.subplot(221)
+plt.title('Non Social', fontweight="bold", fontsize= 25, y=-0.2)
 plt.plot(mean_DistanceT_NS, color = 'lightsteelblue', linewidth= 3)
 plt.fill_between(np.arange(mean_DistanceT_NS.shape[0]), mean_DistanceT_NS + sem_DistanceT_NS,
                  mean_DistanceT_NS - sem_DistanceT_NS,color= 'lightsteelblue',alpha=0.2)
 #plt.errorbar(np.arange(mean_DistanceT_NS.shape[0]), mean_DistanceT_NS,std_DistanceT_NS, color ='lightsteelblue', linewidth=1)
+plt.ylabel('Distance Travelled (mm)')
+plt.ylim(200,1000)
+plt.xticks(np.arange(0, 15, step= 1), ('1', '2','3','4','5','6','7', '8', '9', '10', '11','12','13','14','15'))
+plt.xlabel('minutes')
+ax.spines['right'].set_visible(False)
+ax.spines['top'].set_visible(False)
+
+
+ax = plt.subplot(222)
+plt.title('Social', fontweight="bold", fontsize= 25, y=-0.2)
 plt.plot(mean_DistanceT_S, color = 'steelblue', linewidth= 3)
 plt.fill_between(np.arange(mean_DistanceT_S.shape[0]), mean_DistanceT_S + sem_DistanceT_S,
                  mean_DistanceT_S - sem_DistanceT_S,color= 'steelblue',alpha=0.2)
-plt.title('Distance Travelled over time', fontweight="bold",fontsize= 12)
-
-plt.legend(labels=('Non Social', 'Social'), loc='upper right', bbox_to_anchor=(0.2, 1.2))
-plt.xticks(np.arange(0, 15, step= 1), ('1', '2','3','4','5','6','7', '8', '9', '10','11','12','13', '14','15'))
+plt.ylim(200,1000)
+plt.xticks(np.arange(0, 15, step= 1), ('1', '2','3','4','5','6','7', '8', '9', '10', '11','12','13','14','15'))
 plt.xlabel('minutes')
-plt.ylabel('Distance Travelled (mm)')
-plt.ylim(200,700)
+ax.spines['right'].set_visible(False)
+ax.spines['top'].set_visible(False)
+ax.spines['left'].set_visible(False)
+ax.get_yaxis().set_ticks([])
+
+
+Binned_DistanceT.savefig(FigureFolder + '/BinnedDistanceT.png', dpi=300, bbox_inches='tight', transparent=True)
 
 # ORT_HIST Summary Plot
 
@@ -329,26 +378,27 @@ Norm_OrtHist_S_Noxious_ALL = Accum_OrtHist_S_Noxious_ALL/np.sum(Accum_OrtHist_S_
 
 # Plot Summary
 xAxis = np.arange(-np.pi,np.pi+np.pi/18.0, np.pi/18.0)
-plt.figure('Summary: Orientation Histograms')
-plt.figure()
+Ort = plt.figure('Summary: Orientation Histograms')
 
-ax = plt.subplot(131, polar=True)
+
+Ort = plt.subplot(131, polar=True)
 plt.title('Cool', fontweight="bold",fontsize= 25, y=-0.2)
 plt.plot(xAxis, np.hstack((Norm_OrtHist_NS_Cool_ALL, Norm_OrtHist_NS_Cool_ALL[0])), color= 'lightsteelblue',  linewidth = 3)
 plt.plot(xAxis, np.hstack((Norm_OrtHist_S_Cool_ALL, Norm_OrtHist_S_Cool_ALL[0])), color = 'steelblue', linewidth = 3)
 
 plt.legend(labels=('Non Social', 'Social'), loc='upper right', bbox_to_anchor=(0.2, 1.2))
 
-ax = plt.subplot(132, polar=True)
+Ort = plt.subplot(132, polar=True)
 plt.title('Hot', fontweight="bold", fontsize= 25, y=-0.2)
 plt.plot(xAxis, np.hstack((Norm_OrtHist_NS_Hot_ALL, Norm_OrtHist_NS_Hot_ALL[0])),color='lightsteelblue', linewidth = 3)
 plt.plot(xAxis, np.hstack((Norm_OrtHist_S_Hot_ALL, Norm_OrtHist_S_Hot_ALL[0])), color= 'steelblue', linewidth = 3)
 
-ax = plt.subplot(133, polar=True)
+Ort = plt.subplot(133, polar=True)
 plt.title('Noxious', fontweight="bold",fontsize= 25, y=-0.2)
 plt.plot(xAxis, np.hstack((Norm_OrtHist_NS_Noxious_ALL, Norm_OrtHist_NS_Noxious_ALL[0])),color='lightsteelblue', linewidth = 3)
 plt.plot(xAxis, np.hstack((Norm_OrtHist_S_Noxious_ALL, Norm_OrtHist_S_Noxious_ALL[0])), color= 'steelblue', linewidth = 3)
 
+Ort.figure.savefig(FigureFolder + '/Orientation.png', dpi=300, bbox_inches='tight')
 
 normPosition_NS = pd.DataFrame(data = Position_NS_ALL*100/numFiles, columns = ["Cool","Hot","Noxious"])
 normPosition_NS['condition']='Non Social'
@@ -375,7 +425,8 @@ Cool = mpatches.Patch(color= 'midnightblue', label = 'cool')
 Hot = mpatches.Patch(color= 'purple', label = 'hot')
 Noxious = mpatches.Patch(color= 'darkorange', label = 'noxious')
 plt.legend(handles=[Noxious, Hot, Cool], bbox_to_anchor=(1, 1))
-plt.savefig(FigureFolder + '/HistStack.eps', format='eps', dpi=600)
+plt.savefig(FigureFolder + '/HistStack.eps', format='eps', dpi=300,bbox_inches= 'tight', transparent=True)
+plt.savefig(FigureFolder + '/HistStack.png', dpi=300, bbox_inches= 'tight', transparent=True  )
 
 
 
@@ -401,21 +452,22 @@ hist,edges=np.histogram(TTSs,bins)
 freq = hist/float(hist.sum())
 
 plt.figure(figsize=(6,4), dpi=300)
-plt.bar(bins[:-1], freq, width=10, ec="k" )
+plt.bar(bins[:-1], freq, width=10, ec="k", color='white' )
 plt.ylim(0,0.5)
 plt.xlim(-70,70)
 plt.title('Mean TTS +/- SEM: {0:0.2f} +/- {1:0.2f}\n(p-value: {2:0.4f})'.format(mean_TTS, sem_TTS, pvalue_rel) + '\n n={0}'.format(len(TTSs)))
 plt.xlabel('Position Shift (mm)')
 plt.ylabel('Relative Frequency')
 sns.despine()
-plt.savefig(FigureFolder + '/TTS.eps', format='eps', dpi=600)
+plt.savefig(FigureFolder + '/TTS.eps', format='eps', dpi=300, bbox_inches= 'tight', transparent=True)
+plt.savefig(FigureFolder + '/TTS.png', dpi=300, bbox_inches= 'tight', transparent=True  )
 
 
-# Scatterplot Position Colormap
-TTS_data = pd.DataFrame({'avgPosition Non Social': XM_values[:, 0], 'avgPosition Social': XM_values[:, 1], 'Tolerated Temperature Shift (°C)': TTSs})
-ax=TTS_data.plot.scatter(x='avgPosition Social', y='avgPosition Non Social',c='Tolerated Temperature Shift (°C)', colormap='plasma', fontsize=14)
-ax.set_title('Mean TTS +/- SEM: {0:0.2f} +/- {1:0.2f}\n(p-value: {2:0.4f})'.format(mean_TTS, sem_TTS, pvalue_rel) + '\n n={0}'.format(len(TTSs)), fontsize=14)
-sns.despine()
+# # Scatterplot Position Colormap
+# TTS_data = pd.DataFrame({'avgPosition Non Social': XM_values[:, 0], 'avgPosition Social': XM_values[:, 1], 'Tolerated Temperature Shift (°C)': TTSs})
+# ax=TTS_data.plot.scatter(x='avgPosition Social', y='avgPosition Non Social',c='Tolerated Temperature Shift (°C)', colormap='plasma', fontsize=14)
+# ax.set_title('Mean TTS +/- SEM: {0:0.2f} +/- {1:0.2f}\n(p-value: {2:0.4f})'.format(mean_TTS, sem_TTS, pvalue_rel) + '\n n={0}'.format(len(TTSs)), fontsize=14)
+# sns.despine()
 
 
 

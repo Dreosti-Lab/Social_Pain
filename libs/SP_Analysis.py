@@ -10,8 +10,11 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import scipy.signal as signal
 import math
+import glob
+import cv2
 
-
+# Import useful libraries
+import SP_video_TRARK as SPV
 
 
 # Measure ditance traveled during experiment (in mm)
@@ -229,6 +232,64 @@ def Bin_Freezes(Freeze_Start, FPS, movieLength, binsize) :
     return Binned_Freezes       
 
 
+def compute_motion(folder,ROIs):
+    
+    # First steps are same as usual tracking
+    background_ROIs = SPV.compute_initial_backgrounds(folder, ROIs)
+    
+    aviFiles = glob.glob(folder+'/*.avi')
+    aviFile = aviFiles[0]
+    vid = cv2.VideoCapture(aviFile)
+    
+    print('Processing' + aviFile)
+    vid = cv2.VideoCapture(aviFile)
+    numFrames = int(vid.get(cv2.CAP_PROP_FRAME_COUNT))-200 # skip lat 100 frames (we take 100 off the start later)
+    
+    ## debug / testing
+    numFrames=10000
+    ##
+    
+    previous_ROIs = []
+    for i in range(0,6):
+        w, h = SPV.get_ROI_size(ROIs, i)
+        previous_ROIs.append(np.zeros((h, w), dtype = np.uint8))
+    motS = np.zeros((numFrames,6))
+        
+    for f in range(0,numFrames): 
+        # Read next frame        
+        ret, im = vid.read()
+        
+        # Convert to grayscale (uint8)
+        current = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
+        # loop through ROIs
+        for i in range(0,6):
+            # Extract Crop Region
+            crop, xOff, yOff = SPV.get_ROI_crop(current, ROIs, i)
+            crop_height, crop_width = np.shape(crop)
+
+            # Difference from current background
+            diff = background_ROIs[i] - crop
+            
+            # Determine current threshold
+            threshold_level = np.median(diff)+(3*np.std(diff)) # 3 standard deviations above the median (yours might be the median + the median/7 or similar)
+
+            
+            # if not on the first frame, compute the absolute frame by frame difference across the whole ROI
+            if (f != 0):
+                absdiff = np.abs(diff)
+                absdiff[absdiff < threshold_level] = 0
+                totalAbsDiff = np.sum(np.abs(absdiff))
+                frame_by_frame_absdiff = np.abs(np.float32(previous_ROIs[i]) - np.float32(crop)) / 2 # Adjust for increases and decreases across frames
+                frame_by_frame_absdiff[frame_by_frame_absdiff < threshold_level] = 0
+                motion = np.sum(np.abs(frame_by_frame_absdiff))/totalAbsDiff
+            else:
+                motion = 0
+            motS[f,i]= motion
+               
+            # keep track of previous ROI within loop for subsequent frame motion computation (because of the way we have to cycle through ROIs each frame)
+            previous_ROIs[i] = np.copy(crop)
+            
+    return motS
 
 def compute_speed(X,Y):
     # Compute Speed (X-Y)    

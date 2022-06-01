@@ -21,6 +21,7 @@ import glob
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+import cv2
 
 
 
@@ -28,6 +29,7 @@ import pandas as pd
 
 import SP_utilities as SPU
 import SP_Analysis as SPA
+import SP_video_TRARK as SPV
 import BONSAI_ARK
 
 
@@ -39,9 +41,9 @@ freeze_threshold = 500
 motionStartThreshold = 0.02
 motionStopThreshold = 0
 
-AnalysisFolder = base_path + '/Heat_NewChamber38/Analysis' 
+AnalysisFolder = base_path + '/Heat/Analysis' 
 # Read folder list
-FolderlistFile = base_path + '/Heat_NewChamber38/Folderlist_NewChamber_HEAT38.txt'
+FolderlistFile = base_path + '/Heat/Folderlist_Heat.txt'
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 
@@ -67,8 +69,7 @@ for idx,folder in enumerate(folderNames):
     
     Threshold_Cool = np.mean(x+(width)/7)
     Threshold_Noxious = np.mean(x+(width)*3.4/4)
-   
-
+    
     # Determine Fish Status       
     fishStat = fishStatus[idx, :]
     
@@ -92,9 +93,16 @@ for idx,folder in enumerate(folderNames):
             if filterTracking:
                 count_S,ort_S =SPU.filterTrackingFlips(ort_S)
                 count_NS,ort_NS =SPU.filterTrackingFlips(ort_NS)
+            
+            #Conspecific Motion
+            cue_motion_file = S_folder + r'/ROIs/cue_motion' + str(i+1) + '.npz'
+            npzFile = np.load(cue_motion_file)
+            cue_motS = npzFile['cue_motS']
+            avg_cue_motion = np.mean(cue_motS)
+            
+        
                 
-                
-            #Only look at last 10min of Movie
+            #15min Movie
             fx_NS = fx_NS[0:90000]
             fy_NS = fy_NS[0:90000]
             bx_NS = bx_NS[0:90000]
@@ -192,8 +200,7 @@ for idx,folder in enumerate(folderNames):
             Cool_S = pd.Series(Frames_Cool_S, name='Cool')
             Hot_S = pd.Series(Frames_Hot_S, name='Hot')
             Noxious_S = pd.Series(Frames_Noxious_S, name='Noxious')
-            Position_S = pd.concat([Cool_S,Hot_S,Noxious_S], axis=1)
-            
+            Position_S = pd.concat([Cool_S,Hot_S,Noxious_S], axis=1)            
             
 #---------------------------------------------------------------------------------------------------        
             if plot: 
@@ -244,7 +251,8 @@ for idx,folder in enumerate(folderNames):
                       DistanceT_NS = DistanceT_NS, DistanceT_S = DistanceT_S, Binned_DistanceT_NS= Binned_DistanceT_NS, Binned_DistanceT_S = Binned_DistanceT_S,
                       OrtHist_NS_Cool = OrtHist_NS_Cool,OrtHist_NS_Noxious = OrtHist_NS_Noxious, OrtHist_S_Cool = OrtHist_S_Cool, OrtHist_S_Noxious = OrtHist_S_Noxious,
                       OrtHist_NS_Hot = OrtHist_NS_Hot, OrtHist_S_Hot = OrtHist_S_Hot,
-                      Position_NS=Position_NS, Position_S = Position_S, avgPosition_NS = avgPosition_NS, avgPosition_S = avgPosition_S)
+                      Position_NS=Position_NS, Position_S = Position_S, avgPosition_NS = avgPosition_NS, avgPosition_S = avgPosition_S,
+                      avg_cue_motion = avg_cue_motion)
     
     # Report Progress
     print (idx)

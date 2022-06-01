@@ -65,6 +65,39 @@ def get_folder_names(folder):
     
     return NS_folder, S_folder, Analysis
 
+def cycleMkDir(path,report=0):
+## Creates folders and subfolder along defined path
+## returns -1 and prints a warning if fails
+## returns 1 if passed
+    splitPath=path.split(sep=r"\\")
+    for i,name in enumerate(splitPath):
+        if(i==0):
+            s=name+r"\\"
+        else:
+            s=s+name+r"\\"
+        if(i!=len(splitPath)-1):    
+            tryMkDir(s,report=report)
+        else:
+            tryMkDir(s,report=report)
+
+
+def tryMkDir(path,report=0):
+## Creates a new folder at the given path
+## returns -1 and prints a warning if fails
+## returns 1 if passed
+    
+    try:
+        os.mkdir(path)
+    except OSError:
+        if(report):
+            print ("Creation of the directory %s failed" % path + ", it might already exist!")
+        return -1
+    else:
+        if(report):
+            print ("Successfully created the directory %s " % path)
+        return 1
+    
+
 def load_video (folder):
     
     aviFiles = glob.glob(folder+'/*.avi')#finds any avi file in the folder
@@ -76,6 +109,28 @@ def load_video (folder):
     
     return vid, numFrames, width, height
 
+
+# write function to extend ROI to include cue area
+# Each ROI is 4 numbers: x start position, y start position; top left, width (x) and height (y)
+def get_cue_ROI(ROIs,w=65):
+    cueROIs=[]
+    for roi in ROIs:
+        x=roi[0]+roi[2]-10
+        y=roi[1]
+        h=roi[3]
+        cueROIs.append([x,y,w,h])
+        
+    return np.array(cueROIs)
+
+def grabFrame(avi,frame):
+# grab frame and return the image from loaded cv2 movie
+    vid=cv2.VideoCapture(avi)
+    vid.set(cv2.CAP_PROP_POS_FRAMES, frame)
+    ret, im = vid.read()
+    vid.set(cv2.CAP_PROP_POS_FRAMES, 0)
+    vid.release()
+    im = np.uint8(cv2.cvtColor(im, cv2.COLOR_BGR2GRAY))
+    return im
 
 ## Identifies and reverses sudden flips in orientation caused by errors in tracking the eyes vs the body resulting in very high frequency tracking flips     
 def filterTrackingFlips(ort):
