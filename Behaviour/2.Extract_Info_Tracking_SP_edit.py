@@ -4,7 +4,8 @@
 Created on Tue Apr  6 19:00:40 2021
 
 @author: alizeekastler
-Bouts
+
+Extract information from tracking data and save into npz Summary file for each video of 6 fish
 """                        
 # Set Library Path - Social_Pain Repos
 #lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
@@ -37,13 +38,13 @@ plot = False
 filterTracking = False
 
 # Set threshold
-freeze_threshold = 500
+freeze_threshold = 300
 motionStartThreshold = 0.02
 motionStopThreshold = 0
 
-AnalysisFolder = base_path + '/Heat/Analysis' 
+AnalysisFolder = base_path + '/NewChamber/Control_NewChamber38/Analysis' 
 # Read folder list
-FolderlistFile = base_path + '/Heat/Folderlist_Heat.txt'
+FolderlistFile = base_path + '/NewChamber/Control_Newchamber38/Folderlist_Control.txt'
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 

@@ -154,7 +154,7 @@ def pre_process_video(folder, social):
 #------------------------------------------------------------------------------
     
 # Compute the initial background for each ROI
-def compute_initial_backgrounds(folder, ROIs, divisor=7):
+def compute_initial_backgrounds(folder, ROIs, divisor=7, change_threshold=0,stepFrames=2000,bFrames = 100):
 
     # Load Video
     aviFiles = glob.glob(folder+'/*.avi')#finds any avi file in the folder
@@ -175,8 +175,6 @@ def compute_initial_backgrounds(folder, ROIs, divisor=7):
 
         # Allocate space for background stack
         crop_width, crop_height = get_ROI_size(ROIs, i)
-        stepFrames = 1000 # Check background frame every 10 seconds
-        bFrames = 50
         backgroundStack = np.zeros((crop_height, crop_width, bFrames), dtype = np.float32)
         background = np.zeros((crop_height, crop_width), dtype = np.float32)
         previous = np.zeros((crop_height, crop_width), dtype = np.float32)
@@ -208,7 +206,7 @@ def compute_initial_backgrounds(folder, ROIs, divisor=7):
             previous = np.copy(crop)
             
             # If significant, add to stack...possible finish
-            if(change > 0.0075):
+            if(change > change_threshold):
                 backgroundStack[:,:,bCount] = np.copy(crop)
                 bCount = bCount + 1
                 if(bCount == bFrames):
@@ -495,6 +493,22 @@ def fish_tracking(input_folder, output_folder, ROIs, divisor=7, kSize=3):
             updated_background = (np.float32(crop) * 0.01) + (current_background * 0.99)
             updated_background[dilated_fish==1] = current_background[dilated_fish==1]            
             background_ROIs[i] = np.copy(updated_background)
+        
+         # Plot All Fish in Movie with Tracking Overlay
+        if (f % 100 == 0):
+            plt.clf()
+            enhanced = cv2.multiply(current, 1)
+            color = cv2.cvtColor(enhanced, cv2.COLOR_GRAY2BGR)
+            plt.imshow(color)
+            plt.axis('image')
+            for i in range(0,6):
+                plt.plot(fxS[f, i],fyS[f, i],'b.', MarkerSize = 1)
+                plt.plot(exS[f, i],eyS[f, i],'r.', MarkerSize = 3)
+                #plt.plot(bxS[f, i],byS[f, i],'co', MarkerSize = 3)
+                #plt.text(bxS[f, i]+10,byS[f, i]+10,  '{0:.1f}'.format(ortS[f, i]), color = [1.0, 1.0, 0.0, 0.5])
+                #plt.text(bxS[f, i]+10,byS[f, i]+30,  '{0:.0f}'.format(areaS[f, i]), color = [1.0, 0.5, 0.0, 0.5])
+            plt.draw()
+            plt.pause(0.001)
         
         # Save Tracking Summary
         if(f == 0):

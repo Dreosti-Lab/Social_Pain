@@ -4,7 +4,7 @@
 Created on Tue Apr  6 19:00:40 2021
 
 @author: alizeekastler
-Bouts
+Compare Non Social and Social for one condition
 """                        
 # Set Library Path - Social_Pain Repos
 #lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'

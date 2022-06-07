@@ -232,10 +232,10 @@ def Bin_Freezes(Freeze_Start, FPS, movieLength, binsize) :
     return Binned_Freezes       
 
 
-def compute_motion(folder,ROIs):
+def compute_motion(folder,ROIs,change_threshold=0,stepFrames=1000,bFrames = 50):
     
     # First steps are same as usual tracking
-    background_ROIs = SPV.compute_initial_backgrounds(folder, ROIs)
+    background_ROIs = SPV.compute_initial_backgrounds(folder, ROIs,change_threshold=change_threshold,stepFrames=stepFrames,bFrames=bFrames)
     
     aviFiles = glob.glob(folder+'/*.avi')
     aviFile = aviFiles[0]
@@ -289,7 +289,7 @@ def compute_motion(folder,ROIs):
             # keep track of previous ROI within loop for subsequent frame motion computation (because of the way we have to cycle through ROIs each frame)
             previous_ROIs[i] = np.copy(crop)
             
-    return motS
+    return motS,background_ROIs
 
 def compute_speed(X,Y):
     # Compute Speed (X-Y)    

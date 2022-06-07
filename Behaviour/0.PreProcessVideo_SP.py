@@ -15,7 +15,7 @@ import SP_video_TRARK as SPV
 import SP_utilities as SPU
 
 # Read Folder List
-folderListFile = base_path + r'\Heat_NewChamber38\Folderlist_NewChamber_HEAT38.txt'
+folderListFile = base_path + r'/NewChamber/Isolated_Habituation_NewChamber/Folderlist_Habituation.txt'
 
 control = False
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(folderListFile)

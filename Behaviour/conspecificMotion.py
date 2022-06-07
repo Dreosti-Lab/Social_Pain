@@ -3,6 +3,8 @@
 Created on Mon May 23 12:07:19 2022
 
 @author: Tom
+
+Compute and save the Average Motion for the Conspecific ROIs
 """
 # Set Library Path - Social_Pain Repos
 #lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
@@ -31,7 +33,7 @@ import BONSAI_ARK
 
 
 # Read folder list
-FolderlistFile = base_path + '/Control/Folderlist_Control.txt'
+FolderlistFile = base_path + '/NewChamber/Control_NewChamber38/Folderlist_Control.txt'
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 
@@ -47,7 +49,7 @@ for idx,folder in enumerate(folderNames):
     S_ROIs = BONSAI_ARK.read_bonsai_crop_rois(bonsaiFiles)
 
     #Extend ROIs to the Social cue
-    cue_ROIs = SPU.get_cue_ROI(S_ROIs)
+    cue_ROIs = SPU.get_cue_ROI(S_ROIs,offset=5)
     
     saveFolder = S_folder + '//ROIs'
     SPU.cycleMkDir(saveFolder)
@@ -83,15 +85,21 @@ for idx,folder in enumerate(folderNames):
                 plt.close()
 
     # compute motion for all ROIs
-    cue_motS=SPA.compute_motion(S_folder,cue_ROIs)
+    cue_motS,background_ROIs=SPA.compute_motion(S_folder,cue_ROIs,change_threshold=0,stepFrames=1000,bFrames = 100)
     
     # save as seperate npy for each ROI
     for idr,roi in enumerate(cue_ROIs):
         filename= saveFolder+'/cue_motion'+str(idr+1)+'.npz'
         np.savez(filename,cue_motS = np.array(cue_motS[:,idr]))
         
-        
+    filename=saveFolder+'/initial_backgrounds.png'
+    plt.figure('backgrounds')
+    for i in range(0,6):
+        plt.subplot(2,3,i+1)
+        plt.imshow(background_ROIs[i])
 
+    plt.savefig(filename, dpi=300)
+    plt.close('backgrounds')
         
         
        

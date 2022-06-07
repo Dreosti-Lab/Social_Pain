@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Compare summaries of analyzed social preference experiments
+Compare parameters from the analysis summary across conditions
 
 @author:Alizee
 """
@@ -20,6 +20,7 @@ from scipy import stats
 import seaborn as sns
 import pandas as pd
 
+
 FigureFolder = base_path + '/NewChamber/Summary'
 
 # Set analysis folder and label for experiment/condition A
@@ -27,12 +28,16 @@ analysisFolder_A = base_path + r'/NewChamber/Control_NewChamber38/Analysis'
 conditionName_A = "SC"
 
 # Set analysis folder and label for experiment/condition B
-analysisFolder_B = base_path + r'/NewChamber/Gradient_NewChamber38/Analysis' 
+analysisFolder_B = base_path + r'/NewChamber/Habituation_NewChamber38/Analysis' 
 conditionName_B = "HC"
 
 # Set analysis folder and label for experiment/condition B
 analysisFolder_C = base_path + r'/NewChamber/Gradient_NewChamber38/Analysis' 
 conditionName_C = "HS"
+
+# # Set analysis folder and label for experiment/condition B
+# analysisFolder_D = base_path + r'/NewChamber/Gradient_NewChamber38/Analysis' 
+# conditionName_D = "HS_N"
 
 # Assemble lists
 analysisFolders = [analysisFolder_A, analysisFolder_B, analysisFolder_C]
@@ -249,11 +254,11 @@ for i, name in enumerate(conditionNames):
     s = pd.Series(cue_motion_summary[i],name=name)
     motion_list.append(s)
 
-sns.boxplot(data=motion_list, color = '#BBBBBB', linewidth=2)
-sns.stripplot(data=motion_list, palette = ['steelblue', 'darkblue', 'fuchsia'],size=6, jitter=True, edgecolor="gray")
+sns.boxplot(data=motion_list, color = '#BBBBBB', linewidth=2, showfliers=False)
+sns.stripplot(data=motion_list, palette = ['darkblue', 'fuchsia'],size=6, jitter=True, edgecolor="gray")
 plt.ylabel('Average Motion', fontsize=14)
-plt.xticks(np.arange(0, 3, step= 1), ('SC', 'HC','HS'), fontsize=12)
+plt.xticks(np.arange(0, 4, step= 1), ('SC', 'HS','SC', 'HS'), fontsize=12)
 
-cueMotion.savefig(FigureFolder + '/cueMotion_WT.png', dpi=300, bbox_inches='tight')
+cueMotion.savefig(FigureFolder + '/cueMotion_heat_noheat.png', dpi=300, bbox_inches='tight')
 
 

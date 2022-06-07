@@ -112,10 +112,10 @@ def load_video (folder):
 
 # write function to extend ROI to include cue area
 # Each ROI is 4 numbers: x start position, y start position; top left, width (x) and height (y)
-def get_cue_ROI(ROIs,w=65):
+def get_cue_ROI(ROIs,w=65,offset=-10):
     cueROIs=[]
     for roi in ROIs:
-        x=roi[0]+roi[2]-10
+        x=roi[0]+roi[2]+offset
         y=roi[1]
         h=roi[3]
         cueROIs.append([x,y,w,h])
