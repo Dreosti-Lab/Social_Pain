@@ -36,7 +36,7 @@ plot = False
 filterTracking = False
 
 # Set threshold
-freeze_threshold = 300
+freeze_threshold = 400
 motionStartThreshold = 0.02
 motionStopThreshold = 0
 
@@ -149,9 +149,13 @@ for idx,folder in enumerate(folderNames):
             Percent_Moving_S = (100 * np.sum(Bouts_S[:,8]))/(len(motion_S))
             Percent_Paused_S = (100 * np.sum(Pauses_S[:,8]))/(len(motion_S))
             
+            #Distance Per bout
+            distPerBout_NS = SPA.computeDistPerBout(Bouts_NS[:,1],Bouts_NS[:,2], Bouts_NS[:,5], Bouts_NS[:,6])
+            distPerBout_S = SPA.computeDistPerBout(Bouts_S[:,1],Bouts_S[:,2], Bouts_S[:,5], Bouts_S[:,6])
+            
             # Speed
-            Speed_NS = SPA.compute_speed(fx_NS, fy_NS)
-            Speed_S = np.zeros((numFrames,2))
+            Speed_NS, SpeedAngle_NS = SPA.compute_bout_signals(fx_NS, fy_NS, ort_NS)
+            Speed_S, SpeedAngle_S = SPA.compute_bout_signals(fx_S, fy_S, ort_S)
             
             # Count Freezes
             Freezes_NS, numFreezes_NS = SPA.analyze_freezes(Pauses_NS, freeze_threshold)
@@ -247,7 +251,8 @@ for idx,folder in enumerate(folderNames):
                       Percent_Paused_NS = Percent_Paused_NS, Percent_Paused_S = Percent_Paused_S, 
                       Freezes_S = Freezes_S, Freezes_NS = Freezes_NS, numFreezes_NS = numFreezes_NS, numFreezes_S = numFreezes_S,
                       Binned_Freezes_NS = Binned_Freezes_NS,Binned_Freezes_S = Binned_Freezes_S,    
-                      DistanceT_NS = DistanceT_NS, DistanceT_S = DistanceT_S, Binned_DistanceT_NS= Binned_DistanceT_NS, Binned_DistanceT_S = Binned_DistanceT_S,
+                      DistanceT_NS = DistanceT_NS, DistanceT_S = DistanceT_S, Binned_DistanceT_NS= Binned_DistanceT_NS, Binned_DistanceT_S = Binned_DistanceT_S, distPerBout_NS = distPerBout_NS, distPerBout_S = distPerBout_S,
+                      Speed_NS = Speed_NS, Speed_S = Speed_S,
                       OrtHist_NS_Cool = OrtHist_NS_Cool,OrtHist_NS_Noxious = OrtHist_NS_Noxious, OrtHist_S_Cool = OrtHist_S_Cool, OrtHist_S_Noxious = OrtHist_S_Noxious,
                       OrtHist_NS_Hot = OrtHist_NS_Hot, OrtHist_S_Hot = OrtHist_S_Hot,
                       Position_NS=Position_NS, Position_S = Position_S, avgPosition_NS = avgPosition_NS, avgPosition_S = avgPosition_S,
