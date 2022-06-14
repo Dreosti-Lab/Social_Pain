@@ -25,35 +25,32 @@ import SP_cfos as SPCFOS
 
 # Set Summary List
 #summaryListFile = r'\\128.40.155.187\data\D R E O S T I   L A B\Isolation_Experiments\Social_Brain_Areas_Analisys\Excel_Sheets\Test_Comparison_2.xlsx'
-summaryListFile = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1_server/Registration/Cfos_Summary'
+summaryListFile = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1_Server/Registration/Cfos_Summary/Cfos_Summary.xlsx'
 
 # Set Mask Path
-#mask_path = r'\\128.40.155.187\data\D R E O S T I   L A B\Isolation_Experiments\Social_Brain_Areas_Analisys\Anatomical_Masks\BRAIN_DAPI_MASK_FINAL2.nii'
-mask_path = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1_server/Registration/mask/DAPI_MASK.nii'
-mask_slice_range_start = 70
-mask_slice_range_stop = 120
+#mask_path = r'S:/WIBR_Dreosti_Lab/DREOSTI LAB/Isolation_Experiments/Social_Brain_Areas_Analisys/Anatomical_Masks/BRAIN_DAPI_MASK_FINAL2.nii'
+mask_path = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1_Server/Registration/mask/DAPI_MASK.nii'
+mask_slice_range_start = 130
+mask_slice_range_stop = 230
 
 # Use the normalized stacks?
-normalized = True
+normalized = False
 
 #---------------------------------------------------------------------------
 #---------------------------------------------------------------------------
 
 # Read summary list
-cfos_paths = SPCFOS.read_summarylist(summaryListFile, normalized, change_base_path=True)
+cfos_paths = SPCFOS.read_summarylist(summaryListFile, normalized)
 num_files = len(cfos_paths)
 
 # Load mask
-mask_data, mask_affine, mask_header = SPCFOS.load_nii(mask_path, normalized=True)
+mask_data, mask_affine, mask_header = SPCFOS.load_nii(mask_path, normalized=False)
 mask_data = mask_data[:,:,:,0]
 mask_data[:,:,:mask_slice_range_start] = 0
 mask_data[:,:,mask_slice_range_stop:] = 0
 num_mask_voxels = np.sum(np.sum(np.sum(mask_data)))
 
-# ------------------------------------------------------------------
 # Histogram
-# ------------------------------------------------------------------
-
 # Measure cFOS in Mask (normalize to "background")
 plt.figure()
 start = 0
@@ -62,18 +59,11 @@ stop = num_files
 for i in range(start, stop, 1):
     
     # Load original (warped) cFos stack
-    cfos_data, cfos_affine, cfos_header = SPCFOS.load_nii(cfos_paths[i], normalized)
+    cfos_data, cfos_affine, cfos_header = SPCFOS.load_nii(cfos_paths[i], normalized = False)
     masked_values = cfos_data[mask_data == 1]
-    
-    # Remove reg artifacts (0 value or 32768)
-    if(not(normalized)):
-        masked_values = masked_values[masked_values != 0]
+        
 
-    # Measure histogram values
-    if(normalized):
-        histogram, bin_edges  = np.histogram(masked_values, bins = 10000, range=[-10, 10]);
-    else:
-        histogram, bin_edges  = np.histogram(masked_values, bins = 10000, range=[0, 50000]);        
+    histogram, bin_edges  = np.histogram(masked_values, range=[-20000, 70000]);        
     bin_width = (bin_edges[1]-bin_edges[0])/2
     bin_centers = bin_edges[:-1] + bin_width
 

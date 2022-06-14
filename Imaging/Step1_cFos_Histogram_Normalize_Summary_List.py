@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-This script computes the voxel histograms for each stack in a cFos folder list
-
+This script loads and normalizes a cFos folder list: .nii images and behaviour
 @author: Dreosti Lab
 """
 # -----------------------------------------------------------------------------
@@ -10,8 +9,8 @@ lib_path = r'C:/Repos/Social_Pain/libs'
 # -----------------------------------------------------------------------------
 
 # Set Library Paths
-import sys
 import os
+import sys
 sys.path.append(lib_path)
 
 # Import useful libraries
@@ -27,10 +26,6 @@ import SP_cfos as SPCFOS
 #summaryListFile = r'\\128.40.155.187\data\D R E O S T I   L A B\Isolation_Experiments\Social_Brain_Areas_Analisys\Excel_Sheets\Test_Comparison_2.xlsx'
 summaryListFile = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1_Server/Registration/Cfos_Summary/Cfos_Summary.xlsx'
 
-
-# Use the normalized stacks?
-normalized = False
-
 #---------------------------------------------------------------------------
 #---------------------------------------------------------------------------
 
@@ -39,20 +34,14 @@ cfos_paths = SPCFOS.read_summarylist(summaryListFile, normalized=False)
 num_files = len(cfos_paths)
 
 # ------------------------------------------------------------------
-# Load Histograms
+# Normalization
 # ------------------------------------------------------------------
 
-plt.figure()
-start = 0
-#stop = 10
-stop = num_files
-for i in range(start, stop, 1):
+# Subtract histogram offset and scale (divide) by mode
+for i in range(num_files):
     
     # Read histogram npz
-    if(normalized):
-        histogram_file = os.path.dirname(cfos_paths[i]) + r'\voxel_histogram_normalized.npz'
-    else:
-        histogram_file = os.path.dirname(cfos_paths[i]) + r'\voxel_histogram.npz'        
+    histogram_file = os.path.dirname(cfos_paths[i]) + r'\voxel_histogram.npz'
     npzfile = np.load(histogram_file)
     histogram = npzfile['histogram']
     bin_centers = npzfile['bin_centers']
@@ -61,22 +50,20 @@ for i in range(start, stop, 1):
     bot_decile = npzfile['bot_decile']
     top_decile = npzfile['top_decile']
     mode = npzfile['mode']
+
+    # Load original (warped) cFos stack
+    cfos_data, cfos_affine, cfos_header = SPCFOS.load_nii(cfos_paths[i], normalized=False)
+ 
+    # Subtract offset
+    backsub = cfos_data - offset
     
-    # Find bin positions for histogram descriptors
-    offset_bin = (np.abs(bin_centers - offset)).argmin()
-    median_bin = (np.abs(bin_centers - median)).argmin()
-    bot_decile_bin = (np.abs(bin_centers - bot_decile)).argmin()
-    top_decile_bin = (np.abs(bin_centers - top_decile)).argmin()
-    mode_bin = (np.abs(bin_centers - mode)).argmin()
-            
-    # Plot histogram
-    plt.plot(bin_centers, histogram)
-    plt.plot(median, histogram[median_bin], 'ko')
-    plt.plot(offset, histogram[offset_bin], 'go')
-    plt.plot(mode, histogram[mode_bin], 'k+')
-    plt.plot(bot_decile, histogram[bot_decile_bin], 'bo')
-    plt.plot(top_decile, histogram[top_decile_bin], 'ro')
-                            
-    print("Plotting Histogram " + str(i+1) + ' of ' + str(num_files) + ':\n' + cfos_paths[i] + '\n')
+    # Normalize to histogram mode
+    normalized = backsub / (mode - offset)
+    
+    # Save normlaized NII stack...
+    save_path = cfos_paths[i][:-7] + '_normalized.nii.gz'      
+    SPCFOS.save_nii(save_path, normalized, cfos_affine, cfos_header)
+                                
+    print("Normalized " + str(i+1) + ' of ' + str(num_files) + ':\n' + cfos_paths[i] + '\n')
                               
 # FIN

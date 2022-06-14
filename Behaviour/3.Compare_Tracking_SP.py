@@ -28,8 +28,8 @@ from scipy import stats
 
 
 # Specify Analysis folder
-AnalysisFolder = base_path + '/NewChamber/Control_NewChamber38/Analysis' 
-FigureFolder = base_path + '/NewChamber/Control_NewChamber38/Figures'
+AnalysisFolder = base_path + '/NewChamber/Gradient_NewChamber38/Analysis' 
+FigureFolder = base_path + '/NewChamber/Gradient_NewChamber38/Figures'
 # Find all the npz files saved for each group and fish with all the information
 npzFiles = glob.glob(AnalysisFolder+'/*.npz')
 
@@ -248,6 +248,20 @@ plt.legend(bbox_to_anchor=(0.3, 1.6))
 plt.show()
 
 xFreezes.savefig(FigureFolder + '/Pos_Freezes.png', dpi=300, bbox_inches='tight')
+
+# Scatterplot Position of Freezes
+Position = plt.figure(figsize=(5,8), dpi=300)
+plt.title("Average Position"+ '\n n='+ format(numFiles)) 
+s1 = pd.Series(avgPosition_NS_ALL, name='Non Social')
+s2 = pd.Series(avgPosition_S_ALL, name='Social')
+df = pd.concat([s1,s2], axis=1)
+sns.boxplot(data=df, color = '#BBBBBB', linewidth=2, showfliers=False)
+sns.stripplot(data=df, palette = ['lightsteelblue', 'steelblue'],size=6, jitter=True, edgecolor="gray")
+plt.ylabel('Average Position', fontsize=14)
+plt.xticks(np.arange(0, 2, step= 1), ('Non_Social', 'Social'), fontsize=12)
+
+Position.savefig(FigureFolder + '/Avg_Pos.png', dpi=300, bbox_inches='tight')
+
 
 #Plot distribution of Bouts // NS vs S
 

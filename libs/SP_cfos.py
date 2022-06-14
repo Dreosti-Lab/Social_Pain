@@ -35,7 +35,7 @@ def load_nii(path, normalized=False):
     if(normalized):
         image_data = image.get_data()
     else:
-        image_data = image.get_data() # + 32768 offset from 16-bit signed integer
+        image_data = image.get_data() # + 32768 #offset from 16-bit signed integer
     return image_data, image_affine, image_header
 
 # Load NII planes
@@ -46,7 +46,7 @@ def load_nii_planes(path, planes, normalized=False):
     if(normalized):
         image_data = image.get_data()
     else:
-        image_data = image.get_data()  # + 32768 offset from 16-bit signed integer
+        image_data = image.get_data()   #+ 32768 #offset from 16-bit signed integer
     planes_data = image_data[:,:,planes]
     return planes_data, image_affine, image_header
 
@@ -58,7 +58,7 @@ def load_nii_plane(path, plane, normalized=False):
     if(normalized):
         image_data = image.get_data()
     else:
-        image_data = image.get_data()  # + 32768 offset from 16-bit signed integer
+        image_data = image.get_data()   #+ 32768 #offset from 16-bit signed integer
     plane_data = image_data[:,:,plane]
     return plane_data, image_affine, image_header
 
@@ -89,7 +89,7 @@ def load_mask(path, transpose=True):
     return np.array(images)
 
 # Read cFos experiment summary list
-def read_summarylist(path, normalized=False, change_base_path=False):
+def read_summarylist(path, normalized=False):
     
     # Load worksbook/sheet
     summaryWb = load_workbook(filename = path)
@@ -108,19 +108,9 @@ def read_summarylist(path, normalized=False, change_base_path=False):
 
         # Find correct cfos image file path
         current_cell = data_cells[i]
-        if(change_base_path):
-            alt_base_path = r'C:\Users\adamk\Dropbox\Adam_Ele\Last_Hope'
-            try:
-                base_cfos_path = alt_base_path + current_cell[0].split('VPI')[1] + current_cell[1]
-            except IndexError:
-                print("Bad path in summary list: Row " + str(i))
-                sys.exit()            
-        else:
-            try:
-                base_cfos_path = current_cell[0] + current_cell[1]
-            except IndexError:
-                print("Bad path in summary list: Row " + str(i))
-                sys.exit()
+
+        base_cfos_path = current_cell[0] + current_cell[1]
+           
         if(normalized):
             try:
                 cfos_image_name = glob.glob(base_cfos_path + '\*warped_red_normalized.nii.gz')[0]
@@ -129,9 +119,10 @@ def read_summarylist(path, normalized=False, change_base_path=False):
                 sys.exit()
         else:
             try:
-                cfos_image_name = glob.glob(base_cfos_path + '\*warped_red.nii.gz')[0]            
+                cfos_image_name = glob.glob(base_cfos_path + '\*_reg_Warped.nii')[0]
+
             except IndexError:
-                print("No file found with name: " + base_cfos_path + '\*warped_red.nii.gz')
+                print("No file found: " + base_cfos_path + '\*_reg_Warped.nii')
                 sys.exit()
         # Append path to list
         cfos_paths.append(cfos_image_name)

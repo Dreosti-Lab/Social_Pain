@@ -24,8 +24,6 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import cv2
 
-
-
 # Import local modules
 
 import SP_utilities as SPU
@@ -42,9 +40,9 @@ freeze_threshold = 300
 motionStartThreshold = 0.02
 motionStopThreshold = 0
 
-AnalysisFolder = base_path + '/NewChamber/Control_NewChamber38/Analysis' 
+AnalysisFolder = base_path + '/NewChamber/Gradient_NewChamber38/Analysis' 
 # Read folder list
-FolderlistFile = base_path + '/NewChamber/Control_Newchamber38/Folderlist_Control.txt'
+FolderlistFile = base_path + '/NewChamber/Gradient_Newchamber38/Folderlist_Gradient.txt'
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 

@@ -493,6 +493,7 @@ def fish_tracking(input_folder, output_folder, ROIs, divisor=7, kSize=3):
             updated_background = (np.float32(crop) * 0.01) + (current_background * 0.99)
             updated_background[dilated_fish==1] = current_background[dilated_fish==1]            
             background_ROIs[i] = np.copy(updated_background)
+
         
          # Plot All Fish in Movie with Tracking Overlay
         if (f % 100 == 0):
