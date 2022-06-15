@@ -437,8 +437,8 @@ def label_bouts(bouts,ort):
     R=labels[:,1]!=0
     F=labels[:,2]!=0
     
-    LTurn = pd.Series(R, name='RTurn')
-    RTurn = pd.Series(L, name='LTurn')
+    LTurn = pd.Series(R, name='LTurn')
+    RTurn = pd.Series(L, name='RTurn')
     FSwim = pd.Series(F, name='FSwim')
     Bout_labels = pd.concat([LTurn, RTurn, FSwim], axis=1)
            

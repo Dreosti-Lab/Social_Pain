@@ -7,8 +7,8 @@ Created on Tue Apr  6 19:00:40 2021
 Compare Non Social and Social for one condition
 """                        
 # Set Library Path - Social_Pain Repos
-#lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
-lib_path = r'C:/Repos/Social_Pain/libs'
+lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
+#lib_path = r'C:/Repos/Social_Pain/libs'
 import sys
 sys.path.append(lib_path)
 
@@ -41,7 +41,15 @@ BPS_NS_ALL = np.zeros(numFiles)
 BPS_S_ALL = np.zeros(numFiles)
 avgPosition_NS_ALL = np.zeros(numFiles)
 avgPosition_S_ALL = np.zeros(numFiles)
-avg_cue_motion_ALL = np.zeros(numFiles)
+avgdistPerBout_NS_ALL = np.zeros(numFiles)
+avgdistPerBout_S_ALL = np.zeros(numFiles)
+#avg_cue_motion_ALL = np.zeros(numFiles)
+LTurns_NS_ALL = np.zeros(numFiles)
+LTurns_S_ALL = np.zeros(numFiles)
+RTurns_NS_ALL = np.zeros(numFiles)
+RTurns_S_ALL = np.zeros(numFiles)
+FSwim_NS_ALL = np.zeros(numFiles)
+FSwim_S_ALL = np.zeros(numFiles)
 numFreezes_NS_ALL = np.zeros(numFiles)
 numFreezes_S_ALL = np.zeros(numFiles)
 Binned_Freezes_NS_ALL = np.zeros((numFiles,14))
@@ -60,6 +68,8 @@ Pauses_NS_ALL = np.zeros((0,9))
 Pauses_S_ALL = np.zeros((0,9))
 Freezes_S_ALL = np.zeros((0,4))
 Freezes_NS_ALL = np.zeros((0,4))
+BoutType_NS_ALL = np.zeros((0,6))
+BoutType_S_ALL = np.zeros((0,6))
 OrtHist_NS_Cool_ALL = np.zeros((numFiles,36))
 OrtHist_NS_Hot_ALL = np.zeros((numFiles,36))
 OrtHist_NS_Noxious_ALL = np.zeros((numFiles,36))
@@ -68,14 +78,13 @@ OrtHist_S_Hot_ALL = np.zeros((numFiles,36))
 OrtHist_S_Noxious_ALL = np.zeros((numFiles,36))
 Position_NS_ALL = np.zeros((numFiles,3))
 Position_S_ALL = np.zeros((numFiles,3))
-BoutType_NS_ALL = np.zeros((numFiles,6))
-Bouttype_S_ALL = np.zeros((numFiles,6))
+
                            
 # Go through all the files contained in the analysis folder
 for f, filename in enumerate(npzFiles):
 
     # Load each npz file
-    dataobject = np.load(filename)
+    dataobject = np.load(filename, allow_pickle = True)
     
     # Extract from the npz file 
     BPS_NS = dataobject['BPS_NS']   
@@ -84,6 +93,12 @@ for f, filename in enumerate(npzFiles):
     Bouts_S = dataobject['Bouts_S']
     BoutType_NS = dataobject['BoutType_NS']
     BoutType_S = dataobject['BoutType_S']
+    LTurns_NS = dataobject['LTurns_NS']
+    LTurns_S = dataobject['LTurns_S']
+    RTurns_NS = dataobject['RTurns_NS']
+    RTurns_S = dataobject['RTurns_S']
+    FSwim_NS = dataobject['FSwim_NS']
+    FSwim_S = dataobject['FSwim_S']
     Pauses_NS = dataobject['Pauses_NS']   
     Pauses_S = dataobject['Pauses_S']
     Freezes_NS = dataobject['Freezes_NS']
@@ -110,7 +125,9 @@ for f, filename in enumerate(npzFiles):
     Position_S = dataobject['Position_S']
     avgPosition_NS = dataobject['avgPosition_NS']
     avgPosition_S = dataobject['avgPosition_S']
-    avg_cue_motion = dataobject['avg_cue_motion']
+    avgdistPerBout_NS = dataobject['avgdistPerBout_NS']
+    avgdistPerBout_S = dataobject['avgdistPerBout_S']
+    #avg_cue_motion = dataobject['avg_cue_motion']
     
     # Make an array with all summary stats
     BPS_NS_ALL[f] = BPS_NS
@@ -129,7 +146,15 @@ for f, filename in enumerate(npzFiles):
     Position_S_ALL[f] = Position_S
     avgPosition_NS_ALL[f] = avgPosition_NS
     avgPosition_S_ALL[f] = avgPosition_S
-    avg_cue_motion_ALL[f] = avg_cue_motion
+    avgdistPerBout_NS_ALL[f] = avgdistPerBout_NS
+    avgdistPerBout_S_ALL[f] = avgdistPerBout_S
+    #avg_cue_motion_ALL[f] = avg_cue_motion
+    LTurns_NS_ALL[f] = LTurns_NS
+    LTurns_S_ALL[f] = LTurns_S
+    RTurns_NS_ALL[f]= RTurns_NS
+    RTurns_S_ALL[f]= RTurns_S
+    FSwim_NS_ALL[f] = FSwim_NS
+    FSwim_S_ALL[f] = FSwim_S
     DistanceT_NS_ALL[f] = DistanceT_NS
     DistanceT_S_ALL[f] = DistanceT_S
     OrtHist_NS_Cool_ALL[f,:] = OrtHist_NS_Cool
@@ -145,6 +170,8 @@ for f, filename in enumerate(npzFiles):
     Pauses_S_ALL = np.vstack([Pauses_S_ALL, Pauses_S]) 
     Freezes_NS_ALL = np.vstack([Freezes_NS_ALL, Freezes_NS])
     Freezes_S_ALL = np.vstack([Freezes_S_ALL, Freezes_S])
+    BoutType_NS_ALL = np.vstack([BoutType_NS_ALL,BoutType_NS])
+    BoutType_S_ALL = np.vstack([BoutType_S_ALL,BoutType_S])
     
      
 s_DistanceT,pvalue_DistanceT = stats.ttest_rel(DistanceT_NS_ALL, DistanceT_S_ALL) 
@@ -162,6 +189,34 @@ sns.stripplot(data=df,orient="v", color= 'dimgrey',size=6, jitter=True, edgecolo
 sns.despine()  
 
 DistanceT.savefig(FigureFolder + '/DistanceT.png', dpi=300, bbox_inches='tight')
+
+
+# Scatterplot Position of Freezes
+Position = plt.figure(figsize=(5,8), dpi=300)
+plt.title("Average Position"+ '\n n='+ format(numFiles)) 
+s1 = pd.Series(avgPosition_NS_ALL, name='Non Social')
+s2 = pd.Series(avgPosition_S_ALL, name='Social')
+df = pd.concat([s1,s2], axis=1)
+sns.boxplot(data=df, color = '#BBBBBB', linewidth=2, showfliers=False)
+sns.stripplot(data=df, palette = ['lightsteelblue', 'steelblue'],size=6, jitter=True, edgecolor="gray")
+plt.ylabel('Average Position', fontsize=14)
+plt.xticks(np.arange(0, 2, step= 1), ('Non_Social', 'Social'), fontsize=12)
+
+# Plot Distance Travelled Per Bout
+DistBout = plt.figure(figsize=(5,8), dpi=300)
+plt.title('Distance Travelled Per Bout n='+ format(numFiles),fontsize=20, y=-0.2)
+
+s1 = pd.Series(avgdistPerBout_NS_ALL, name='Non Social')
+s2 = pd.Series(avgdistPerBout_NS_ALL, name='Social')
+df = pd.concat([s1,s2], axis=1)
+sns.boxplot(data=df, color = '#BBBBBB', linewidth=2, showfliers=False)
+sns.stripplot(data=df, palette = ['lightsteelblue', 'steelblue'],size=6, jitter=True, edgecolor="gray")
+plt.ylabel('Distance Travelled (mm)', fontsize=14)
+plt.xticks(np.arange(0, 2, step= 1), ('Non_Social', 'Social'), fontsize=12)
+
+
+DistBout.savefig(FigureFolder + '/DistPerBout.png', dpi=300, bbox_inches='tight')
+
 
 
 s_BPS,pvalue_BPS = stats.ttest_rel(BPS_NS_ALL, BPS_S_ALL)    
@@ -202,8 +257,8 @@ plt.show()
 s_Freezes,pvalue_Freezes = stats.ttest_rel(numFreezes_NS_ALL, numFreezes_S_ALL) 
 # Plot Short Freezes
 shortFreezes = plt.figure(figsize=(3,8), dpi=300)
-plt.title('3s Freezes n='+ format(numFiles)+'\n p-value: ' + format(pvalue_Freezes), pad=10, fontsize= 20, y=-0.2)
-plt.ylabel('Total Number of Freezes (>3s)')
+plt.title('4s Freezes n='+ format(numFiles)+'\n p-value: ' + format(pvalue_Freezes), pad=10, fontsize= 20, y=-0.2)
+plt.ylabel('Total Number of Freezes (>4s)')
 plt.ylim(-1,40)
 s1 = pd.Series(numFreezes_NS_ALL, name='Non Social')
 s2 = pd.Series(numFreezes_S_ALL, name='Social')
@@ -212,7 +267,7 @@ sns.barplot(data=df, ci='sd',  palette=['lightsteelblue','steelblue'])
 sns.stripplot(data=df, orient="v", color= 'dimgrey',size=6, jitter=True, edgecolor="gray")
 sns.despine()
 
-shortFreezes.savefig(FigureFolder + '/3sFreezes.png', dpi=300, bbox_inches='tight')
+shortFreezes.savefig(FigureFolder + '/4sFreezes.png', dpi=300, bbox_inches='tight')
 
 # Plot Percent time Moving
 s_Moving,pvalue_Moving = stats.ttest_rel(Percent_Moving_NS_ALL, Percent_Moving_S_ALL) 
@@ -277,7 +332,9 @@ ax = plt.subplot(221)
 plt.hist2d(Bouts_NS_ALL[:,1], Bouts_NS_ALL[:,2], bins=10, cmap='Blues')
 plt.title('Non Social', fontweight="bold", fontsize= 32, y=-0.25) 
 plt.xticks(fontsize=32)
-plt.yticks(fontsize=32) 
+plt.yticks(fontsize=32)
+plt.xlim(0,800)
+plt.ylim(0,100) 
 plt.colorbar()
 
 ax = plt.subplot(222)  
@@ -285,11 +342,68 @@ plt.hist2d(Bouts_S_ALL[:,1], Bouts_S_ALL[:,2],bins=10, cmap='Blues')
 plt.title('Social', fontweight="bold", fontsize= 32, y=-0.25)
 plt.xticks(fontsize=32)  
 plt.yticks(fontsize=32) 
+plt.xlim(0,800)
+plt.ylim(0,100)
 plt.colorbar()
 
 
-Bouts_map.tight_layout(pad=2)
+Bouts_map.tight_layout
 Bouts_map.savefig(FigureFolder + '/BoutsMap.png', dpi=300, bbox_inches='tight')
+
+
+
+xTurn_NS = (BoutType_NS_ALL[:,0])[BoutType_NS_ALL[:,5] == False]
+yTurn_NS = (BoutType_NS_ALL[:,1])[BoutType_NS_ALL[:,5] == False]
+
+xTurn_S = (BoutType_S_ALL[:,0])[BoutType_S_ALL[:,5] == False]
+yTurn_S = (BoutType_S_ALL[:,1])[BoutType_S_ALL[:,5] == False]
+
+Turn_map = plt.figure(figsize=(45,16), dpi=300)
+plt.suptitle("Distribution of Turns"+ '\n n='+ format(numFiles), fontweight="bold", fontsize=64, y=1) 
+
+ax = plt.subplot(221)
+plt.hist2d(xTurn_NS, yTurn_NS, bins=10, cmap='Blues')
+plt.title('Non Social', fontweight="bold", fontsize= 32, y=-0.25) 
+plt.xticks(fontsize=32)
+plt.yticks(fontsize=32) 
+plt.xlim(0,800)
+plt.ylim(0,100)
+plt.colorbar()
+
+ax = plt.subplot(222)  
+plt.hist2d(xTurn_S, yTurn_S ,bins=10, cmap='Blues')
+plt.title('Social', fontweight="bold", fontsize= 32, y=-0.25)
+plt.xticks(fontsize=32)  
+plt.yticks(fontsize=32)
+plt.xlim(0,800)
+plt.ylim(0,100) 
+plt.colorbar()
+
+
+Turn_map.tight_layout
+Turn_map.savefig(FigureFolder + '/TurnMap.png', dpi=300, bbox_inches='tight')
+
+
+B_labels = plt.figure(figsize=(3,8), dpi=300)
+plt.title('Bout Type,  n='+ format(numFiles) +'\n p-value: ' + format(pvalue_Pausing), pad=10, fontsize= 20, y=-0.2)
+
+s1 = pd.Series(LTurns_NS_ALL, name='L')
+s2 = pd.Series(RTurns_NS_ALL, name='R')
+s3 = pd.Series(FSwim_NS_ALL, name= 'F')
+Type_NS = pd.concat([s1,s2, s3], axis=1)
+
+s4 = pd.Series(LTurns_S_ALL, name='L')
+s5 = pd.Series(RTurns_S_ALL, name='R')
+s6 = pd.Series(FSwim_S_ALL, name= 'F')
+Type_S = pd.concat([s4,s5, s6], axis=1)
+
+df= pd.concat([Type_NS,Type_S],axis=1)
+
+
+sns.barplot(data=df, ci='sd',  palette=['lightsteelblue','steelblue'])
+sns.stripplot(data=df, orient="v", color= 'dimgrey',size=6, jitter=True, edgecolor="gray")
+sns.despine()
+
 
 
 #Binned Freezes

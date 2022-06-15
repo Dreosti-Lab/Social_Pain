@@ -8,8 +8,8 @@ Created on Tue Apr  6 19:00:40 2021
 Extract information from tracking data and save into npz Summary file for each video of 6 fish
 """                        
 # Set Library Path - Social_Pain Repos
-lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
-#lib_path = r'C:/Repos/Social_Pain/libs'
+#lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
+lib_path = r'C:/Repos/Social_Pain/libs'
 import sys
 sys.path.append(lib_path)
 
@@ -40,9 +40,9 @@ freeze_threshold = 400
 motionStartThreshold = 0.02
 motionStopThreshold = 0
 
-AnalysisFolder = base_path + '/NewChamber/Gradient_NewChamber38/Analysis' 
+AnalysisFolder = base_path + '/NewChamber/Control_NewChamber38/Analysis' 
 # Read folder list
-FolderlistFile = base_path + '/NewChamber/Gradient_Newchamber38/Folderlist_Gradient.txt'
+FolderlistFile = base_path + '/NewChamber/Control_Newchamber38/Folderlist_Control.txt'
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 
@@ -147,9 +147,21 @@ for idx,folder in enumerate(folderNames):
             distPerBout_NS = SPA.computeDistPerBout(Bouts_NS[:,1],Bouts_NS[:,2], Bouts_NS[:,5], Bouts_NS[:,6], NS_ROIs)
             distPerBout_S = SPA.computeDistPerBout(Bouts_S[:,1],Bouts_S[:,2], Bouts_S[:,5], Bouts_S[:,6], S_ROIs)
             
+            avgdistPerBout_NS = np.mean(distPerBout_NS)
+            avgdistPerBout_S = np.mean(distPerBout_S)
+            
             #Analyze Bouts
             B_labels_NS = SPA.label_bouts(Bouts_NS, ort_NS)
             B_labels_S = SPA.label_bouts(Bouts_NS,ort_NS)
+            
+            LTurns_NS = B_labels_NS.LTurn.value_counts().loc[True]
+            RTurns_NS = B_labels_NS.RTurn.value_counts().loc[True]
+            FSwim_NS = B_labels_NS.FSwim.value_counts().loc[True]
+            
+            LTurns_S = B_labels_NS.LTurn.value_counts().loc[True]
+            RTurns_S = B_labels_NS.RTurn.value_counts().loc[True]
+            FSwim_S = B_labels_NS.FSwim.value_counts().loc[True]
+            
             
             BoutType_NS = pd.concat([distPerBout_NS, B_labels_NS],axis=1)
             BoutType_S = pd.concat([distPerBout_S, B_labels_S],axis=1)
@@ -194,23 +206,23 @@ for idx,folder in enumerate(folderNames):
             fx_S[fx_S > Threshold_Noxious] = 4
             
             # Total Frames in each ROI
-            Frames_Cool_NS = (np.count_nonzero(fx_NS[fx_NS==1]))/ numFrames
-            Frames_Hot_NS = ((np.count_nonzero(fx_NS[fx_NS==2]))/4)/numFrames
-            Frames_Noxious_NS = (np.count_nonzero(fx_NS[fx_NS==4]))/numFrames
+            Frames_Cool_NS = np.count_nonzero(fx_NS[fx_NS==1])
+            Frames_Hot_NS = (np.count_nonzero(fx_NS[fx_NS==2]))/4
+            Frames_Noxious_NS = np.count_nonzero(fx_NS[fx_NS==4])
             
-            Frames_Cool_S = (np.count_nonzero(fx_S[fx_S==1]))/numFrames
-            Frames_Hot_S = ((np.count_nonzero(fx_S[fx_S==2]))/4)/numFrames
-            Frames_Noxious_S = (np.count_nonzero(fx_S[fx_S==4]))/numFrames
+            Frames_Cool_S = np.count_nonzero(fx_S[fx_S==1])
+            Frames_Hot_S = (np.count_nonzero(fx_S[fx_S==2])/4)
+            Frames_Noxious_S = np.count_nonzero(fx_S[fx_S==4])
             
             #convert to Dataframe
-            Cool_NS = pd.Series(Frames_Cool_NS, name='Cool')
-            Hot_NS = pd.Series(Frames_Hot_NS, name='Hot')
-            Noxious_NS = pd.Series(Frames_Noxious_NS, name='Noxious')
+            Cool_NS = pd.Series(Frames_Cool_NS/numFrames, name='Cool')
+            Hot_NS = pd.Series(Frames_Hot_NS/numFrames, name='Hot')
+            Noxious_NS = pd.Series(Frames_Noxious_NS/numFrames, name='Noxious')
             Position_NS = pd.concat([Cool_NS,Hot_NS,Noxious_NS], axis=1)
             
-            Cool_S = pd.Series(Frames_Cool_S, name='Cool')
-            Hot_S = pd.Series(Frames_Hot_S, name='Hot')
-            Noxious_S = pd.Series(Frames_Noxious_S, name='Noxious')
+            Cool_S = pd.Series(Frames_Cool_S/numFrames, name='Cool')
+            Hot_S = pd.Series(Frames_Hot_S/numFrames, name='Hot')
+            Noxious_S = pd.Series(Frames_Noxious_S/numFrames, name='Noxious')
             Position_S = pd.concat([Cool_S,Hot_S,Noxious_S], axis=1)            
             
 #---------------------------------------------------------------------------------------------------        
@@ -254,6 +266,8 @@ for idx,folder in enumerate(folderNames):
             filename = AnalysisFolder + '/' + str(np.int(groups[idx])) + 'SUMMARY' + str(i+1) + '.npz'
             np.savez(filename,BPS_NS = BPS_NS,BPS_S = BPS_S,
                       Bouts_NS = Bouts_NS,Bouts_S = Bouts_S,BoutType_NS=BoutType_NS, BoutType_S =BoutType_S,
+                      avgdistPerBout_NS=avgdistPerBout_NS, avgdistPerBout_S=avgdistPerBout_S,
+                      LTurns_NS=LTurns_NS, LTurns_S=LTurns_S,RTurns_NS=RTurns_NS, RTurns_S=RTurns_S, FSwim_NS=FSwim_NS,FSwim_S=FSwim_S,
                       Pauses_NS = Pauses_NS,Pauses_S = Pauses_S,
                       Percent_Moving_NS = Percent_Moving_NS, Percent_Moving_S = Percent_Moving_S, 
                       Percent_Paused_NS = Percent_Paused_NS, Percent_Paused_S = Percent_Paused_S, 
