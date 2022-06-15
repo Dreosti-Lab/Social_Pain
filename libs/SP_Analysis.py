@@ -12,9 +12,11 @@ import scipy.signal as signal
 import math
 import glob
 import cv2
+import pandas as pd
 
 # Import useful libraries
 import SP_video_TRARK as SPV
+import SP_utilities as SPU
 
 
 # Measure ditance traveled during experiment (in mm)
@@ -28,14 +30,10 @@ def distance_traveled(fx, fy, ROI, numFrames):
     
     # Sample position every 10 frames (10 Hz) and accumulate distance swum
     # - Only add increments greater than 0.5 mm
-    
-    distance_frame = np.zeros((90000,2)) 
     prev_x = fx[0]
     prev_y = fy[0]
     distanceT = 0
     for f in range(9,numFrames,10):
-        
-        distance_frame[f,0] = f
         
         dx = ((fx[f]-prev_x)/chamber_Width_px) * chamber_Width_mm
         dy = ((fy[f]-prev_y)/chamber_Height_px) * chamber_Height_mm
@@ -43,14 +41,12 @@ def distance_traveled(fx, fy, ROI, numFrames):
         
         if d > 0.5:
             
-            distance_frame[f,1]=d
-            
-            distanceT = distanceT + d
-            prev_x = fx[f]
-            prev_y = fy[f] 
+           distanceT = distanceT + d
+           prev_x = fx[f]
+           prev_y = fy[f] 
 
             
-    return distanceT, distance_frame
+    return distanceT
 
 # Compute activity level of the fish in bouts per second (BPS)
 def measure_BPS(motion, startThreshold, stopThreshold):
@@ -298,19 +294,27 @@ def compute_speed(X,Y):
     return speed
 
 
-def computeDistPerBout(fx_boutStarts, fy_boutStarts, fx_boutEnds,fy_boutEnds):
+def computeDistPerBout(fx_boutStarts, fy_boutStarts, fx_boutEnds,fy_boutEnds, ROI):
 ## Computes total straight line distance travelled over the course of individual bouts
 
-    absDiffX=np.abs(fx_boutStarts-fx_boutEnds)
-    absDiffY=np.abs(fy_boutStarts-fy_boutEnds)
+    fx_boutStarts_mm, fy_boutStarts_mm = SPU.convert_mm(fx_boutStarts,fy_boutStarts, ROI)
+    fx_boutEnds_mm, fy_boutEnds_mm = SPU.convert_mm(fx_boutEnds,fy_boutEnds, ROI)
+    
+    absDiffX=np.abs(fx_boutStarts_mm - fx_boutEnds_mm)
+    absDiffY=np.abs(fy_boutStarts_mm - fy_boutEnds_mm)
     
 
-    distPerBout=np.zeros(len(fx_boutStarts))
+    Bout_dist=np.zeros(len(fx_boutStarts))
     
     for i in range(len(fx_boutStarts)):
-        distPerBout[i]=math.sqrt(np.square(absDiffX[i])+np.square(absDiffY[i]))
-        if distPerBout[i]>200:distPerBout[i]=0
         
+        Bout_dist[i]= np.sqrt(absDiffX[i]*absDiffX[i] + absDiffY[i]* absDiffY[i])
+    
+    #Concatenate bout type to dataFrame
+    xStart_NS = pd.Series(fx_boutStarts, name = 'fxStart')
+    yStart_NS = pd.Series(fy_boutStarts, name = 'fyStart')
+    dist = pd.Series(Bout_dist, name= 'distT')
+    distPerBout = pd.concat([xStart_NS,yStart_NS, dist], axis=1)
     
     return distPerBout
 
@@ -385,89 +389,61 @@ def filterTrackingFlips(dAngle):
     return np.array(new_dAngle)
 
 
+# rotate the orientation trace so that the initial heading is zero
+def rotateOrt(ort):
+    ort_rot=np.zeros(len(ort))
+    ort_init=ort[0]
+    for i,thisOrt in enumerate(ort):
+        o=thisOrt-ort_init
+        oAbs=np.abs(o)
+        if o>180:
+            o=(180-(o-180))*-1
+        elif o<-180:
+            o=180-(oAbs-180)
+            
+        ort_rot[i]=o
+    return ort_rot
+
+
 # Label Bouts
-def label(bouts,speed,speedAngle, numFrames, FPS):
+def label_bouts(bouts,ort):
 
     # Parameters
-    pre_window = 10
-    post_window = 80
+    preWindow = 10
+    postWindow = 80
 
     num_bouts = bouts.shape[0]
+    boutStarts = bouts[:,1]
+       
+    Bout_ort = np.zeros([num_bouts,(preWindow+postWindow)])
+    Bout_Angles = np.zeros(num_bouts)
+    
+    for b in range(0,num_bouts):
+        Bout_ort[b,:] = rotateOrt(ort[int(boutStarts[b]-preWindow):int(boutStarts[b]+postWindow)]) # extract heading for this bout (rotated to zero initial heading)
+        Bout_Angles[b] = np.mean(Bout_ort[b,-2:-1])-np.mean(Bout_ort[b,0:1]) # take the heading before and after
 
-    # Turn PC constant
-    turn_pc = np.array( 
-                        [4.45784725e-06,  7.29697833e-06,  8.34722354e-06,  7.25639602e-06,
-                        6.83773435e-06,  1.05799488e-05,  9.59485594e-06,  1.04996460e-05,
-                        9.50693646e-06,  6.68761575e-06,  1.74239537e-06, -5.13269107e-06,
-                        -1.30955946e-05, -2.93123632e-05, -5.16772503e-05, -6.59745678e-05,
-                        -6.24515957e-05, -6.82989320e-05, -5.84883171e-05, -5.49322933e-05,
-                        -4.75273440e-05, -5.97750465e-05, -5.50942353e-05, -4.32771920e-05,
-                        -4.53841833e-05, -4.39441043e-05, -4.29799500e-05, -3.66285781e-05,
-                        -2.74927325e-05, -2.79482710e-05, -2.77149944e-05, -3.01089122e-05,
-                        -2.69092862e-05, -2.75200069e-05, -3.25928317e-05, -3.87474743e-05,
-                        -4.24973212e-05, -4.47429213e-05, -4.64712226e-05, -4.89719267e-05,
-                        -5.91676326e-05, -6.22191781e-05, -6.21876092e-05, -6.47945016e-05,
-                        -7.40367790e-05, -7.80097327e-05, -7.82331054e-05, -8.03180239e-05,
-                        -8.55250976e-05, -8.88741024e-05, -8.93264800e-05, -9.13412355e-05,
-                        -9.33324008e-05, -9.54639901e-05, -9.98497139e-05, -1.03221121e-04,
-                        -1.08970275e-04, -1.13959552e-04, -1.20395095e-04, -1.22240153e-04,
-                        -1.25032979e-04, -1.26145560e-04, -1.21958655e-04, -1.21565879e-04,
-                        -1.21595218e-04, -1.18114363e-04, -1.17635286e-04, -1.12130918e-04,
-                        -1.12562112e-04, -1.14707619e-04, -1.16066511e-04, -1.17252020e-04,
-                        -1.22045156e-04, -1.22450517e-04, -1.25711027e-04, -1.25607020e-04,
-                        -1.23958304e-04, -1.19578445e-04, -1.18268675e-04, -1.20917093e-04,
-                        -1.23308934e-04, -1.18843590e-04, -1.19599994e-04, -1.20606743e-04,
-                        -1.19085433e-04, -1.17407301e-04, -1.11223481e-04, -1.03411623e-04,
-                        -9.72959419e-05, -9.09072743e-05, -3.92279029e-04, -8.75810372e-04,
-                        -1.47534021e-03, -1.88185473e-03, -2.22179113e-03, -2.55991823e-03,
-                        -2.84555972e-03, -3.18082206e-03, -3.41233583e-03, -3.70544285e-03,
-                        -4.73103364e-03, -5.97680392e-03, -9.40038181e-03, -2.37417237e-02,
-                        -5.71414180e-02, -7.90270203e-02, -8.59715002e-02, -8.39164195e-02,
-                        -8.26775443e-02, -8.46991182e-02, -8.87082454e-02, -9.20826611e-02,
-                        -9.44035333e-02, -9.58685766e-02, -9.77270940e-02, -9.94995655e-02,
-                        -1.01423412e-01, -1.02874920e-01, -1.04038069e-01, -1.05218456e-01,
-                        -1.06468904e-01, -1.07616346e-01, -1.08377944e-01, -1.09295619e-01,
-                        -1.10020168e-01, -1.11017271e-01, -1.11630187e-01, -1.12289358e-01,
-                        -1.13028781e-01, -1.13582258e-01, -1.14247743e-01, -1.14925706e-01,
-                        -1.15475069e-01, -1.15872550e-01, -1.16510964e-01, -1.16891761e-01,
-                        -1.17313917e-01, -1.17903131e-01, -1.18225351e-01, -1.18641475e-01,
-                        -1.19053891e-01, -1.19258273e-01, -1.19559753e-01, -1.19870835e-01,
-                        -1.20140247e-01, -1.20378214e-01, -1.20636915e-01, -1.20902923e-01,
-                        -1.21193316e-01, -1.21443497e-01, -1.21709187e-01, -1.21760193e-01,
-                        -1.21973109e-01, -1.22152281e-01, -1.22344918e-01, -1.22531978e-01,
-                        -1.22724310e-01, -1.22906534e-01, -1.23223312e-01, -1.23339858e-01,
-                        -1.23424650e-01, -1.23665608e-01, -1.23838407e-01, -1.24060679e-01,
-                        -1.24108222e-01, -1.24361033e-01, -1.24545660e-01, -1.24807371e-01,
-                        -1.25075108e-01, -1.25255340e-01, -1.25288654e-01, -1.25387074e-01,
-                        -1.25516014e-01, -1.25501054e-01, -1.25552951e-01, -1.25657374e-01,
-                        -1.25660401e-01, -1.25796678e-01, -1.25729603e-01, -1.25808149e-01]
-                        )
-   
 
-    # Label bouts as turns (-1 = Left, 1 = Right) and swims (0)
-    labels = np.zeros(num_bouts)
-    for i, bout in enumerate(bouts):
-        index = np.int(bout[0]) # Align to start
-        if(index < pre_window):
-            continue
-        if(index > (numFrames-post_window)):
-            continue
-        tdD = speed[(index-pre_window):(index+post_window)]
-        tD = np.cumsum(tdD)
-        tdA = speedAngle[(index-pre_window):(index+post_window)]
-        tA = np.cumsum(tdA)
+    labels=np.zeros((len(Bout_Angles),3))
 
-        # Compare bout trajectory to Turn PC
-        bout_trajectory = np.hstack((tD, tA))
-        turn_score = np.sum(turn_pc * bout_trajectory)
+    
+    for i,angle in enumerate(Bout_Angles):
+        if angle > 10: 
+            labels[i,0]=1
+        elif angle < -10:
+            labels[i,1]=1
+        else:
+            labels[i,2]=1
+    L=labels[:,0]!=0
+    R=labels[:,1]!=0
+    F=labels[:,2]!=0
+    
+    LTurn = pd.Series(R, name='RTurn')
+    RTurn = pd.Series(L, name='LTurn')
+    FSwim = pd.Series(F, name='FSwim')
+    Bout_labels = pd.concat([LTurn, RTurn, FSwim], axis=1)
+           
 
-        # Label
-        if(turn_score < -90):
-            labels[i] = -1
-        if(turn_score > 90):
-            labels[i] = 1
-
-    return labels
+    return Bout_labels
 
 # FIN
     

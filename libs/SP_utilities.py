@@ -167,7 +167,21 @@ def smoothSignal(x,N=5):
     xxx=np.concatenate((xpre,xx))
     return xxx
 
+def convert_mm(XList,YList,ROI):
+    
+    # Rescale by chamber dimensions
+    chamber_Width_px = ROI[0,2]-ROI[0,0]
+    chamber_Height_px = ROI[0,3]
+    chamber_Width_mm = 100
+    chamber_Height_mm = 14
+    
+    XList = XList - ROI[0,0]
+    YList = YList
 
+    XList_mm = (XList/chamber_Width_px)*chamber_Width_mm
+    YList_mm = (YList/chamber_Height_px)*chamber_Height_mm  
+    
+    return XList_mm, YList_mm
 
 def plotMotionMetrics(fx,fy,bx,by,ex,ey,area,ort,motion,startFrame,endFrame):
 ## plots tracking trajectory, motion, distance per frame and cumulative distance for defined section of tracking data

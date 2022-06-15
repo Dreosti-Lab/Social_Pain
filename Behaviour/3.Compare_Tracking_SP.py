@@ -68,6 +68,9 @@ OrtHist_S_Hot_ALL = np.zeros((numFiles,36))
 OrtHist_S_Noxious_ALL = np.zeros((numFiles,36))
 Position_NS_ALL = np.zeros((numFiles,3))
 Position_S_ALL = np.zeros((numFiles,3))
+BoutType_NS_ALL = np.zeros((numFiles,6))
+Bouttype_S_ALL = np.zeros((numFiles,6))
+                           
 # Go through all the files contained in the analysis folder
 for f, filename in enumerate(npzFiles):
 
@@ -79,6 +82,8 @@ for f, filename in enumerate(npzFiles):
     BPS_S = dataobject['BPS_S']
     Bouts_NS = dataobject['Bouts_NS']   
     Bouts_S = dataobject['Bouts_S']
+    BoutType_NS = dataobject['BoutType_NS']
+    BoutType_S = dataobject['BoutType_S']
     Pauses_NS = dataobject['Pauses_NS']   
     Pauses_S = dataobject['Pauses_S']
     Freezes_NS = dataobject['Freezes_NS']
