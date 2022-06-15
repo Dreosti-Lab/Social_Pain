@@ -137,7 +137,7 @@ for idx,folder in enumerate(folderNames):
             Bouts_S, Pauses_S = SPA.analyze_bouts_and_pauses(fx_S, fy_S, ort_S, motion_S, S_ROIs[i,1], motionStartThreshold, motionStopThreshold)       
             
             # Compute Distance Travelled 
-            DistanceT_NS, Distance_Frame_NS = SPA.distance_traveled(fx_NS, fy_NS, NS_ROIs[i-1], len(fx_NS))
+            DistanceT_NS, Distance_Frame_NS = SPA.distance_traveled(fx_NS, fy_NS,NS_ROIs[i-1], len(fx_NS))
             Binned_DistanceT_NS = SPA.Binning(Distance_Frame_NS, 6000)
             
             DistanceT_S, Distance_Frame_S = SPA.distance_traveled(fx_S, fy_S, S_ROIs[i-1], len(fx_S))
