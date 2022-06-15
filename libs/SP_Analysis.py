@@ -30,10 +30,13 @@ def distance_traveled(fx, fy, ROI, numFrames):
     
     # Sample position every 10 frames (10 Hz) and accumulate distance swum
     # - Only add increments greater than 0.5 mm
+    distance_frame = np.zeros((90999,2))
     prev_x = fx[0]
     prev_y = fy[0]
     distanceT = 0
     for f in range(9,numFrames,10):
+        
+        distance_frame[f,0]=f
         
         dx = ((fx[f]-prev_x)/chamber_Width_px) * chamber_Width_mm
         dy = ((fy[f]-prev_y)/chamber_Height_px) * chamber_Height_mm
@@ -41,12 +44,14 @@ def distance_traveled(fx, fy, ROI, numFrames):
         
         if d > 0.5:
             
+           distance_frame[f,1]=d
+            
            distanceT = distanceT + d
            prev_x = fx[f]
            prev_y = fy[f] 
 
             
-    return distanceT
+    return distanceT, distance_frame
 
 # Compute activity level of the fish in bouts per second (BPS)
 def measure_BPS(motion, startThreshold, stopThreshold):

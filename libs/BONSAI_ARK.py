@@ -35,7 +35,10 @@ def read_bonsai_crop_rois(filename):
     ROIs[:, 1] = np.array(Y)
     ROIs[:, 2] = np.array(Width)
     ROIs[:, 3] = np.array(Height)
-    return ROIs
+    
+    ROI = ROIs.astype(int)
+    
+    return ROI
 
 
 

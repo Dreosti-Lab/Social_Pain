@@ -8,8 +8,8 @@ Created on Tue Apr  6 19:00:40 2021
 Extract information from tracking data and save into npz Summary file for each video of 6 fish
 """                        
 # Set Library Path - Social_Pain Repos
-lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
-#lib_path = r'C:/Repos/Social_Pain/libs'
+#lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
+lib_path = r'C:/Repos/Social_Pain/libs'
 import sys
 sys.path.append(lib_path)
 
@@ -40,9 +40,9 @@ freeze_threshold = 400
 motionStartThreshold = 0.02
 motionStopThreshold = 0
 
-AnalysisFolder = base_path + '/NewChamber/Gradient_NewChamber38/Analysis' 
+AnalysisFolder = base_path + '/NewChamber/Control_NewChamber38/Analysis' 
 # Read folder list
-FolderlistFile = base_path + '/NewChamber/Gradient_Newchamber38/Folderlist_Gradient.txt'
+FolderlistFile = base_path + '/NewChamber/Control_Newchamber38/Folderlist_Control.txt'
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 
@@ -137,7 +137,7 @@ for idx,folder in enumerate(folderNames):
             Bouts_S, Pauses_S = SPA.analyze_bouts_and_pauses(fx_S, fy_S, ort_S, motion_S, S_ROIs[i,1], motionStartThreshold, motionStopThreshold)       
             
             # Compute Distance Travelled 
-            DistanceT_NS, Distance_Frame_NS = SPA.distance_traveled(fx_NS, fy_NS, NS_ROIs[i-1], len(fx_NS))
+            DistanceT_NS, Distance_Frame_NS = SPA.distance_traveled(fx_NS, fy_NS,NS_ROIs[i-1], len(fx_NS))
             Binned_DistanceT_NS = SPA.Binning(Distance_Frame_NS, 6000)
             
             DistanceT_S, Distance_Frame_S = SPA.distance_traveled(fx_S, fy_S, S_ROIs[i-1], len(fx_S))
