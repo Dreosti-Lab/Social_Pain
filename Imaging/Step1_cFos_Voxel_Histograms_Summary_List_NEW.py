@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 
 # Set Library Paths
+lib_path = r'C:/Repos/Social_Pain/libs'
+import sys
+sys.path.append(lib_path)
+
 import sys
 import os
 
@@ -14,10 +18,9 @@ import SP_cfos as SPCFOS
 #---------------------------------------------------------------------------
 
 # Set Stack Path
-stack_path = '/home/kampff/Downloads/cFOS/DAPI_CFOS_02_reg_Warped.nii'
-
+stack_path = 'S:/WIBR_Dreosti_Lab/Alizee/LSZ1_Server/Registration/Heat_Gradient/Average/Reg_CFOS_GRADIENT_22_02_04_fish1.nii'
 # Set Mask Path
-mask_path = '/home/kampff/Downloads/cFOS/DAPI_MASK.nii'
+mask_path =  'S:/WIBR_Dreosti_Lab/Alizee/LSZ1_Server/Registration/mask/DAPI_MASK.nii'
 mask_slice_range_start = 130
 mask_slice_range_stop = 230
 
