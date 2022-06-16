@@ -173,7 +173,7 @@ def convert_mm(XList,YList,ROI):
     chamber_Width_px = ROI[0,2]-ROI[0,0]
     chamber_Height_px = ROI[0,3]
     chamber_Width_mm = 100
-    chamber_Height_mm = 14
+    chamber_Height_mm = 15
     
     XList = XList - ROI[0,0]
     YList = YList

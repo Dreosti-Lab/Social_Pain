@@ -26,7 +26,7 @@ def distance_traveled(fx, fy, ROI, numFrames):
     chamber_Width_px = ROI[2]
     chamber_Height_px = ROI[3]
     chamber_Width_mm = 100
-    chamber_Height_mm = 14
+    chamber_Height_mm = 15
     
     # Sample position every 10 frames (10 Hz) and accumulate distance swum
     # - Only add increments greater than 0.5 mm
