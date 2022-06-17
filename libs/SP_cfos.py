@@ -119,10 +119,10 @@ def read_summarylist(path, normalized=False):
                 sys.exit()
         else:
             try:
-                cfos_image_name = glob.glob(base_cfos_path + '\*_reg_Warped.nii')[0]
+                cfos_image_name = glob.glob(base_cfos_path + '\*_reg_Warped.nii.gz')[0]
 
             except IndexError:
-                print("No file found: " + base_cfos_path + '\*_reg_Warped.nii')
+                print("No file found: " + base_cfos_path + '\*_reg_Warped.nii.gz')
                 sys.exit()
         # Append path to list
         cfos_paths.append(cfos_image_name)

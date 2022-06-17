@@ -158,6 +158,10 @@ for idx,folder in enumerate(folderNames):
             RTurns_NS = len(B_labels_NS[B_labels_NS.RTurn==True])
             FSwim_NS = len(B_labels_NS[B_labels_NS.FSwim==True])
             
+            LTurns_S =np.sum(B_labels_NS.LTurn)
+            RTurns_S =np.sum(B_labels_NS.RTurn)
+            FSwim_S = np.sum(B_labels_NS.FSwim)
+            
             LTurns_S =len( B_labels_S[B_labels_S.LTurn ==True])
             RTurns_S = len(B_labels_S[B_labels_S.RTurn==True])
             FSwim_S = len(B_labels_S[B_labels_S.FSwim==True])

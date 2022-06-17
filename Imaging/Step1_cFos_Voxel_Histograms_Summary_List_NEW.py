@@ -18,11 +18,12 @@ import SP_cfos as SPCFOS
 #---------------------------------------------------------------------------
 
 # Set Stack Path
-stack_path = 'S:/WIBR_Dreosti_Lab/Alizee/LSZ1_Server/Registration/Heat_Gradient/Average/Reg_CFOS_GRADIENT_22_02_04_fish1.nii'
+folder_path = 'S:/WIBR_Dreosti_Lab/Alizee/LSZ1_Server/Registration/Social/22_02_23/fish1'
+stack_path = folder_path + '/DAPI_CFOS_02_reg_Warped.nii.gz'
 # Set Mask Path
 mask_path =  'S:/WIBR_Dreosti_Lab/Alizee/LSZ1_Server/Registration/mask/DAPI_MASK.nii'
-mask_slice_range_start = 130
-mask_slice_range_stop = 230
+mask_slice_range_start = 100
+mask_slice_range_stop = 300
 
 # Use the normalized stacks?
 normalized = False
@@ -39,19 +40,19 @@ num_mask_voxels = np.sum(np.sum(np.sum(mask_data)))
 
 
 # Measure cFOS in Mask (normalize to "background")
-plt.figure()
+voxel_hist = plt.figure()
     
 # Load original (warped) cFos stack
 cfos_data, cfos_affine, cfos_header = SPCFOS.load_nii(stack_path, normalized = False)
 
 # Remove starurated (peak in large values)
-cfos_data[cfos_data > 65400] = 0
+#cfos_data[cfos_data > 65400] = 0
 
 # Apply mask
 masked_values = cfos_data[mask_data == 1]
 
 # Histogram
-histogram, bin_edges  = np.histogram(masked_values, bins = 1024, range=[-31072, 100000]);        
+histogram, bin_edges  = np.histogram(masked_values, bins = 1000, range=[-3000, 7000]);        
 bin_width = (bin_edges[1]-bin_edges[0])/2
 bin_centers = bin_edges[:-1] + bin_width
 
@@ -70,25 +71,24 @@ for index in range(len(reverse_histogram[smoothing:-smoothing])):
         best_index = index
 
     # Check for dip
-    if average < ((running_max * 0.95) and(average > 100000)):
+    if average < ((running_max * 0.95) and(average > 10000)):
         break
 
 # Find mode (of signal peak)
-mode_index = 1024 - best_index
+mode_index = 1000 - best_index
 mode = bin_centers[mode_index]
 
 # Plot histogram
-plt.plot(bin_centers, histogram)
-plt.plot(bin_centers[mode_index], histogram[mode_index], 'ro')
-plt.xlim(-1000, 70000)
-plt.ylim(0, 700000)
+plt.plot(bin_centers,histogram)
+plt.plot(bin_centers[mode_index],histogram[mode_index], 'ro')
+plt.xlim(-100, 1200)
+#plt.ylim(0, 700000)
 plt.show()
 
 # Save histogram
-if(normalized):
-    histogram_file = os.path.dirname(stack_path) + '/voxel_histogram_normalized.npz'
-else:
-    histogram_file = os.path.dirname(stack_path) + '/voxel_histogram.npz'        
+voxel_hist.savefig(folder_path + '/voxel_histogram.png', dpi=300, bbox_inches='tight')
+
+histogram_file = folder_path + '/voxel_histogram.npz'   
 np.savez(histogram_file, 
             histogram=histogram, 
             bin_centers=bin_centers, 
