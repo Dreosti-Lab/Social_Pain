@@ -13,8 +13,8 @@ import sys
 sys.path.append(lib_path)
 
 # Set Base Path
-#base_path = r'/Users/alizeekastler/Desktop/Project_Pain_Social/Behaviour_Heat_Gradient'
-base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
+base_path = r'/Volumes/T7 Touch/Behaviour_Heat_Gradient'
+#base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
 
 
 # Import useful libraries
@@ -28,8 +28,8 @@ from scipy import stats
 
 
 # Specify Analysis folder
-AnalysisFolder = base_path + '/NewChamber/Control_NewChamber38/Analysis' 
-FigureFolder = base_path + '/NewChamber/Control_NewChamber38/Figures'
+AnalysisFolder = base_path + '/Gradient_NewChamber38/Experiments/2022_03_10/Analysis' 
+FigureFolder = base_path + '/Gradient_NewChamber38/Experiments/2022_03_10/Figures' 
 # Find all the npz files saved for each group and fish with all the information
 npzFiles = glob.glob(AnalysisFolder+'/*.npz')
 
@@ -54,8 +54,8 @@ numFreezes_NS_ALL = np.zeros(numFiles)
 numFreezes_S_ALL = np.zeros(numFiles)
 Binned_Freezes_NS_ALL = np.zeros((numFiles,14))
 Binned_Freezes_S_ALL = np.zeros((numFiles,14))
-Binned_DistanceT_NS_ALL = np.zeros((numFiles,15))
-Binned_DistanceT_S_ALL = np.zeros((numFiles,15))
+#Binned_DistanceT_NS_ALL = np.zeros((numFiles,15))
+#Binned_DistanceT_S_ALL = np.zeros((numFiles,15))
 Percent_Moving_NS_ALL = np.zeros(numFiles)
 Percent_Moving_S_ALL = np.zeros(numFiles)
 Percent_Paused_NS_ALL = np.zeros(numFiles)
@@ -64,6 +64,8 @@ DistanceT_NS_ALL = np.zeros(numFiles)
 DistanceT_S_ALL = np.zeros(numFiles)
 Bouts_NS_ALL = np.zeros((0,9))
 Bouts_S_ALL = np.zeros((0,9))
+#fish_Position_NS_ALL = np.zeros((0,2))
+#fish_Position_S_ALL = np.zeros((0,2))
 Pauses_NS_ALL = np.zeros((0,9))   
 Pauses_S_ALL = np.zeros((0,9))
 Freezes_S_ALL = np.zeros((0,4))
@@ -91,6 +93,8 @@ for f, filename in enumerate(npzFiles):
     BPS_S = dataobject['BPS_S']
     Bouts_NS = dataobject['Bouts_NS']   
     Bouts_S = dataobject['Bouts_S']
+    #fish_Position_NS = dataobject['fish_Position_NS']
+    #fish_Position_S = dataobject['fish_Position_S']
     BoutType_NS = dataobject['BoutType_NS']
     BoutType_S = dataobject['BoutType_S']
     LTurns_NS = dataobject['LTurns_NS']
@@ -113,8 +117,8 @@ for f, filename in enumerate(npzFiles):
     Binned_Freezes_S = dataobject['Binned_Freezes_S']
     DistanceT_NS = dataobject['DistanceT_NS']
     DistanceT_S = dataobject['DistanceT_S']
-    Binned_DistanceT_NS = dataobject['Binned_DistanceT_NS']
-    Binned_DistanceT_S = dataobject['Binned_DistanceT_S']
+    #Binned_DistanceT_NS = dataobject['Binned_DistanceT_NS']
+    #Binned_DistanceT_S = dataobject['Binned_DistanceT_S']
     OrtHist_NS_Cool = dataobject['OrtHist_NS_Cool']
     OrtHist_NS_Hot = dataobject['OrtHist_NS_Hot']
     OrtHist_NS_Noxious = dataobject['OrtHist_NS_Noxious']
@@ -136,8 +140,8 @@ for f, filename in enumerate(npzFiles):
     numFreezes_S_ALL[f] = numFreezes_S
     Binned_Freezes_NS_ALL[f,:] = Binned_Freezes_NS
     Binned_Freezes_S_ALL[f,:] = Binned_Freezes_S
-    Binned_DistanceT_NS_ALL[f,:] = Binned_DistanceT_NS
-    Binned_DistanceT_S_ALL[f,:] = Binned_DistanceT_S
+    #Binned_DistanceT_NS_ALL[f,:] = Binned_DistanceT_NS
+    #Binned_DistanceT_S_ALL[f,:] = Binned_DistanceT_S
     Percent_Moving_NS_ALL[f] = Percent_Moving_NS
     Percent_Moving_S_ALL[f] = Percent_Moving_S
     Percent_Paused_NS_ALL[f] = Percent_Paused_NS
@@ -166,6 +170,8 @@ for f, filename in enumerate(npzFiles):
     # Concat all Pauses/Bouts
     Bouts_NS_ALL = np.vstack([Bouts_NS_ALL, Bouts_NS])
     Bouts_S_ALL = np.vstack([Bouts_S_ALL, Bouts_S])
+    #fish_Position_NS_ALL = np.vstack([fish_Position_NS_ALL, fish_Position_NS])
+    #fish_Position_S_ALL = np.vstack([fish_Position_S_ALL, fish_Position_S])
     Pauses_NS_ALL = np.vstack([Pauses_NS_ALL, Pauses_NS])
     Pauses_S_ALL = np.vstack([Pauses_S_ALL, Pauses_S]) 
     Freezes_NS_ALL = np.vstack([Freezes_NS_ALL, Freezes_NS])
@@ -192,6 +198,7 @@ sns.despine()
 ax.set_title('Distance Travelled n='+ format(numFiles) +'\n p-value:'+ format(pvalue_DistanceT),fontsize=20, y=-0.2)
 ax.set_xticklabels(df.columns)
 ax.set_ylabel('Total Distance Travelled (mm)')
+plt.ylim(0,20000)
 ax.plot(df_jitter['Non Social'], df['Non Social'],'o',mec='lightsteelblue',mfc='lightsteelblue', ms=6)
 ax.plot(df_jitter['Social'], df['Social'], 'o',mec='steelblue',mfc='steelblue', ms=6)
 
@@ -202,44 +209,44 @@ DistanceT.savefig(FigureFolder + '/DistanceT.png', dpi=300, bbox_inches='tight')
 
 
 
-# Plot Distance Travelled Time
-mean_DistanceT_NS = np.mean(Binned_DistanceT_NS_ALL, axis=0)
-sem_DistanceT_NS = stats.sem(Binned_DistanceT_NS_ALL)
-std_DistanceT_NS = np.std(Binned_DistanceT_NS_ALL, axis=0)
+# # Plot Distance Travelled Time
+# mean_DistanceT_NS = np.mean(Binned_DistanceT_NS_ALL, axis=0)
+# sem_DistanceT_NS = stats.sem(Binned_DistanceT_NS_ALL)
+# std_DistanceT_NS = np.std(Binned_DistanceT_NS_ALL, axis=0)
 
-mean_DistanceT_S = np.mean(Binned_DistanceT_S_ALL, axis=0)
-sem_DistanceT_S = stats.sem(Binned_DistanceT_S_ALL)
-std_DistanceT_S = np.std(Binned_DistanceT_S_ALL, axis=0)
+# mean_DistanceT_S = np.mean(Binned_DistanceT_S_ALL, axis=0)
+# sem_DistanceT_S = stats.sem(Binned_DistanceT_S_ALL)
+# std_DistanceT_S = np.std(Binned_DistanceT_S_ALL, axis=0)
 
-Binned_DistanceT = plt.figure(figsize=(25,20), dpi=300)
-plt.suptitle("Distance Travelled over time"+ '\n n='+ format(numFiles), fontweight="bold", fontsize=30, y=0.9) 
+# Binned_DistanceT = plt.figure(figsize=(25,20), dpi=300)
+# plt.suptitle("Distance Travelled over time"+ '\n n='+ format(numFiles), fontweight="bold", fontsize=30, y=0.9) 
 
-ax = plt.subplot(221)
-plt.title('Non Social', fontweight="bold", fontsize= 25, y=-0.2)
-plt.plot(mean_DistanceT_NS, color = 'lightsteelblue', linewidth= 3)
-plt.fill_between(np.arange(mean_DistanceT_NS.shape[0]), mean_DistanceT_NS + sem_DistanceT_NS,
-                 mean_DistanceT_NS - sem_DistanceT_NS,color= 'lightsteelblue',alpha=0.2)
-plt.ylabel('Distance Travelled (mm)')
-plt.ylim(200,1000)
-plt.xticks(np.arange(0, 15, step= 1), ('1', '2','3','4','5','6','7', '8', '9', '10', '11','12','13','14','15'))
-plt.xlabel('minutes')
-ax.spines['right'].set_visible(False)
-ax.spines['top'].set_visible(False)
+# ax = plt.subplot(221)
+# plt.title('Non Social', fontweight="bold", fontsize= 25, y=-0.2)
+# plt.plot(mean_DistanceT_NS, color = 'lightsteelblue', linewidth= 3)
+# plt.fill_between(np.arange(mean_DistanceT_NS.shape[0]), mean_DistanceT_NS + sem_DistanceT_NS,
+#                  mean_DistanceT_NS - sem_DistanceT_NS,color= 'lightsteelblue',alpha=0.2)
+# plt.ylabel('Distance Travelled (mm)')
+# plt.ylim(200,1000)
+# plt.xticks(np.arange(0, 15, step= 1), ('1', '2','3','4','5','6','7', '8', '9', '10', '11','12','13','14','15'))
+# plt.xlabel('minutes')
+# ax.spines['right'].set_visible(False)
+# ax.spines['top'].set_visible(False)
 
-ax = plt.subplot(222)
-plt.title('Social', fontweight="bold", fontsize= 25, y=-0.2)
-plt.plot(mean_DistanceT_S, color = 'steelblue', linewidth= 3)
-plt.fill_between(np.arange(mean_DistanceT_S.shape[0]), mean_DistanceT_S + sem_DistanceT_S,
-                 mean_DistanceT_S - sem_DistanceT_S,color= 'steelblue',alpha=0.2)
-plt.ylim(200,1000)
-plt.xticks(np.arange(0, 15, step= 1), ('1', '2','3','4','5','6','7', '8', '9', '10', '11','12','13','14','15'))
-plt.xlabel('minutes')
-ax.spines['right'].set_visible(False)
-ax.spines['top'].set_visible(False)
-ax.spines['left'].set_visible(False)
-ax.get_yaxis().set_ticks([])
+# ax = plt.subplot(222)
+# plt.title('Social', fontweight="bold", fontsize= 25, y=-0.2)
+# plt.plot(mean_DistanceT_S, color = 'steelblue', linewidth= 3)
+# plt.fill_between(np.arange(mean_DistanceT_S.shape[0]), mean_DistanceT_S + sem_DistanceT_S,
+#                  mean_DistanceT_S - sem_DistanceT_S,color= 'steelblue',alpha=0.2)
+# plt.ylim(200,1000)
+# plt.xticks(np.arange(0, 15, step= 1), ('1', '2','3','4','5','6','7', '8', '9', '10', '11','12','13','14','15'))
+# plt.xlabel('minutes')
+# ax.spines['right'].set_visible(False)
+# ax.spines['top'].set_visible(False)
+# ax.spines['left'].set_visible(False)
+# ax.get_yaxis().set_ticks([])
 
-Binned_DistanceT.savefig(FigureFolder + '/BinnedDistanceT.png', dpi=300, bbox_inches='tight', transparent=True)
+# Binned_DistanceT.savefig(FigureFolder + '/BinnedDistanceT.png', dpi=300, bbox_inches='tight', transparent=True)
 
 
 
@@ -260,6 +267,7 @@ sns.despine()
 ax.set_title('Distance Travelled Per Bout n=' + format(numFiles) +'\n p-value:'+ format(pvalue_DistBout),fontsize=20, y=-0.15)
 ax.set_xticklabels(df.columns)
 ax.set_ylabel('Distance Travelled (mm)')
+plt.ylim(0,20)
 ax.plot(df_jitter['Non Social'], df['Non Social'],'o',mec='lightsteelblue',mfc='lightsteelblue', ms=6)
 ax.plot(df_jitter['Social'], df['Social'], 'o',mec='steelblue',mfc='steelblue', ms=6)
 
@@ -423,8 +431,8 @@ plt.hist2d(Freezes_NS_ALL[:,1],Freezes_NS_ALL[:,2], bins=10, cmap='Blues')
 plt.title('Non Social', fontweight="bold", fontsize= 32, y=-0.25) 
 plt.xticks(fontsize=32)
 plt.yticks(fontsize=32)
-plt.xlim(100,600)
-plt.ylim(10,80) 
+#plt.xlim(100,600)
+#plt.ylim(10,80) 
 plt.colorbar()
 
 ax = plt.subplot(222)  
@@ -432,8 +440,8 @@ plt.hist2d(Freezes_S_ALL[:,1],Freezes_S_ALL[:,2],bins=10, cmap='Blues')
 plt.title('Social', fontweight="bold", fontsize= 32, y=-0.25)
 plt.xticks(fontsize=32)  
 plt.yticks(fontsize=32) 
-plt.xlim(100,600)
-plt.ylim(10,80)
+#plt.xlim(100,600)
+#plt.ylim(10,80)
 plt.colorbar()
 
 Freezes_map.tight_layout
@@ -498,7 +506,7 @@ sns.boxplot(data=df, color = '#BBBBBB', linewidth=1, showfliers=False)
 sns.despine()  
 ax.set_title('Average Position n=' + format(numFiles) +'\n p-value:'+ format(pvalue_Pos),fontsize=20, y=-0.15)
 ax.set_xticklabels(df.columns)
-ax.set_ylabel('Average Position(px)')
+ax.set_ylabel('Average Position(mm)')
 ax.plot(df_jitter['Non Social'], df['Non Social'],'o',mec='lightsteelblue',mfc='lightsteelblue', ms=6)
 ax.plot(df_jitter['Social'], df['Social'], 'o',mec='steelblue',mfc='steelblue', ms=6)
 
@@ -540,10 +548,7 @@ plt.savefig(FigureFolder + '/HistStack.png', dpi=300, bbox_inches= 'tight', tran
 
 
 #Plot Relative Position Shift
-XMs = np.column_stack((avgPosition_NS_ALL, avgPosition_S_ALL))
-
-# Crude calibration: 600 pixels / 100mm
-XM_values = (np.array(XMs)/6)
+XM_values = np.column_stack((avgPosition_NS_ALL, avgPosition_S_ALL))
 TTSs = XM_values[:,1] - XM_values[:,0]
 
 # Stats: paired Ttest mean position of each fish in NS vs S
@@ -589,7 +594,7 @@ Norm_OrtHist_S_Noxious_ALL = Accum_OrtHist_S_Noxious_ALL/np.sum(Accum_OrtHist_S_
 
 # Plot Summary
 xAxis = np.arange(-np.pi,np.pi+np.pi/18.0, np.pi/18.0)
-Ort = plt.figure('Summary: Orientation Histograms')
+Ort = plt.figure('Summary: Orientation Histograms', figsize=(25,20), dpi=300)
 
 Ort = plt.subplot(131, polar=True)
 plt.title('Cool', fontweight="bold",fontsize= 25, y=-0.2)
@@ -611,58 +616,65 @@ plt.plot(xAxis, np.hstack((Norm_OrtHist_S_Noxious_ALL, Norm_OrtHist_S_Noxious_AL
 Ort.figure.savefig(FigureFolder + '/Orientation.png', dpi=300, bbox_inches='tight')
 
 
-# xTurn_NS = (BoutType_NS_ALL[:,0])[BoutType_NS_ALL[:,5] == False]
-# yTurn_NS = (BoutType_NS_ALL[:,1])[BoutType_NS_ALL[:,5] == False]
-
-# xTurn_S = (BoutType_S_ALL[:,0])[BoutType_S_ALL[:,5] == False]
-# yTurn_S = (BoutType_S_ALL[:,1])[BoutType_S_ALL[:,5] == False]
-
-# Turn_map = plt.figure(figsize=(45,16), dpi=300)
-# plt.suptitle("Distribution of Turns"+ '\n n='+ format(numFiles), fontweight="bold", fontsize=64, y=1) 
-
-# ax = plt.subplot(221)
-# plt.hist2d(xTurn_NS, yTurn_NS, bins=10, cmap='Blues')
-# plt.title('Non Social', fontweight="bold", fontsize= 32, y=-0.25) 
-# plt.xticks(fontsize=32)
-# plt.yticks(fontsize=32) 
-# plt.xlim(0,800)
-# plt.ylim(0,100)
-# plt.colorbar()
-
-# ax = plt.subplot(222)  
-# plt.hist2d(xTurn_S, yTurn_S ,bins=10, cmap='Blues')
-# plt.title('Social', fontweight="bold", fontsize= 32, y=-0.25)
-# plt.xticks(fontsize=32)  
-# plt.yticks(fontsize=32)
-# plt.xlim(0,800)
-# plt.ylim(0,100) 
-# plt.colorbar()
 
 
-# Turn_map.tight_layout
-# Turn_map.savefig(FigureFolder + '/TurnMap.png', dpi=300, bbox_inches='tight')
 
 
-# B_labels = plt.figure(figsize=(3,8), dpi=300)
-# plt.title('Bout Type,  n='+ format(numFiles) +'\n p-value: ' + format(pvalue_Pausing), pad=10, fontsize= 20, y=-0.2)
+xTurn_NS = (BoutType_NS_ALL[:,0])[BoutType_NS_ALL[:,5] == False]
+yTurn_NS = (BoutType_NS_ALL[:,1])[BoutType_NS_ALL[:,5] == False]
 
-# s1 = pd.Series(LTurns_NS_ALL, name='L')
-# s2 = pd.Series(RTurns_NS_ALL, name='R')
-# s3 = pd.Series(FSwim_NS_ALL, name= 'F')
-# Type_NS = pd.concat([s1,s2, s3], axis=1)
+xTurn_S = (BoutType_S_ALL[:,0])[BoutType_S_ALL[:,5] == False]
+yTurn_S = (BoutType_S_ALL[:,1])[BoutType_S_ALL[:,5] == False]
 
-# s4 = pd.Series(LTurns_S_ALL, name='L')
-# s5 = pd.Series(RTurns_S_ALL, name='R')
-# s6 = pd.Series(FSwim_S_ALL, name= 'F')
-# Type_S = pd.concat([s4,s5, s6], axis=1)
+Turn_map = plt.figure(figsize=(45,16), dpi=300)
+plt.suptitle("Distribution of Turns"+ '\n n='+ format(numFiles), fontweight="bold", fontsize=64, y=1) 
 
-# df= pd.concat([Type_NS,Type_S],axis=1)
+ax = plt.subplot(221)
+plt.hist2d(xTurn_NS, yTurn_NS, bins=10, cmap='Blues')
+plt.title('Non Social', fontweight="bold", fontsize= 32, y=-0.25) 
+plt.xticks(fontsize=32)
+plt.yticks(fontsize=32) 
+plt.colorbar()
+
+ax = plt.subplot(222)  
+plt.hist2d(xTurn_S, yTurn_S ,bins=10, cmap='Blues')
+plt.title('Social', fontweight="bold", fontsize= 32, y=-0.25)
+plt.xticks(fontsize=32)  
+plt.yticks(fontsize=32)
+plt.colorbar()
 
 
-# sns.barplot(data=df, ci='sd',  palette=['lightsteelblue','steelblue'])
-# sns.stripplot(data=df, orient="v", color= 'dimgrey',size=6, jitter=True, edgecolor="gray")
-# sns.despine()
+Turn_map.tight_layout
+Turn_map.savefig(FigureFolder + '/TurnMap.png', dpi=300, bbox_inches='tight')
 
+
+B_labels = plt.figure(figsize =(8,10), dpi=300)
+plt.suptitle('Bout Type,  n='+ format(numFiles), fontsize= 20)
+
+s1 = pd.Series(LTurns_NS_ALL, name='L')
+s2 = pd.Series(RTurns_NS_ALL, name='R')
+s3 = pd.Series(FSwim_NS_ALL, name= 'F')
+Type_NS = pd.concat([s1,s2, s3], axis=1)
+
+s4 = pd.Series(LTurns_S_ALL, name='L')
+s5 = pd.Series(RTurns_S_ALL, name='R')
+s6 = pd.Series(FSwim_S_ALL, name= 'F')
+Type_S = pd.concat([s4,s5, s6], axis=1)
+
+ax = plt.subplot(221)
+sns.barplot(data=Type_NS, ci='sd',  color='lightsteelblue')
+sns.stripplot(data=Type_NS, orient="v", color= 'dimgrey',size=6, jitter=True, edgecolor="gray")
+plt.ylim(0,1.1)
+sns.despine()
+
+ax = plt.subplot(222)
+sns.barplot(data=Type_S, ci='sd',  color = 'steelblue')
+sns.stripplot(data=Type_S, orient="v", color= 'dimgrey',size=6, jitter=True, edgecolor="gray")
+plt.ylim(0,1.1)
+sns.despine()
+
+B_labels.tight_layout
+B_labels.savefig(FigureFolder + '/BoutType.png', dpi=300, bbox_inches='tight')
 
 
 

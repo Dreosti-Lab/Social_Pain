@@ -20,38 +20,30 @@ import SP_utilities as SPU
 
 
 # Measure ditance traveled during experiment (in mm)
-def distance_traveled(fx, fy, ROI, numFrames):
+def distance_traveled(fx, fy,numFrames):
 
-    # Rescale by chamber dimensions
-    chamber_Width_px = ROI[2]
-    chamber_Height_px = ROI[3]
-    chamber_Width_mm = 100
-    chamber_Height_mm = 15
-    
     # Sample position every 10 frames (10 Hz) and accumulate distance swum
     # - Only add increments greater than 0.5 mm
-    distance_frame = np.zeros((90999,2))
     prev_x = fx[0]
     prev_y = fy[0]
     distanceT = 0
+
     for f in range(9,numFrames,10):
         
-        distance_frame[f,0]=f
         
-        dx = ((fx[f]-prev_x)/chamber_Width_px) * chamber_Width_mm
-        dy = ((fy[f]-prev_y)/chamber_Height_px) * chamber_Height_mm
+        dx = fx[f]-prev_x
+        dy = fy[f]-prev_y
         d = np.sqrt(dx*dx + dy*dy)
         
         if d > 0.5:
             
-           distance_frame[f,1]=d
             
            distanceT = distanceT + d
            prev_x = fx[f]
            prev_y = fy[f] 
 
             
-    return distanceT, distance_frame
+    return distanceT
 
 # Compute activity level of the fish in bouts per second (BPS)
 def measure_BPS(motion, startThreshold, stopThreshold):
@@ -123,11 +115,11 @@ def analyze_bouts_and_pauses(fx, fy, ort, motion, ROI, startThreshold, stopThres
     for i in range(0, numBouts):
         bouts[i, 0] = boutStarts[i]
         bouts[i, 1] = fx[boutStarts[i]]
-        bouts[i, 2] = (fy[boutStarts[i]])-ROI
+        bouts[i, 2] = fy[boutStarts[i]]
         bouts[i, 3] = ort[boutStarts[i]]
         bouts[i, 4] = boutStops[i]
         bouts[i, 5] = fx[boutStops[i]]
-        bouts[i, 6] = (fy[boutStops[i]])-ROI
+        bouts[i, 6] = fy[boutStops[i]]
         bouts[i, 7] = ort[boutStops[i]]
         bouts[i, 8] = boutStops[i] - boutStarts[i]
         
@@ -138,7 +130,7 @@ def analyze_bouts_and_pauses(fx, fy, ort, motion, ROI, startThreshold, stopThres
     for i in range(1, numBouts):
         pauses[i, 0] = boutStops[i-1]
         pauses[i, 1] = fx[boutStops[i-1]]
-        pauses[i, 2] = (fy[boutStops[i-1]])-ROI
+        pauses[i, 2] = fy[boutStops[i-1]]
         pauses[i, 3] = ort[boutStops[i-1]]
         pauses[i, 4] = boutStarts[i]
         pauses[i, 5] = fx[boutStarts[i]]
@@ -302,8 +294,18 @@ def compute_speed(X,Y):
 def computeDistPerBout(fx_boutStarts, fy_boutStarts, fx_boutEnds,fy_boutEnds, ROI):
 ## Computes total straight line distance travelled over the course of individual bouts
 
-    fx_boutStarts_mm, fy_boutStarts_mm = SPU.convert_mm(fx_boutStarts,fy_boutStarts, ROI)
-    fx_boutEnds_mm, fy_boutEnds_mm = SPU.convert_mm(fx_boutEnds,fy_boutEnds, ROI)
+    # Rescale by chamber dimensions
+    chamber_Width_px = ROI[2]
+    chamber_Height_px = ROI[3]
+    chamber_Width_mm = 100
+    chamber_Height_mm = 15
+
+
+    fx_boutStarts_mm = (fx_boutStarts/chamber_Width_px)*chamber_Width_mm
+    fy_boutStarts_mm = (fy_boutStarts /chamber_Height_px)*chamber_Height_mm  
+
+    fx_boutEnds_mm = (fx_boutEnds/chamber_Width_px)*chamber_Width_mm
+    fy_boutEnds_mm = (fy_boutEnds/chamber_Height_px)*chamber_Height_mm  
     
     absDiffX=np.abs(fx_boutStarts_mm - fx_boutEnds_mm)
     absDiffY=np.abs(fy_boutStarts_mm - fy_boutEnds_mm)
@@ -313,11 +315,11 @@ def computeDistPerBout(fx_boutStarts, fy_boutStarts, fx_boutEnds,fy_boutEnds, RO
     
     for i in range(len(fx_boutStarts)):
         
-        Bout_dist[i]= np.sqrt(absDiffX[i]*absDiffX[i] + absDiffY[i]* absDiffY[i])
+        Bout_dist[i]= np.sqrt(absDiffX[i]*absDiffX[i] + absDiffY[i]*absDiffY[i])
     
     #Concatenate bout type to dataFrame
-    xStart_NS = pd.Series(fx_boutStarts, name = 'fxStart')
-    yStart_NS = pd.Series(fy_boutStarts, name = 'fyStart')
+    xStart_NS = pd.Series(fx_boutStarts_mm, name = 'fxStart')
+    yStart_NS = pd.Series(fy_boutStarts_mm, name = 'fyStart')
     dist = pd.Series(Bout_dist, name= 'distT')
     distPerBout = pd.concat([xStart_NS,yStart_NS, dist], axis=1)
     
