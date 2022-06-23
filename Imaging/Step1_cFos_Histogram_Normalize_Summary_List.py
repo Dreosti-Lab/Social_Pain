@@ -20,50 +20,33 @@ import SP_cfos as SPCFOS
 
 
 #---------------------------------------------------------------------------
-#---------------------------------------------------------------------------
 
-# Set Summary List
-#summaryListFile = r'\\128.40.155.187\data\D R E O S T I   L A B\Isolation_Experiments\Social_Brain_Areas_Analisys\Excel_Sheets\Test_Comparison_2.xlsx'
-summaryListFile = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1_Server/Registration/Cfos_Summary/Cfos_Summary.xlsx'
-
-#---------------------------------------------------------------------------
-#---------------------------------------------------------------------------
-
-# Read summary list
-cfos_paths = SPCFOS.read_summarylist(summaryListFile, normalized=False)
-num_files = len(cfos_paths)
+# Set Stack Path
+folder_path = 'S:/WIBR_Dreosti_Lab/Alizee/LSZ1_Server/Registration/Social/22_02_23/fish1'
+stack_path = folder_path + '/DAPI_CFOS_02_reg_Warped.nii.gz'
 
 # ------------------------------------------------------------------
 # Normalization
 # ------------------------------------------------------------------
 
 # Subtract histogram offset and scale (divide) by mode
-for i in range(num_files):
-    
-    # Read histogram npz
-    histogram_file = os.path.dirname(cfos_paths[i]) + r'\voxel_histogram.npz'
-    npzfile = np.load(histogram_file)
-    histogram = npzfile['histogram']
-    bin_centers = npzfile['bin_centers']
-    offset = npzfile['offset']
-    median = npzfile['median']
-    bot_decile = npzfile['bot_decile']
-    top_decile = npzfile['top_decile']
-    mode = npzfile['mode']
 
-    # Load original (warped) cFos stack
-    cfos_data, cfos_affine, cfos_header = SPCFOS.load_nii(cfos_paths[i], normalized=False)
- 
-    # Subtract offset
-    backsub = cfos_data - offset
-    
-    # Normalize to histogram mode
-    normalized = backsub / (mode - offset)
-    
-    # Save normlaized NII stack...
-    save_path = cfos_paths[i][:-7] + '_normalized.nii.gz'      
-    SPCFOS.save_nii(save_path, normalized, cfos_affine, cfos_header)
-                                
-    print("Normalized " + str(i+1) + ' of ' + str(num_files) + ':\n' + cfos_paths[i] + '\n')
-                              
+# Read histogram npz
+histogram_file = folder_path + r'/voxel_histogram.npz'
+npzfile = np.load(histogram_file)
+histogram = npzfile['histogram']
+bin_centers = npzfile['bin_centers']
+mode = npzfile['mode']
+
+# Load original (warped) cFos stack
+cfos_data, cfos_affine, cfos_header = SPCFOS.load_nii(stack_path, normalized=False)
+
+
+# Normalize to histogram mode
+normalized = cfos_data / mode 
+# Save normlaized NII stack...
+save_path = folder_path+ '/Reg_Warped_normalized.nii.gz'      
+SPCFOS.save_nii(save_path, normalized, cfos_affine, cfos_header)
+
+                          
 # FIN
