@@ -28,8 +28,8 @@ from scipy import stats
 
 
 # Specify Analysis folder
-AnalysisFolder = base_path + '/Gradient_NewChamber38/Experiments/2022_03_10/Analysis' 
-FigureFolder = base_path + '/Gradient_NewChamber38/Experiments/2022_03_10/Figures' 
+AnalysisFolder = base_path + '/Control_NewChamber38/Analysis' 
+FigureFolder = base_path + '/Control_NewChamber38/Figures' 
 # Find all the npz files saved for each group and fish with all the information
 npzFiles = glob.glob(AnalysisFolder+'/*.npz')
 
@@ -267,7 +267,7 @@ sns.despine()
 ax.set_title('Distance Travelled Per Bout n=' + format(numFiles) +'\n p-value:'+ format(pvalue_DistBout),fontsize=20, y=-0.15)
 ax.set_xticklabels(df.columns)
 ax.set_ylabel('Distance Travelled (mm)')
-plt.ylim(0,20)
+plt.ylim(0,4)
 ax.plot(df_jitter['Non Social'], df['Non Social'],'o',mec='lightsteelblue',mfc='lightsteelblue', ms=6)
 ax.plot(df_jitter['Social'], df['Social'], 'o',mec='steelblue',mfc='steelblue', ms=6)
 
@@ -295,6 +295,7 @@ sns.despine()
 ax.set_title('Bouts Per Second n=' + format(numFiles) +'\n p-value:'+ format(pvalue_BPS),fontsize=20, y=-0.15)
 ax.set_xticklabels(df.columns)
 ax.set_ylabel('Number of Bouts Per Second')
+plt.ylim(0,1.5)
 ax.plot(df_jitter['Non Social'], df['Non Social'],'o',mec='lightsteelblue',mfc='lightsteelblue', ms=6)
 ax.plot(df_jitter['Social'], df['Social'], 'o',mec='steelblue',mfc='steelblue', ms=6)
 
@@ -382,6 +383,26 @@ sns.despine()
 Pausing.savefig(FigureFolder + '/%Pausing.png', dpi=300, bbox_inches='tight')
  
 
+#Make histogram and plot it with lines 
+DistPauses = plt.figure(figsize=(30,20), dpi=300)
+
+ax=plt.subplot(221)
+sns.histplot((Pauses_NS_ALL[:,8]/100), binwidth=0.5)
+plt.xlim(0,5)
+plt.xticks(fontsize=32)
+plt.title('Dist Pausing(NS)', fontweight="bold", fontsize=32)
+sns.despine()
+
+ax=plt.subplot(222)
+sns.histplot((Pauses_S_ALL[:,8]/100), binwidth=0.5)
+plt.xlim(0,5)
+plt.xticks(fontsize=32)
+plt.title('Dist Pausing(S)', fontweight="bold", fontsize=32)
+sns.despine()
+
+DistPauses.savefig(FigureFolder + '/Dist_Pausing.png', dpi=300, bbox_inches='tight')
+
+
 
 # Plot Short Freezes
 s_Freezes,pvalue_Freezes = stats.ttest_rel(numFreezes_NS_ALL, numFreezes_S_ALL) 
@@ -397,16 +418,16 @@ df_jitter += np.arange(len(df.columns))
 shortFreezes, ax = plt.subplots(figsize=(3,8), dpi=300)
 sns.boxplot(data=df, color = '#BBBBBB', linewidth=1, showfliers=False)
 sns.despine()  
-ax.set_title('4s Freezes n=' + format(numFiles) +'\n p-value:'+ format(pvalue_BPS),fontsize=20, y=-0.15)
+ax.set_title('3s Freezes n=' + format(numFiles) +'\n p-value:'+ format(pvalue_BPS),fontsize=20, y=-0.15)
 ax.set_xticklabels(df.columns)
-ax.set_ylabel('Total Number of Freezes (>4s)')
+ax.set_ylabel('Total Number of Freezes (>3s)')
 ax.plot(df_jitter['Non Social'], df['Non Social'],'o',mec='lightsteelblue',mfc='lightsteelblue', ms=6)
 ax.plot(df_jitter['Social'], df['Social'], 'o',mec='steelblue',mfc='steelblue', ms=6)
 
 for idx in df.index:
     ax.plot(df_jitter.loc[idx,['Non Social','Social']], df.loc[idx,['Non Social','Social']], color = 'grey', linewidth = 0.5, linestyle = '--', alpha=0.5)    
 
-shortFreezes.savefig(FigureFolder + '/4sFreezes.png', dpi=300, bbox_inches='tight')
+shortFreezes.savefig(FigureFolder + '/3sFreezes.png', dpi=300, bbox_inches='tight')
 
 
 
@@ -459,7 +480,7 @@ sem_Freezes_S = stats.sem(Binned_Freezes_S_ALL)
 std_Freezes_S = np.std(Binned_Freezes_S_ALL, axis=0)
 
 Binned_Freezes = plt.figure(figsize=(25,20), dpi=300)
-plt.suptitle("4s Freezes over time"+ '\n n='+ format(numFiles), fontweight="bold", fontsize=30, y=0.9) 
+plt.suptitle("3s Freezes over time"+ '\n n='+ format(numFiles), fontweight="bold", fontsize=30, y=0.9) 
 
 ax = plt.subplot(221)
 plt.title('Non Social', fontweight="bold", fontsize= 25, y=-0.2)

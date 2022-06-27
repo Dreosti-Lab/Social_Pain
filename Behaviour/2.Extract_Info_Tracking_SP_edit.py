@@ -36,13 +36,13 @@ plot = False
 filterTracking = False
 
 # Set threshold
-freeze_threshold = 400
+freeze_threshold = 300
 motionStartThreshold = 0.02
 motionStopThreshold = 0
 
-AnalysisFolder = base_path + '/Gradient_NewChamber38/Experiments/2022_03_10/Analysis' 
+AnalysisFolder = base_path + '/Habituation_NewChamber38/Analysis' 
 # Read folder list
-FolderlistFile = base_path + '/Gradient_NewChamber38/Experiments/2022_03_10/Folderlist.txt'
+FolderlistFile = base_path + '/Habituation_NewChamber38/Folderlist.txt'
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 
