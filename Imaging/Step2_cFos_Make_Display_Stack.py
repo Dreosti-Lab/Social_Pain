@@ -7,7 +7,7 @@ This script converts a stack to a display-scaled version.
 """
 # -----------------------------------------------------------------------------
 # Set "Library Path" - Social Zebrafish Repo
-lib_path = r'C:\Repos\Dreosti-Lab\Social_Zebrafish\libs'
+lib_path = r'C:/Repos/Social_Pain/libs'
 # -----------------------------------------------------------------------------
 
 # Set Library Paths
@@ -18,36 +18,35 @@ sys.path.append(lib_path)
 # Import useful libraries
 import numpy as np
 import matplotlib.pyplot as plt
-import SZ_cfos as SZCFOS
-import SZ_summary as SZS
-import SZ_analysis as SZA
+import SP_cfos as SPCFOS
+
 
 #---------------------------------------------------------------------------
 #---------------------------------------------------------------------------
 
 # Set Input stack
 #summaryListFile = r'\\128.40.155.187\data\D R E O S T I   L A B\Isolation_Experiments\Social_Brain_Areas_Analisys\Excel_Sheets\Test_Comparison_1.xlsx'
-stackFolder = r'C:\Users\adamk\Dropbox\Adam_Ele\Last_Hope\Analysis\G1vG2spp'
-stackFile = stackFolder + r'\Diff_Stack.nii.gz'
+stackFolder = 'S:/WIBR_Dreosti_Lab/Alizee/LSZ1_Server/Registration/Analysis/Heat-Baseline'
+stackFile = stackFolder + r'/Diff_Stack.nii.gz'
 
 # Set Mask Path
 #mask_path = r'\\128.40.155.187\data\D R E O S T I   L A B\Isolation_Experiments\Social_Brain_Areas_Analisys\Anatomical_Masks\BRAIN_DAPI_MASK_FINAL2.nii'
-mask_path = r'C:\Users\adamk\Dropbox\Adam_Ele\Last_Hope\C-Fos_Groups\BRAIN_DAPI_MASK_FINAL_ARK.nii'
+mask_path =  'S:/WIBR_Dreosti_Lab/Alizee/LSZ1_Server/Registration/mask/DAPI_MASK.nii'
 mask_slice_range_start = 0
-mask_slice_range_stop = 251
+mask_slice_range_stop = 399
 
 #---------------------------------------------------------------------------
 #---------------------------------------------------------------------------
 
 # Load mask
-mask_data, mask_affine, mask_header = SZCFOS.load_nii(mask_path, normalized=True)
+mask_data, mask_affine, mask_header = SPCFOS.load_nii(mask_path, normalized=True)
 mask_data = mask_data[:,:,:,0]
 mask_data[:,:,:mask_slice_range_start] = 0
 mask_data[:,:,mask_slice_range_stop:] = 0
 num_mask_voxels = np.sum(np.sum(np.sum(mask_data)))
 
 # Load stack
-cfos_data, cfos_affine, cfos_header = SZCFOS.load_nii(stackFile, normalized=True)
+cfos_data, cfos_affine, cfos_header = SPCFOS.load_nii(stackFile, normalized=True)
 masked_values = cfos_data[mask_data == 1]
 n_stack_rows = np.size(cfos_data, 0)
 n_stack_cols = np.size(cfos_data, 1)
@@ -90,7 +89,7 @@ display_data[pos_vals] = cfos_data[pos_vals] / np.abs(top_val)
 # Save NII stack of results
 image_affine = np.eye(4)
 displayFile = stackFolder + r'\Diff_Stack_DISPLAY_MIN' + format(bot_val, '.3f') + '_MAX' + format(top_val, '.3f') + '.nii.gz'
-SZCFOS.save_nii(displayFile, display_data, image_affine)
+SPCFOS.save_nii(displayFile, display_data, image_affine)
 
 
 # FIN

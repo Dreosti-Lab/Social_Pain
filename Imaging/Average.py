@@ -11,9 +11,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-folder_path = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1_Server/Registration/Heat_Gradient/Average'
+folder_path = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1_Server/Registration/Social/Average'
 
-folder_list = (folder_path  + '\GRADIENT.txt')
+folder_list = (folder_path  + '\SOCIAL.txt')
 
 folder_file = open(folder_list, "r") #"r" means read the file
 file_list = folder_file.readlines() # returns a list containing the lines
@@ -45,7 +45,7 @@ Average_images = Average_images/Divisor
 
 new_img = nib.Nifti1Image(Average_images, Image.affine, Image.header)
 
-nib.save(new_img, folder_path +  "/Gradient_Average.nii.gz")
+nib.save(new_img, folder_path +  "/Social_Average.nii.gz")
 
 
 

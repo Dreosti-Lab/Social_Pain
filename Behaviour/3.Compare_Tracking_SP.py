@@ -7,14 +7,14 @@ Created on Tue Apr  6 19:00:40 2021
 Compare Non Social and Social for one condition
 """                        
 # Set Library Path - Social_Pain Repos
-lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
-#lib_path = r'C:/Repos/Social_Pain/libs'
+#lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
+lib_path = r'C:/Repos/Social_Pain/libs'
 import sys
 sys.path.append(lib_path)
 
 # Set Base Path
-base_path = r'/Volumes/T7 Touch/Behaviour_Heat_Gradient'
-#base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
+#base_path = r'/Volumes/T7 Touch/Behaviour_Heat_Gradient'
+base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
 
 
 # Import useful libraries
@@ -28,8 +28,8 @@ from scipy import stats
 
 
 # Specify Analysis folder
-AnalysisFolder = base_path + '/Gradient_NewChamber38/Experiments/2022_03_10/Analysis' 
-FigureFolder = base_path + '/Gradient_NewChamber38/Experiments/2022_03_10/Figures' 
+AnalysisFolder = base_path + '/NewChamber/Control_NewChamber38/Analysis' 
+FigureFolder = base_path + '/NewChamber/Control_NewChamber38/Figures' 
 # Find all the npz files saved for each group and fish with all the information
 npzFiles = glob.glob(AnalysisFolder+'/*.npz')
 
