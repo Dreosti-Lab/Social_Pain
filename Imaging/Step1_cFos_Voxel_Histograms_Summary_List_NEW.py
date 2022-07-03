@@ -18,8 +18,8 @@ import SP_cfos as SPCFOS
 #---------------------------------------------------------------------------
 
 # Set Stack Path
-folder_path =  'S:/WIBR_Dreosti_Lab/Alizee/LSZ1_Server/Registration/Gradient/22_02_04/fish1'
-stack_path = folder_path + '/DAPI_CFOS_02_reg_Warped.nii.gz'
+folder_path = 'S:/WIBR_Dreosti_Lab/Alizee/LSZ1_Server/Registration/HTR1AB/22_03_16/fish1'
+stack_path = folder_path + '/DAPI_HTR1AB_02_reg_Warped.nii.gz'
 # Set Mask Path
 mask_path =  'S:/WIBR_Dreosti_Lab/Alizee/LSZ1_Server/Registration/mask/DAPI_MASK.nii'
 mask_slice_range_start = 100
@@ -81,7 +81,7 @@ mode = bin_centers[mode_index]
 # Plot histogram
 plt.plot(bin_centers,histogram)
 plt.plot(bin_centers[mode_index],histogram[mode_index], 'ro')
-plt.xlim(-100, 1200)
+plt.xlim(-100, 2000)
 #plt.ylim(0, 700000)
 plt.show()
 

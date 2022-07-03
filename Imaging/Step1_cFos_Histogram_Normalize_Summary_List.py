@@ -22,9 +22,8 @@ import SP_cfos as SPCFOS
 #---------------------------------------------------------------------------
 
 # Set Stack Path
-folder_path =  'S:/WIBR_Dreosti_Lab/Alizee/LSZ1_Server/Registration/Gradient/22_02_04/fish1'
-stack_path = folder_path + '/DAPI_CFOS_02_reg_Warped.nii.gz'
-
+folder_path = 'S:/WIBR_Dreosti_Lab/Alizee/LSZ1_Server/Registration/TH1/22_04_26/fish1'
+stack_path = folder_path + '/DAPI_TH1_02_reg_Warped.nii.gz'
 # ------------------------------------------------------------------
 # Normalization
 # ------------------------------------------------------------------
