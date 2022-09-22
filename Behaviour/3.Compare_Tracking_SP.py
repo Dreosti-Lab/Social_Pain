@@ -7,14 +7,14 @@ Created on Tue Apr  6 19:00:40 2021
 Compare Non Social and Social for one condition
 """                        
 # Set Library Path - Social_Pain Repos
-lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
-#lib_path = r'C:/Repos/Social_Pain/libs'
+#lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
+lib_path = r'C:/Repos/Social_Pain/libs'
 import sys
 sys.path.append(lib_path)
 
 # Set Base Path
-base_path = r'/Volumes/T7 Touch/Behaviour_Heat_Gradient'
-#base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
+#base_path = r'/Volumes/T7 Touch/Behaviour_Heat_Gradient'
+base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient/NewChamber'
 
 
 # Import useful libraries
@@ -29,8 +29,8 @@ from scipy import stats
 
 # Specify Analysis folder
 
-AnalysisFolder = base_path + '/Habituation_NewChamber38/Analysis' 
-FigureFolder = base_path + '/Habituation_NewChamber38/Figures' 
+AnalysisFolder = base_path + '/Gradient_NewChamber38/Analysis' 
+FigureFolder = base_path + '/Gradient_NewChamber38/Figures' 
 
 # Find all the npz files saved for each group and fish with all the information
 npzFiles = glob.glob(AnalysisFolder+'/*.npz')
@@ -46,10 +46,8 @@ avgPosition_S_ALL = np.zeros(numFiles)
 avgdistPerBout_NS_ALL = np.zeros(numFiles)
 avgdistPerBout_S_ALL = np.zeros(numFiles)
 #avg_cue_motion_ALL = np.zeros(numFiles)
-LTurns_NS_ALL = np.zeros(numFiles)
-LTurns_S_ALL = np.zeros(numFiles)
-RTurns_NS_ALL = np.zeros(numFiles)
-RTurns_S_ALL = np.zeros(numFiles)
+Turns_NS_ALL = np.zeros(numFiles)
+Turns_S_ALL = np.zeros(numFiles)
 FSwim_NS_ALL = np.zeros(numFiles)
 FSwim_S_ALL = np.zeros(numFiles)
 numFreezes_NS_ALL = np.zeros(numFiles)
@@ -66,14 +64,16 @@ DistanceT_NS_ALL = np.zeros(numFiles)
 DistanceT_S_ALL = np.zeros(numFiles)
 Bouts_NS_ALL = np.zeros((0,9))
 Bouts_S_ALL = np.zeros((0,9))
+Bout_Angles_NS_ALL = np.zeros((0,1))
+Bout_Angles_S_ALL = np.zeros((0,1))
 #fish_Position_NS_ALL = np.zeros((0,2))
 #fish_Position_S_ALL = np.zeros((0,2))
 Pauses_NS_ALL = np.zeros((0,9))   
 Pauses_S_ALL = np.zeros((0,9))
 Freezes_S_ALL = np.zeros((0,4))
 Freezes_NS_ALL = np.zeros((0,4))
-BoutType_NS_ALL = np.zeros((0,6))
-BoutType_S_ALL = np.zeros((0,6))
+BoutType_NS_ALL = np.zeros((0,5))
+BoutType_S_ALL = np.zeros((0,5))
 OrtHist_NS_Cool_ALL = np.zeros((numFiles,36))
 OrtHist_NS_Hot_ALL = np.zeros((numFiles,36))
 OrtHist_NS_Noxious_ALL = np.zeros((numFiles,36))
@@ -99,10 +99,10 @@ for f, filename in enumerate(npzFiles):
     #fish_Position_S = dataobject['fish_Position_S']
     BoutType_NS = dataobject['BoutType_NS']
     BoutType_S = dataobject['BoutType_S']
-    LTurns_NS = dataobject['LTurns_NS']
-    LTurns_S = dataobject['LTurns_S']
-    RTurns_NS = dataobject['RTurns_NS']
-    RTurns_S = dataobject['RTurns_S']
+    Bout_Angles_NS = dataobject['Bout_Angles_NS']
+    Bout_Angles_S = dataobject['Bout_Angles_S']
+    Turns_NS = dataobject['Turns_NS']
+    Turns_S = dataobject['Turns_S']
     FSwim_NS = dataobject['FSwim_NS']
     FSwim_S = dataobject['FSwim_S']
     Pauses_NS = dataobject['Pauses_NS']   
@@ -155,10 +155,8 @@ for f, filename in enumerate(npzFiles):
     avgdistPerBout_NS_ALL[f] = avgdistPerBout_NS
     avgdistPerBout_S_ALL[f] = avgdistPerBout_S
     #avg_cue_motion_ALL[f] = avg_cue_motion
-    LTurns_NS_ALL[f] = LTurns_NS
-    LTurns_S_ALL[f] = LTurns_S
-    RTurns_NS_ALL[f]= RTurns_NS
-    RTurns_S_ALL[f]= RTurns_S
+    Turns_NS_ALL[f] = Turns_NS
+    Turns_S_ALL[f] = Turns_S
     FSwim_NS_ALL[f] = FSwim_NS
     FSwim_S_ALL[f] = FSwim_S
     DistanceT_NS_ALL[f] = DistanceT_NS
@@ -172,6 +170,8 @@ for f, filename in enumerate(npzFiles):
     # Concat all Pauses/Bouts
     Bouts_NS_ALL = np.vstack([Bouts_NS_ALL, Bouts_NS])
     Bouts_S_ALL = np.vstack([Bouts_S_ALL, Bouts_S])
+    #Bout_Angles_NS_ALL = np.vstack([Bout_Angles_NS_ALL, Bout_Angles_NS])
+    #Bout_Angles_S_ALL = np.vstack([Bout_Angles_S_ALL, Bout_Angles_S])
     #fish_Position_NS_ALL = np.vstack([fish_Position_NS_ALL, fish_Position_NS])
     #fish_Position_S_ALL = np.vstack([fish_Position_S_ALL, fish_Position_S])
     Pauses_NS_ALL = np.vstack([Pauses_NS_ALL, Pauses_NS])
@@ -341,7 +341,7 @@ Bouts_map = plt.figure(figsize=(28,10), dpi=300)
 plt.suptitle('Distribution of Bouts (n='+ format(numFiles) + ')', fontweight="medium", fontsize=24, x=0.26) 
 
 ax = plt.subplot(221)
-plt.hist2d(Bouts_NS_ALL[:,1], Bouts_NS_ALL[:,2],bins=10, cmap='Blues')
+plt.hist2d(Bouts_NS_ALL[:,1]/numFiles, Bouts_NS_ALL[:,2]/numFiles,bins=10, cmap='Blues')
 plt.title('Non Social',fontsize= 18, y=-0.15) 
 plt.xticks([])
 plt.yticks([])
@@ -349,7 +349,7 @@ plt.colorbar()
 plt.clim(0,1500)
 
 ax = plt.subplot(222)  
-plt.hist2d(Bouts_S_ALL[:,1], Bouts_S_ALL[:,2],bins=10, cmap='Blues')
+plt.hist2d(Bouts_S_ALL[:,1]/numFiles, Bouts_S_ALL[:,2]/numFiles,bins=10, cmap='Blues')
 plt.title('Social', fontsize= 18, y=-0.15)
 plt.xticks([])  
 plt.yticks([]) 
@@ -664,10 +664,6 @@ plt.plot(xAxis, np.hstack((Norm_OrtHist_S_Noxious_ALL, Norm_OrtHist_S_Noxious_AL
 Ort.figure.savefig(FigureFolder + '/Orientation.png', dpi=300, bbox_inches='tight')
 
 
-
-
-
-
 xTurn_NS = (BoutType_NS_ALL[:,0])[BoutType_NS_ALL[:,5] == False]
 yTurn_NS = (BoutType_NS_ALL[:,1])[BoutType_NS_ALL[:,5] == False]
 
@@ -700,15 +696,13 @@ Turn_map.savefig(FigureFolder + '/TurnMap.png', dpi=300, bbox_inches='tight')
 B_labels = plt.figure(figsize =(10,12), dpi=300)
 plt.suptitle('Frequency of Bout Type (n='+ format(numFiles) + ')', fontsize= 24, fontweight='medium')
 
-s1 = pd.Series(LTurns_NS_ALL, name='Left')
-s2 = pd.Series(RTurns_NS_ALL, name='Right')
-s3 = pd.Series(FSwim_NS_ALL, name= 'Forward')
-Type_NS = pd.concat([s1,s2, s3], axis=1)
+s1 = pd.Series(Turns_NS_ALL, name='Turn')
+s2 = pd.Series(FSwim_NS_ALL, name= 'Forward')
+Type_NS = pd.concat([s1,s2], axis=1)
 
-s4 = pd.Series(LTurns_S_ALL, name='Left')
-s5 = pd.Series(RTurns_S_ALL, name='Right')
-s6 = pd.Series(FSwim_S_ALL, name= 'Forward')
-Type_S = pd.concat([s4,s5, s6], axis=1)
+s3 = pd.Series(Turns_S_ALL, name='Turn')
+s4 = pd.Series(FSwim_S_ALL, name= 'Forward')
+Type_S = pd.concat([s3,s4], axis=1)
 
 ax = plt.subplot(221)
 sns.barplot(data=Type_NS, ci='sd',  color='lightsteelblue')
@@ -732,9 +726,6 @@ ax.spines['right'].set_visible(False)
 
 B_labels.tight_layout
 B_labels.savefig(FigureFolder + '/BoutType.png', dpi=300, bbox_inches='tight')
-
-
-
 
 
         

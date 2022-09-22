@@ -22,8 +22,8 @@ import SP_cfos as SPCFOS
 #---------------------------------------------------------------------------
 
 # Set Stack Path
-folder_path = 'S:/WIBR_Dreosti_Lab/Alizee/LSZ1_Server/Registration/TH1/22_04_26/fish1'
-stack_path = folder_path + '/DAPI_TH1_02_reg_Warped.nii.gz'
+folder_path =  'S:/WIBR_Dreosti_Lab/Alizee/LSZ1_Server/Registration/Baseline/22_09_09/fish1'
+stack_path = folder_path + '/DAPI_CFOS_02_reg_Warped.nii.gz'
 # ------------------------------------------------------------------
 # Normalization
 # ------------------------------------------------------------------
@@ -35,14 +35,19 @@ histogram_file = folder_path + r'/voxel_histogram.npz'
 npzfile = np.load(histogram_file)
 histogram = npzfile['histogram']
 bin_centers = npzfile['bin_centers']
+offset = npzfile['offset']
 mode = npzfile['mode']
 
 # Load original (warped) cFos stack
 cfos_data, cfos_affine, cfos_header = SPCFOS.load_nii(stack_path, normalized=False)
+# # Remove starurated (peak in large values)
+# cfos_data[cfos_data > 70000] = 0
 
+
+backsub=cfos_data - offset
 
 # Normalize to histogram mode
-normalized = cfos_data / mode 
+normalized = backsub / (mode-offset)
 # Save normlaized NII stack...
 save_path = folder_path+ '/Reg_Warped_normalized.nii.gz'      
 SPCFOS.save_nii(save_path, normalized, cfos_affine, cfos_header)

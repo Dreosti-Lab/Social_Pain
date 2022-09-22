@@ -25,14 +25,14 @@ import SP_cfos as SPCFOS
 #---------------------------------------------------------------------------
 
 # Set Summary List
-summaryListFile = 'S:/WIBR_Dreosti_Lab/Alizee/LSZ1_Server/Registration/Cfos_Summary/Peptides_Summary.xlsx'
+summaryListFile = 'S:/WIBR_Dreosti_Lab/Alizee/LSZ1_Server/Registration/Cfos_Summary/Cfos_Summary.xlsx'
 
 
 # Spatial smoothing factor
 smooth_factor = 4;
 
 # Set analysis path
-analysis_folder = 'S:/WIBR_Dreosti_Lab/Alizee/LSZ1_Server/Registration/Analysis/TH2'
+analysis_folder = 'S:/WIBR_Dreosti_Lab/Alizee/LSZ1_Server/Registration/Analysis/Heat-Baseline'
 
 #---------------------------------------------------------------------------
 #---------------------------------------------------------------------------
@@ -44,8 +44,8 @@ group_names = np.array(group_names)
 
 
 # Assign metrics/paths for each group
-group_A = (group_names == 'TH2')
-group_B = (group_names == 'CB1')
+group_A = (group_names == 'Heat')
+group_B = (group_names == 'Baseline')
 
 cfos_paths_A = cfos_paths[group_A]
 cfos_paths_B = cfos_paths[group_B]
@@ -80,25 +80,25 @@ plt.imshow(t_stack[:,:,50])
 
 # Save NII stack of results
 image_affine = np.eye(4)
-save_path = analysis_folder + r'\T_Stack.nii.gz'
+save_path = analysis_folder + r'/T_Stack.nii.gz'
 SPCFOS.save_nii(save_path, t_stack, image_affine)
 
-save_path = analysis_folder + r'\Diff_Stack.nii.gz'
+save_path = analysis_folder + r'/Diff_Stack.nii.gz'
 SPCFOS.save_nii(save_path, diff_mean, image_affine)
 
-save_path = analysis_folder + r'\Mean_Stack_A.nii.gz'
+save_path = analysis_folder + r'/Mean_Stack_A.nii.gz'
 SPCFOS.save_nii(save_path, mean_stack_A, image_affine)
 
-save_path = analysis_folder + r'\Mean_Stack_B.nii.gz'
+save_path = analysis_folder + r'/Mean_Stack_B.nii.gz'
 SPCFOS.save_nii(save_path, mean_stack_B, image_affine)
 
-save_path = analysis_folder + r'\STD_Stack_A.nii.gz'
+save_path = analysis_folder + r'/STD_Stack_A.nii.gz'
 SPCFOS.save_nii(save_path, std_stack_A, image_affine)
 
-save_path = analysis_folder + r'\STD_Stack_B.nii.gz'
+save_path = analysis_folder + r'/STD_Stack_B.nii.gz'
 SPCFOS.save_nii(save_path, std_stack_B, image_affine)
 
-save_path = analysis_folder + r'\STD_Stack.nii.gz'
+save_path = analysis_folder + r'/STD_Stack.nii.gz'
 SPCFOS.save_nii(save_path, both_std, image_affine)
 
 # FIN

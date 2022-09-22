@@ -8,14 +8,14 @@ Created on Tue Apr  6 19:00:40 2021
 Extract information from tracking data and save into npz Summary file for each video of 6 fish
 """                        
 # Set Library Path - Social_Pain Repos
-lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
-#lib_path = r'C:/Repos/Social_Pain/libs'
+#lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
+lib_path = r'C:/Repos/Social_Pain/libs'
 import sys
 sys.path.append(lib_path)
 
 # Set Base Path
-#base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
-base_path = r'/Volumes/T7 Touch/Behaviour_Heat_Gradient'
+base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient/NewChamber'
+#base_path = r'/Volumes/T7 Touch/Behaviour_Heat_Gradient'
 
 # Import useful libraries
 import glob
@@ -41,9 +41,9 @@ motionStartThreshold = 0.02
 motionStopThreshold = 0
 
 
-AnalysisFolder = base_path + '/Isolated_Habituation_NewChamber/Analysis'
+AnalysisFolder = base_path + '/Gradient_NewChamber38/Analysis'
 # Read folder list
-FolderlistFile = base_path + '/Isolated_Habituation_NewChamber/Folderlist.txt'
+FolderlistFile = base_path + '/Gradient_NewChamber38/Folderlist.txt'
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 
@@ -158,16 +158,14 @@ for idx,folder in enumerate(folderNames):
             avgdistPerBout_S = np.mean(distPerBout_S.distT)
             
             #Analyze Bouts
-            B_labels_NS = SPA.label_bouts(Bouts_NS, ort_NS)
-            B_labels_S = SPA.label_bouts(Bouts_S,ort_S)
+            B_labels_NS, Bout_Angles_NS = SPA.label_bouts(Bouts_NS, ort_NS)
+            B_labels_S, Bout_Angles_S = SPA.label_bouts(Bouts_S,ort_S)
         
             
-            LTurns_NS =(np.sum(B_labels_NS.LTurn))/len(B_labels_NS)
-            RTurns_NS =(np.sum(B_labels_NS.RTurn))/len(B_labels_NS)
+            Turns_NS =(np.sum(B_labels_NS.Turn))/len(B_labels_NS)   
             FSwim_NS = (np.sum(B_labels_NS.FSwim))/len(B_labels_NS)
             
-            LTurns_S = (np.sum(B_labels_S.LTurn))/len(B_labels_S)
-            RTurns_S = (np.sum(B_labels_S.RTurn))/len(B_labels_S)
+            Turns_S = (np.sum(B_labels_S.Turn))/len(B_labels_S)
             FSwim_S = (np.sum(B_labels_S.FSwim))/len(B_labels_S)
             
             
@@ -278,14 +276,16 @@ for idx,folder in enumerate(folderNames):
                       Bouts_NS = Bouts_NS,Bouts_S = Bouts_S,BoutType_NS=BoutType_NS, BoutType_S =BoutType_S,
                       #fish_Position_NS = fish_Position_NS, fish_Position_S=fish_Position_S,
                       avgdistPerBout_NS=avgdistPerBout_NS, avgdistPerBout_S=avgdistPerBout_S,
-                      LTurns_NS=LTurns_NS, LTurns_S=LTurns_S,RTurns_NS=RTurns_NS, RTurns_S=RTurns_S, FSwim_NS=FSwim_NS,FSwim_S=FSwim_S,
+                      Turns_NS=Turns_NS, Turns_S=Turns_S, FSwim_NS=FSwim_NS,FSwim_S=FSwim_S,
                       Pauses_NS = Pauses_NS,Pauses_S = Pauses_S,
                       Percent_Moving_NS = Percent_Moving_NS, Percent_Moving_S = Percent_Moving_S, 
                       Percent_Paused_NS = Percent_Paused_NS, Percent_Paused_S = Percent_Paused_S, 
                       Freezes_S = Freezes_S, Freezes_NS = Freezes_NS, numFreezes_NS = numFreezes_NS, numFreezes_S = numFreezes_S,
                       Binned_Freezes_NS = Binned_Freezes_NS,Binned_Freezes_S = Binned_Freezes_S,    
                       DistanceT_NS = DistanceT_NS, DistanceT_S = DistanceT_S, #Binned_DistanceT_NS= Binned_DistanceT_NS, Binned_DistanceT_S = Binned_DistanceT_S, 
+                      distPerBout_NS= distPerBout_NS, distPerBout_S = distPerBout_S, 
                       Speed_NS = Speed_NS, Speed_S = Speed_S,
+                      Bout_Angles_NS= Bout_Angles_NS, Bout_Angles_S = Bout_Angles_S,
                       OrtHist_NS_Cool = OrtHist_NS_Cool,OrtHist_NS_Noxious = OrtHist_NS_Noxious, OrtHist_S_Cool = OrtHist_S_Cool, OrtHist_S_Noxious = OrtHist_S_Noxious,
                       OrtHist_NS_Hot = OrtHist_NS_Hot, OrtHist_S_Hot = OrtHist_S_Hot,
                       Position_NS=Position_NS, Position_S = Position_S, avgPosition_NS = avgPosition_NS, avgPosition_S = avgPosition_S)

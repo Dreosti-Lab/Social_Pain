@@ -434,23 +434,22 @@ def label_bouts(bouts,ort):
 
     
     for i,angle in enumerate(Bout_Angles):
-        if angle > 10: 
+        if angle > 20: 
             labels[i,0]=1
-        elif angle < -10:
-            labels[i,1]=1
+        elif angle < -20:
+            labels[i,0]=1
         else:
-            labels[i,2]=1
-    L=labels[:,0]!=0
-    R=labels[:,1]!=0
-    F=labels[:,2]!=0
+            labels[i,1]=1
+    T=labels[:,0]!=0
+    F=labels[:,1]!=0
+   
     
-    LTurn = pd.Series(R, name='LTurn')
-    RTurn = pd.Series(L, name='RTurn')
+    Turn = pd.Series(T, name='Turn')
     FSwim = pd.Series(F, name='FSwim')
-    Bout_labels = pd.concat([LTurn, RTurn, FSwim], axis=1)
+    Bout_labels = pd.concat([Turn,FSwim], axis=1)
            
 
-    return Bout_labels
+    return Bout_labels, Bout_Angles
 
 # FIN
     
