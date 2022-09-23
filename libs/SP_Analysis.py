@@ -84,22 +84,43 @@ def measure_BPS(motion, startThreshold, stopThreshold):
     avgBout = np.mean(allBouts,0);
 
     return boutsPerSecond, avgBout
+
+def debugBouts(motion,boutStarts,boutEnds,startThreshold=0.02,stopThreshold=0.015):
+    
+    plt.figure()
+    num=1000
+    motion=motion[0:num]
+    plt.plot(motion)
+    plt.hlines(startThreshold,0,num,color='green')
+    plt.hlines(stopThreshold,0,num,color='red')
+    
+    
+    plt.vlines(boutStarts,0,np.max(motion),color='green')
+    plt.vlines(boutEnds,0,np.max(motion),color='red')
+    plt.xlim(0,1000)
+    return
     
 # Analyze bouts and pauses (individual stats)
 def analyze_bouts_and_pauses(fx, fy, ort, motion, ROI, startThreshold, stopThreshold):
     
+    motion_sm=SPU.smoothSignal(motion,N=3)
 
     # Find bouts starts and stops
     boutStarts = []
     boutStops = []
     moving = 0
-    for f, m in enumerate(motion):
+    for f, m in enumerate(motion_sm):
         if(moving == 0):
             if m > startThreshold:
                 moving = 1
                 boutStarts.append(f)
         else:
-            if np.sum(motion[f:(f+30)]) == stopThreshold:
+            if m < stopThreshold:
+                for mm in motion_sm[f:f+10]:
+                    if mm>stopThreshold:
+                        break
+                    
+            # np.mean(motion_sm[f:(f+10)]) <= stopThreshold:
                 moving = 0
                 boutStops.append(f)
     
@@ -109,10 +130,24 @@ def analyze_bouts_and_pauses(fx, fy, ort, motion, ROI, startThreshold, stopThres
     if(len(boutStarts) > len(boutStops)):
         boutStarts = boutStarts[:-1]
 
+    # Compute spatial and angular speed 
+    speed_space, speed_angle=compute_bout_signals(fx, fy, ort)
+
     # Extract all bouts (startindex, startx, starty, startort, stopindex, stopx, stopy, stoport, duration)
     numBouts= len(boutStarts)
-    bouts = np.zeros((numBouts, 9))
+    bouts = np.zeros((numBouts, 11))
     for i in range(0, numBouts):
+        
+        
+              
+        # print(str(start) + '    ' + str(end))
+        x = fx[int(boutStarts[i]):int(boutStops[i])]      # X trajectory
+        y = fy[int(boutStarts[i]):int(boutStops[i])]      # Y trajectory
+
+        sx = x - x[0]   # Center X trajectory
+        sy = y - y[0]   # Center Y trajectory
+        
+        
         bouts[i, 0] = boutStarts[i]
         bouts[i, 1] = fx[boutStarts[i]]
         bouts[i, 2] = fy[boutStarts[i]]
@@ -121,11 +156,13 @@ def analyze_bouts_and_pauses(fx, fy, ort, motion, ROI, startThreshold, stopThres
         bouts[i, 5] = fx[boutStops[i]]
         bouts[i, 6] = fy[boutStops[i]]
         bouts[i, 7] = ort[boutStops[i]]
-        bouts[i, 8] = boutStops[i] - boutStarts[i]
+        bouts[i, 8] = boutStops[i] - boutStarts[i]# Durations
+        bouts[i, 9] = np.sum(speed_angle[boutStarts[i]:boutStops[i]]) # Net angle change  
+        bouts[i, 10] = np.sqrt(sx[-1]*sx[-1] + sy[-1]*sy[-1]) # Net distance change
         
     # Analyse all pauses (startindex, startx, starty, startort, stopindex, stopx, stopy, stoport, duration)
     numPauses = numBouts+1
-    pauses = np.zeros((numPauses, 9))
+    pauses = np.zeros((numPauses, 11))
 
     for i in range(1, numBouts):
         pauses[i, 0] = boutStops[i-1]
@@ -136,7 +173,8 @@ def analyze_bouts_and_pauses(fx, fy, ort, motion, ROI, startThreshold, stopThres
         pauses[i, 5] = fx[boutStarts[i]]
         pauses[i, 6] = (fy[boutStarts[i]])-ROI
         pauses[i, 7] = ort[boutStarts[i]]
-        pauses[i, 8] = boutStarts[i]- boutStops[i-1]
+        pauses[i, 8] = boutStarts[i]- boutStops[i-1]# Durations
+       
   
     return bouts, pauses
 
@@ -379,8 +417,8 @@ def diffAngle(Ort):
             new_dAngle.append(a - 360)
         else:
             new_dAngle.append(a)
-    
-    return np.array(new_dAngle)
+            
+    return  np.array(new_dAngle)
 
 def filterTrackingFlips(dAngle):
 ## Identifies and reverses sudden flips in orientation caused by errors in tracking the eyes vs the body resulting in very high frequency tracking flips    
@@ -413,27 +451,13 @@ def rotateOrt(ort):
 
 
 # Label Bouts
-def label_bouts(bouts,ort):
-
-    # Parameters
-    preWindow = 10
-    postWindow = 80
-
-    num_bouts = bouts.shape[0]
-    boutStarts = bouts[:,1]
-       
-    Bout_ort = np.zeros([num_bouts,(preWindow+postWindow)])
-    Bout_Angles = np.zeros(num_bouts)
-    
-    for b in range(0,num_bouts):
-        Bout_ort[b,:] = rotateOrt(ort[int(boutStarts[b]-preWindow):int(boutStarts[b]+postWindow)]) # extract heading for this bout (rotated to zero initial heading)
-        Bout_Angles[b] = np.mean(Bout_ort[b,-2:-1])-np.mean(Bout_ort[b,0:1]) # take the heading before and after
+def label_bouts(bout_angles):
 
 
-    labels=np.zeros((len(Bout_Angles),3))
+    labels=np.zeros((len(bout_angles),3))
 
     
-    for i,angle in enumerate(Bout_Angles):
+    for i,angle in enumerate(bout_angles):
         if angle > 20: 
             labels[i,0]=1
         elif angle < -20:
@@ -447,7 +471,7 @@ def label_bouts(bouts,ort):
     Turn = pd.Series(T, name='Turn')
     FSwim = pd.Series(F, name='FSwim')
     Bout_labels = pd.concat([Turn,FSwim], axis=1)
-           
+    Bout_Angles = pd.Series(bout_angles, name= 'Angle')       
 
     return Bout_labels, Bout_Angles
 

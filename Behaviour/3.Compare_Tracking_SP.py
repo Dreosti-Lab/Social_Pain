@@ -62,18 +62,16 @@ Percent_Paused_NS_ALL = np.zeros(numFiles)
 Percent_Paused_S_ALL = np.zeros(numFiles)
 DistanceT_NS_ALL = np.zeros(numFiles)
 DistanceT_S_ALL = np.zeros(numFiles)
-Bouts_NS_ALL = np.zeros((0,9))
-Bouts_S_ALL = np.zeros((0,9))
-Bout_Angles_NS_ALL = np.zeros((0,1))
-Bout_Angles_S_ALL = np.zeros((0,1))
+Bouts_NS_ALL = np.zeros((0,11))
+Bouts_S_ALL = np.zeros((0,11))
 #fish_Position_NS_ALL = np.zeros((0,2))
 #fish_Position_S_ALL = np.zeros((0,2))
-Pauses_NS_ALL = np.zeros((0,9))   
-Pauses_S_ALL = np.zeros((0,9))
+Pauses_NS_ALL = np.zeros((0,11))   
+Pauses_S_ALL = np.zeros((0,11))
 Freezes_S_ALL = np.zeros((0,4))
 Freezes_NS_ALL = np.zeros((0,4))
-BoutType_NS_ALL = np.zeros((0,5))
-BoutType_S_ALL = np.zeros((0,5))
+BoutType_NS_ALL = np.zeros((0,6))
+BoutType_S_ALL = np.zeros((0,6))
 OrtHist_NS_Cool_ALL = np.zeros((numFiles,36))
 OrtHist_NS_Hot_ALL = np.zeros((numFiles,36))
 OrtHist_NS_Noxious_ALL = np.zeros((numFiles,36))
@@ -99,8 +97,6 @@ for f, filename in enumerate(npzFiles):
     #fish_Position_S = dataobject['fish_Position_S']
     BoutType_NS = dataobject['BoutType_NS']
     BoutType_S = dataobject['BoutType_S']
-    Bout_Angles_NS = dataobject['Bout_Angles_NS']
-    Bout_Angles_S = dataobject['Bout_Angles_S']
     Turns_NS = dataobject['Turns_NS']
     Turns_S = dataobject['Turns_S']
     FSwim_NS = dataobject['FSwim_NS']
@@ -170,8 +166,6 @@ for f, filename in enumerate(npzFiles):
     # Concat all Pauses/Bouts
     Bouts_NS_ALL = np.vstack([Bouts_NS_ALL, Bouts_NS])
     Bouts_S_ALL = np.vstack([Bouts_S_ALL, Bouts_S])
-    #Bout_Angles_NS_ALL = np.vstack([Bout_Angles_NS_ALL, Bout_Angles_NS])
-    #Bout_Angles_S_ALL = np.vstack([Bout_Angles_S_ALL, Bout_Angles_S])
     #fish_Position_NS_ALL = np.vstack([fish_Position_NS_ALL, fish_Position_NS])
     #fish_Position_S_ALL = np.vstack([fish_Position_S_ALL, fish_Position_S])
     Pauses_NS_ALL = np.vstack([Pauses_NS_ALL, Pauses_NS])
@@ -346,7 +340,7 @@ plt.title('Non Social',fontsize= 18, y=-0.15)
 plt.xticks([])
 plt.yticks([])
 plt.colorbar()
-plt.clim(0,1500)
+plt.clim(0,6000)
 
 ax = plt.subplot(222)  
 plt.hist2d(Bouts_S_ALL[:,1]/numFiles, Bouts_S_ALL[:,2]/numFiles,bins=10, cmap='Blues')
@@ -354,7 +348,7 @@ plt.title('Social', fontsize= 18, y=-0.15)
 plt.xticks([])  
 plt.yticks([]) 
 plt.colorbar()
-plt.clim(0,1500)
+plt.clim(0,6000)
 
 Bouts_map.tight_layout
 Bouts_map.savefig(FigureFolder + '/BoutsMap.png', dpi=300, bbox_inches='tight')
@@ -728,7 +722,12 @@ B_labels.tight_layout
 B_labels.savefig(FigureFolder + '/BoutType.png', dpi=300, bbox_inches='tight')
 
 
-        
+   
+# Scatterplot Position of Freezes
+distAngles = plt.figure(figsize=(), dpi=300)
+plt.scatter(BoutType_NS_ALL[:,9],BoutType_NS_ALL[:,10],color=[0,0,0.75,0.1])
+plt.show()
+
         
         
     

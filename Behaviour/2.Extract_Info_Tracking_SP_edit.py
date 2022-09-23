@@ -38,7 +38,7 @@ filterTracking = False
 # Set threshold
 freeze_threshold = 300
 motionStartThreshold = 0.02
-motionStopThreshold = 0
+motionStopThreshold = 0.015
 
 
 AnalysisFolder = base_path + '/Gradient_NewChamber38/Analysis'
@@ -140,8 +140,8 @@ for idx,folder in enumerate(folderNames):
             BPS_S, avgBout_S = SPA.measure_BPS(motion_S, motionStartThreshold, motionStopThreshold)
             
              # Analyze "Bouts" and "Pauses" 
-            Bouts_NS, Pauses_NS = SPA.analyze_bouts_and_pauses(fx_NS_mm, fy_NS_mm,ort_NS, motion_NS, NS_ROIs[i,1], motionStartThreshold, motionStopThreshold)
-            Bouts_S, Pauses_S = SPA.analyze_bouts_and_pauses(fx_S_mm, fy_S_mm, ort_S, motion_S, S_ROIs[i,1], motionStartThreshold, motionStopThreshold)       
+            Bouts_NS, Pauses_NS = SPA.analyze_bouts_and_pauses(fx_NS_mm, fy_NS_mm,ort_NS, motion_NS, NS_ROIs[i,1],motionStartThreshold, motionStopThreshold)
+            Bouts_S, Pauses_S = SPA.analyze_bouts_and_pauses(fx_S_mm, fy_S_mm, ort_S, motion_S, S_ROIs[i,1],motionStartThreshold, motionStopThreshold)       
             
             # Compute Distance Travelled 
             DistanceT_NS = SPA.distance_traveled(fx_NS_mm,fy_NS_mm,len(fx_NS_mm))
@@ -158,19 +158,19 @@ for idx,folder in enumerate(folderNames):
             avgdistPerBout_S = np.mean(distPerBout_S.distT)
             
             #Analyze Bouts
-            B_labels_NS, Bout_Angles_NS = SPA.label_bouts(Bouts_NS, ort_NS)
-            B_labels_S, Bout_Angles_S = SPA.label_bouts(Bouts_S,ort_S)
+            B_labels_NS, Bout_Angles_NS = SPA.label_bouts(Bouts_NS[:,9])
+            B_labels_S, Bout_Angles_S = SPA.label_bouts(Bouts_S[:,9])
         
             
-            Turns_NS =(np.sum(B_labels_NS.Turn))/len(B_labels_NS)   
+            Turns_NS =(np.sum(B_labels_NS.Turn))/len(B_labels_NS) 
             FSwim_NS = (np.sum(B_labels_NS.FSwim))/len(B_labels_NS)
             
             Turns_S = (np.sum(B_labels_S.Turn))/len(B_labels_S)
             FSwim_S = (np.sum(B_labels_S.FSwim))/len(B_labels_S)
             
             
-            BoutType_NS = pd.concat([distPerBout_NS, B_labels_NS],axis=1)
-            BoutType_S = pd.concat([distPerBout_S, B_labels_S],axis=1)
+            BoutType_NS = pd.concat([distPerBout_NS, Bout_Angles_NS,B_labels_NS],axis=1)
+            BoutType_S = pd.concat([distPerBout_S, Bout_Angles_S, B_labels_S],axis=1)
         
 
             Percent_Moving_NS = (100 * np.sum(Bouts_NS[:,8]))/(len(motion_NS))
@@ -285,7 +285,6 @@ for idx,folder in enumerate(folderNames):
                       DistanceT_NS = DistanceT_NS, DistanceT_S = DistanceT_S, #Binned_DistanceT_NS= Binned_DistanceT_NS, Binned_DistanceT_S = Binned_DistanceT_S, 
                       distPerBout_NS= distPerBout_NS, distPerBout_S = distPerBout_S, 
                       Speed_NS = Speed_NS, Speed_S = Speed_S,
-                      Bout_Angles_NS= Bout_Angles_NS, Bout_Angles_S = Bout_Angles_S,
                       OrtHist_NS_Cool = OrtHist_NS_Cool,OrtHist_NS_Noxious = OrtHist_NS_Noxious, OrtHist_S_Cool = OrtHist_S_Cool, OrtHist_S_Noxious = OrtHist_S_Noxious,
                       OrtHist_NS_Hot = OrtHist_NS_Hot, OrtHist_S_Hot = OrtHist_S_Hot,
                       Position_NS=Position_NS, Position_S = Position_S, avgPosition_NS = avgPosition_NS, avgPosition_S = avgPosition_S)
