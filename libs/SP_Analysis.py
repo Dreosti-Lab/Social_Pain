@@ -46,44 +46,15 @@ def distance_traveled(fx, fy,numFrames):
     return distanceT
 
 # Compute activity level of the fish in bouts per second (BPS)
-def measure_BPS(motion, startThreshold, stopThreshold):
+def measure_BPS(motion,boutStarts):
                    
-    # Find bouts starts and stops
-    boutStarts = []
-    boutStops = []
-    moving = 0
-    # f=frames, m=motion
-    for f, m in enumerate(motion):
-        if(moving == 0):
-            if m > startThreshold:
-                moving = 1
-                boutStarts.append(f)
-        else:
-            if np.sum(motion[f:(f+30)]) == stopThreshold:
-            #bout stops only if at 0 for more than 30 frames (eliminate lost tracking)    
-                moving = 0
-                boutStops.append(f)
-    
-    # Extract all bouts (ignore last, if clipped)
-    boutStarts = np.array(boutStarts)
-    boutStops = np.array(boutStops)
-    if(len(boutStarts) > len(boutStops)):
-        boutStarts = boutStarts[:-1]
-
     # Count number of bouts
     numBouts= len(boutStarts)
     numberOfSeconds = np.size(motion)/100
     # Set the bouts per second (BPS)
     boutsPerSecond = numBouts/numberOfSeconds
-    
-    # Measure averge bout trajectory
-    boutStarts = boutStarts[(boutStarts > 25) * (boutStarts < (len(motion)-75))]
-    allBouts = np.zeros([len(boutStarts), 100])
-    for b in range(0,len(boutStarts)):
-        allBouts[b,:] = motion[(boutStarts[b]-25):(boutStarts[b]+75)];
-    avgBout = np.mean(allBouts,0);
 
-    return boutsPerSecond, avgBout
+    return boutsPerSecond
 
 def debugBouts(motion,boutStarts,boutEnds,startThreshold=0.02,stopThreshold=0.015):
     
@@ -103,20 +74,19 @@ def debugBouts(motion,boutStarts,boutEnds,startThreshold=0.02,stopThreshold=0.01
 # Analyze bouts and pauses (individual stats)
 def analyze_bouts_and_pauses(fx, fy, ort, motion, ROI, startThreshold, stopThreshold):
     
-    motion_sm=SPU.smoothSignal(motion,N=3)
 
     # Find bouts starts and stops
     boutStarts = []
     boutStops = []
     moving = 0
-    for f, m in enumerate(motion_sm):
+    for f, m in enumerate(motion):
         if(moving == 0):
             if m > startThreshold:
                 moving = 1
                 boutStarts.append(f)
         else:
             if m < stopThreshold:
-                for mm in motion_sm[f:f+10]:
+                for mm in motion[f:f+10]:
                     if mm>stopThreshold:
                         break
                     
@@ -199,9 +169,9 @@ def analyze_temporal_bouts(bouts, binning):
     num_bouts = bouts.shape[0]
 
     # Determine largest frame number in all bouts recordings (make multiple of 100)
-    max_frame = np.int(np.max(bouts[:, 4]))
-    max_frame = max_frame + (binning - (max_frame % binning))
-    max_frame = 100 * 60 * 15
+    max_frame = int(np.max(bouts[:, 4]))
+    #max_frame = max_frame + (binning - (max_frame % binning))
+    #max_frame = 100 * 60 * 15
 
     # Temporal bouts
     bout_hist = np.zeros(max_frame)
@@ -209,9 +179,9 @@ def analyze_temporal_bouts(bouts, binning):
     
     for i in range(0, num_bouts):
         # Extract bout params
-        start = np.int(bouts[i][0])
-        stop = np.int(bouts[i][4])
-        duration = np.int(bouts[i][8])
+        start = int(bouts[i][0])
+        stop = int(bouts[i][4])
+        duration = int(bouts[i][8])
   
         # Ignore bouts beyond 15 minutes
         if stop >= max_frame:
@@ -236,31 +206,23 @@ def analyze_temporal_bouts(bouts, binning):
 
     return bout_hist, frames_moving
 
-def Binning (parameter_2D_array, binsize_frames):
-    
-            f,d = np.transpose(parameter_2D_array) 
-            f = (f//binsize_frames). astype(int) 
-            binned_parameter = np.bincount(f,d).astype(np.int64)
-            
-            return binned_parameter
         
-        
-def Bin_Freezes(Freeze_Start, FPS, movieLength, binsize) :
+def Binning(F_Start, FPS, movieLength, binsize) :
     
     FPS = 100
     
     movieLengthFrames= movieLength*60*FPS #in frames
     binsizeFrames = binsize*60*FPS
 
-    Binned_Freezes=[]
+    Binned_F=[]
     for x in range(0, movieLengthFrames,binsizeFrames):
       
         if x>0:
-            boo=Freeze_Start<x
-            Binned_Freezes.append(np.sum(boo[Freeze_Start>(x-binsizeFrames)]))
+            boo=F_Start<x
+            Binned_F.append(np.sum(boo[F_Start>(x-binsizeFrames)]))
             
     
-    return Binned_Freezes       
+    return Binned_F       
 
 
 def compute_motion(folder,ROIs,change_threshold=0,stepFrames=1000,bFrames = 50):
@@ -274,11 +236,8 @@ def compute_motion(folder,ROIs,change_threshold=0,stepFrames=1000,bFrames = 50):
     
     print('Processing' + aviFile)
     vid = cv2.VideoCapture(aviFile)
-    numFrames = int(vid.get(cv2.CAP_PROP_FRAME_COUNT))-200 # skip lat 100 frames (we take 100 off the start later)
-    
-    ## debug / testing
-    numFrames=10000
-    ##
+    numFrames = int(vid.get(cv2.CAP_PROP_FRAME_COUNT))-200 # skip last 100 frames (we take 100 off the start later)
+
     
     previous_ROIs = []
     for i in range(0,6):
@@ -328,40 +287,6 @@ def compute_speed(X,Y):
     speed = np.append([0], speed)
     return speed
 
-
-def computeDistPerBout(fx_boutStarts, fy_boutStarts, fx_boutEnds,fy_boutEnds, ROI):
-## Computes total straight line distance travelled over the course of individual bouts
-
-    # Rescale by chamber dimensions
-    chamber_Width_px = ROI[2]
-    chamber_Height_px = ROI[3]
-    chamber_Width_mm = 100
-    chamber_Height_mm = 15
-
-
-    fx_boutStarts_mm = (fx_boutStarts/chamber_Width_px)*chamber_Width_mm
-    fy_boutStarts_mm = (fy_boutStarts /chamber_Height_px)*chamber_Height_mm  
-
-    fx_boutEnds_mm = (fx_boutEnds/chamber_Width_px)*chamber_Width_mm
-    fy_boutEnds_mm = (fy_boutEnds/chamber_Height_px)*chamber_Height_mm  
-    
-    absDiffX=np.abs(fx_boutStarts_mm - fx_boutEnds_mm)
-    absDiffY=np.abs(fy_boutStarts_mm - fy_boutEnds_mm)
-    
-
-    Bout_dist=np.zeros(len(fx_boutStarts))
-    
-    for i in range(len(fx_boutStarts)):
-        
-        Bout_dist[i]= np.sqrt(absDiffX[i]*absDiffX[i] + absDiffY[i]*absDiffY[i])
-    
-    #Concatenate bout type to dataFrame
-    xStart_NS = pd.Series(fx_boutStarts_mm, name = 'fxStart')
-    yStart_NS = pd.Series(fy_boutStarts_mm, name = 'fyStart')
-    dist = pd.Series(Bout_dist, name= 'distT')
-    distPerBout = pd.concat([xStart_NS,yStart_NS, dist], axis=1)
-    
-    return distPerBout
 
 
 def computeDistPerFrame(fx,fy):
@@ -413,7 +338,7 @@ def diffAngle(Ort):
     for a in dAngle:
         if a < -270:
             new_dAngle.append(a + 360)
-        elif a > 270:
+        elif a > 270: 
             new_dAngle.append(a - 360)
         else:
             new_dAngle.append(a)
@@ -434,22 +359,6 @@ def filterTrackingFlips(dAngle):
     return np.array(new_dAngle)
 
 
-# rotate the orientation trace so that the initial heading is zero
-def rotateOrt(ort):
-    ort_rot=np.zeros(len(ort))
-    ort_init=ort[0]
-    for i,thisOrt in enumerate(ort):
-        o=thisOrt-ort_init
-        oAbs=np.abs(o)
-        if o>180:
-            o=(180-(o-180))*-1
-        elif o<-180:
-            o=180-(oAbs-180)
-            
-        ort_rot[i]=o
-    return ort_rot
-
-
 # Label Bouts
 def label_bouts(bout_angles):
 
@@ -458,9 +367,9 @@ def label_bouts(bout_angles):
 
     
     for i,angle in enumerate(bout_angles):
-        if angle > 20: 
+        if angle > 15: 
             labels[i,0]=1
-        elif angle < -20:
+        elif angle < -15:
             labels[i,0]=1
         else:
             labels[i,1]=1

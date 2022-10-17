@@ -65,37 +65,6 @@ def get_folder_names(folder):
     
     return NS_folder, S_folder, Analysis
 
-def cycleMkDir(path,report=0):
-## Creates folders and subfolder along defined path
-## returns -1 and prints a warning if fails
-## returns 1 if passed
-    splitPath=path.split(sep=r"\\")
-    for i,name in enumerate(splitPath):
-        if(i==0):
-            s=name+r"\\"
-        else:
-            s=s+name+r"\\"
-        if(i!=len(splitPath)-1):    
-            tryMkDir(s,report=report)
-        else:
-            tryMkDir(s,report=report)
-
-
-def tryMkDir(path,report=0):
-## Creates a new folder at the given path
-## returns -1 and prints a warning if fails
-## returns 1 if passed
-    
-    try:
-        os.mkdir(path)
-    except OSError:
-        if(report):
-            print ("Creation of the directory %s failed" % path + ", it might already exist!")
-        return -1
-    else:
-        if(report):
-            print ("Successfully created the directory %s " % path)
-        return 1
     
 
 def load_video (folder):
@@ -132,28 +101,6 @@ def grabFrame(avi,frame):
     im = np.uint8(cv2.cvtColor(im, cv2.COLOR_BGR2GRAY))
     return im
 
-## Identifies and reverses sudden flips in orientation caused by errors in tracking the eyes vs the body resulting in very high frequency tracking flips     
-def filterTrackingFlips(ort):
-    dAngle = np.diff(ort)
-    new_dAngle=[]    
-    count=0
-    for a in dAngle:
-        if a < -90:
-            new_dAngle.append(a + 180)
-            count+=1
-        elif a > 90:
-            new_dAngle.append(a - 180)
-            count+=1
-        else:
-            new_dAngle.append(a)
-    
-        new_dAngle = np.array(new_dAngle)
-        ort_new = np.r_[ort[0], new_dAngle].cumsum()
-        ort_new = ort_new[1:]
-        new_dAngle= list(new_dAngle)
-        
-    return count, ort_new
-
 # Scripts to find circle edges given origin and radius
 def removeDuplicates(lst):
       
@@ -175,7 +122,7 @@ def convert_mm(XList,YList,ROI):
     chamber_Width_mm = 100
     chamber_Height_mm = 15
     
-    XList = XList 
+    XList = XList - ROI[0]
     YList = YList - ROI[1]
 
     XList_mm = (XList/chamber_Width_px)*chamber_Width_mm

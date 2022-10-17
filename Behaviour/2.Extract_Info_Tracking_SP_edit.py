@@ -8,14 +8,14 @@ Created on Tue Apr  6 19:00:40 2021
 Extract information from tracking data and save into npz Summary file for each video of 6 fish
 """                        
 # Set Library Path - Social_Pain Repos
-#lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
-lib_path = r'C:/Repos/Social_Pain/libs'
+lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
+#lib_path = r'C:/Repos/Social_Pain/libs'
 import sys
 sys.path.append(lib_path)
 
 # Set Base Path
-base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient/NewChamber'
-#base_path = r'/Volumes/T7 Touch/Behaviour_Heat_Gradient'
+#base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient/NewChamber'
+base_path = r'/Volumes/T7 Touch/Behaviour_Heat_Gradient'
 
 # Import useful libraries
 import glob
@@ -36,14 +36,14 @@ plot = False
 filterTracking = False
 
 # Set threshold
-freeze_threshold = 300
+freeze_threshold = 200
 motionStartThreshold = 0.02
 motionStopThreshold = 0.015
 
 
-AnalysisFolder = base_path + '/Gradient_NewChamber38/Analysis'
+AnalysisFolder = base_path + '/Habituation_NewChamber38/Resilient/Analysis'
 # Read folder list
-FolderlistFile = base_path + '/Gradient_NewChamber38/Folderlist.txt'
+FolderlistFile = base_path + '/Habituation_NewChamber38/Resilient/Folderlist.txt'
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 
@@ -127,35 +127,34 @@ for idx,folder in enumerate(folderNames):
 
             
             fx_NS_mm, fy_NS_mm = SPU.convert_mm(fx_NS, fy_NS, NS_ROIs[i])
-            fx_S_mm, fy_S_mm = SPU.convert_mm(fx_S, fy_S, S_ROIs[i])
-            
-            #fish_Position_NS = np.column_stack((fx_NS_mm, fy_NS_mm))
-            #fish_Position_S = np.column_stack((fx_S_mm, fy_S_mm))
+            fx_S_mm, fy_S_mm = SPU.convert_mm(fx_S, fy_S, S_ROIs[i])            
             
             avgPosition_NS = np.mean(fx_NS_mm)
             avgPosition_S = np.mean(fx_S_mm)
 #--------------------------------------------------------------------------------------------------------            
-            # Compute BPS 
-            BPS_NS, avgBout_NS = SPA.measure_BPS(motion_NS, motionStartThreshold, motionStopThreshold)
-            BPS_S, avgBout_S = SPA.measure_BPS(motion_S, motionStartThreshold, motionStopThreshold)
             
-             # Analyze "Bouts" and "Pauses" 
-            Bouts_NS, Pauses_NS = SPA.analyze_bouts_and_pauses(fx_NS_mm, fy_NS_mm,ort_NS, motion_NS, NS_ROIs[i,1],motionStartThreshold, motionStopThreshold)
-            Bouts_S, Pauses_S = SPA.analyze_bouts_and_pauses(fx_S_mm, fy_S_mm, ort_S, motion_S, S_ROIs[i,1],motionStartThreshold, motionStopThreshold)       
+            #Smooth Motion
+            Smotion_NS =SPU.smoothSignal(motion_NS,N=3)
+            Smotion_S =SPU.smoothSignal(motion_S,N=3)
+
+        
+            # Analyze "Bouts" and "Pauses" 
+            Bouts_NS, Pauses_NS = SPA.analyze_bouts_and_pauses(fx_NS_mm, fy_NS_mm,ort_NS, Smotion_NS, NS_ROIs[i,1],motionStartThreshold, motionStopThreshold)
+            Bouts_S, Pauses_S = SPA.analyze_bouts_and_pauses(fx_S_mm, fy_S_mm, ort_S, Smotion_S, S_ROIs[i,1],motionStartThreshold, motionStopThreshold)       
+            
+            # Compute BPS 
+            BPS_NS = SPA.measure_BPS(Smotion_NS, Bouts_NS[:,0])
+            BPS_S = SPA.measure_BPS(Smotion_S, Bouts_S[:,0])
+            
+            Binned_Bouts_NS = SPA.Binning(Bouts_NS[:,0], 100, 16, 1) 
+            Binned_Bouts_S = SPA.Binning(Bouts_S[:,0], 100, 16, 1) 
             
             # Compute Distance Travelled 
             DistanceT_NS = SPA.distance_traveled(fx_NS_mm,fy_NS_mm,len(fx_NS_mm))
-            #Binned_DistanceT_NS = SPA.Binning(Distance_Frame_NS, 6000)
-            
             DistanceT_S = SPA.distance_traveled(fx_S_mm,fy_S_mm,len(fx_S_mm))
-            #Binned_DistanceT_S = SPA.Binning(Distance_Frame_S, 6000)
-
-            #Distance Per bout
-            distPerBout_NS = SPA.computeDistPerBout(Bouts_NS[:,1],Bouts_NS[:,2], Bouts_NS[:,5], Bouts_NS[:,6], NS_ROIs[i])
-            distPerBout_S = SPA.computeDistPerBout(Bouts_S[:,1],Bouts_S[:,2], Bouts_S[:,5], Bouts_S[:,6], S_ROIs[i])
             
-            avgdistPerBout_NS = np.mean(distPerBout_NS.distT)
-            avgdistPerBout_S = np.mean(distPerBout_S.distT)
+            avgdistPerBout_NS = np.mean(Bouts_NS[:,10])
+            avgdistPerBout_S = np.mean(Bouts_S[:,10])
             
             #Analyze Bouts
             B_labels_NS, Bout_Angles_NS = SPA.label_bouts(Bouts_NS[:,9])
@@ -168,10 +167,6 @@ for idx,folder in enumerate(folderNames):
             Turns_S = (np.sum(B_labels_S.Turn))/len(B_labels_S)
             FSwim_S = (np.sum(B_labels_S.FSwim))/len(B_labels_S)
             
-            
-            BoutType_NS = pd.concat([distPerBout_NS, Bout_Angles_NS,B_labels_NS],axis=1)
-            BoutType_S = pd.concat([distPerBout_S, Bout_Angles_S, B_labels_S],axis=1)
-        
 
             Percent_Moving_NS = (100 * np.sum(Bouts_NS[:,8]))/(len(motion_NS))
             Percent_Paused_NS = (100 * np.sum(Pauses_NS[:,8]))/(len(motion_NS))
@@ -179,17 +174,13 @@ for idx,folder in enumerate(folderNames):
             Percent_Moving_S = (100 * np.sum(Bouts_S[:,8]))/(len(motion_S))
             Percent_Paused_S = (100 * np.sum(Pauses_S[:,8]))/(len(motion_S))
             
-            # Speed
-            Speed_NS, SpeedAngle_NS = SPA.compute_bout_signals(fx_NS, fy_NS, ort_NS)
-            Speed_S, SpeedAngle_S = SPA.compute_bout_signals(fx_S, fy_S, ort_S)
             
             # Count Freezes
             Freezes_NS, numFreezes_NS = SPA.analyze_freezes(Pauses_NS, freeze_threshold)
-            Binned_Freezes_NS = SPA.Bin_Freezes(Freezes_NS[:,0], 100, 15, 1)
+            Binned_Freezes_NS = SPA.Binning(Freezes_NS[:,0], 100, 16, 1)
             
             Freezes_S, numFreezes_S = SPA.analyze_freezes(Pauses_S, freeze_threshold)
-            Binned_Freezes_S = SPA.Bin_Freezes(Freezes_S[:,0], 100, 15, 1) 
-            
+            Binned_Freezes_S = SPA.Binning(Freezes_S[:,0], 100, 16, 1) 
             
 #----------------------------------------------------------------------------------------------------------            
            
@@ -262,7 +253,7 @@ for idx,folder in enumerate(folderNames):
                 plt.plot(area_S, c='teal')
                 
                 # Save figure and data for each fish 
-                filename = AnalysisFolder + '/' + str(np.int(groups[idx])) + 'Motion' + str(i+1) + '.png'  
+                filename = AnalysisFolder + '/' + str(int(groups[idx])) + 'Motion' + str(i+1) + '.png'  
                 plt.savefig(filename, dpi=300)
                 plt.close('all')
 
@@ -271,10 +262,9 @@ for idx,folder in enumerate(folderNames):
             
 
             # Save Analyzed Summary Data
-            filename = AnalysisFolder + '/' + str(np.int(groups[idx])) + 'SUMMARY' + str(i+1) + '.npz'
+            filename = AnalysisFolder + '/' + str(int(groups[idx])) + 'SUMMARY' + str(i+1) + '.npz'
             np.savez(filename,BPS_NS = BPS_NS,BPS_S = BPS_S,
-                      Bouts_NS = Bouts_NS,Bouts_S = Bouts_S,BoutType_NS=BoutType_NS, BoutType_S =BoutType_S,
-                      #fish_Position_NS = fish_Position_NS, fish_Position_S=fish_Position_S,
+                      Bouts_NS = Bouts_NS,Bouts_S = Bouts_S,Binned_Bouts_NS = Binned_Bouts_NS, Binned_Bouts_S= Binned_Bouts_S,
                       avgdistPerBout_NS=avgdistPerBout_NS, avgdistPerBout_S=avgdistPerBout_S,
                       Turns_NS=Turns_NS, Turns_S=Turns_S, FSwim_NS=FSwim_NS,FSwim_S=FSwim_S,
                       Pauses_NS = Pauses_NS,Pauses_S = Pauses_S,
@@ -283,8 +273,6 @@ for idx,folder in enumerate(folderNames):
                       Freezes_S = Freezes_S, Freezes_NS = Freezes_NS, numFreezes_NS = numFreezes_NS, numFreezes_S = numFreezes_S,
                       Binned_Freezes_NS = Binned_Freezes_NS,Binned_Freezes_S = Binned_Freezes_S,    
                       DistanceT_NS = DistanceT_NS, DistanceT_S = DistanceT_S, #Binned_DistanceT_NS= Binned_DistanceT_NS, Binned_DistanceT_S = Binned_DistanceT_S, 
-                      distPerBout_NS= distPerBout_NS, distPerBout_S = distPerBout_S, 
-                      Speed_NS = Speed_NS, Speed_S = Speed_S,
                       OrtHist_NS_Cool = OrtHist_NS_Cool,OrtHist_NS_Noxious = OrtHist_NS_Noxious, OrtHist_S_Cool = OrtHist_S_Cool, OrtHist_S_Noxious = OrtHist_S_Noxious,
                       OrtHist_NS_Hot = OrtHist_NS_Hot, OrtHist_S_Hot = OrtHist_S_Hot,
                       Position_NS=Position_NS, Position_S = Position_S, avgPosition_NS = avgPosition_NS, avgPosition_S = avgPosition_S)
