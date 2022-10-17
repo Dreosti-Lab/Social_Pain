@@ -32,7 +32,7 @@ summaryListFile = 'S:/WIBR_Dreosti_Lab/Alizee/LSZ1_Server/Registration/Cfos_Summ
 smooth_factor = 4;
 
 # Set analysis path
-analysis_folder = 'S:/WIBR_Dreosti_Lab/Alizee/LSZ1_Server/Registration/Analysis/Heat-Baseline'
+analysis_folder = 'S:/WIBR_Dreosti_Lab/Alizee/LSZ1_Server/Registration/Analysis/Social-Baseline'
 
 #---------------------------------------------------------------------------
 #---------------------------------------------------------------------------
@@ -44,7 +44,7 @@ group_names = np.array(group_names)
 
 
 # Assign metrics/paths for each group
-group_A = (group_names == 'Heat')
+group_A = (group_names == 'Social')
 group_B = (group_names == 'Baseline')
 
 cfos_paths_A = cfos_paths[group_A]

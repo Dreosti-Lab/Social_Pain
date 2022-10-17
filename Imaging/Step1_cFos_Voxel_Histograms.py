@@ -18,7 +18,7 @@ import SP_cfos as SPCFOS
 #---------------------------------------------------------------------------
 
 # Set Stack Path
-folder_path =  'S:/WIBR_Dreosti_Lab/Alizee/LSZ1_Server/Registration/Social/22_01_20/fish1'
+folder_path = 'S:/WIBR_Dreosti_Lab/Alizee/LSZ1_Server/Registration/Social/22_02_23/fish1'
 stack_path = folder_path + '/DAPI_CFOS_02_reg_Warped.nii.gz'
 # Set Mask Path
 mask_path =  'S:/WIBR_Dreosti_Lab/Alizee/LSZ1_Server/Registration/mask/DAPI_MASK.nii'
@@ -52,7 +52,7 @@ cfos_data, cfos_affine, cfos_header = SPCFOS.load_nii(stack_path, normalized = T
 masked_values = cfos_data[mask_data == 1]
 
 # Histogram
-histogram, bin_edges  = np.histogram(masked_values, bins = 100, range=[0,850]);        
+histogram, bin_edges  = np.histogram(masked_values, bins = 100, range=[-200,650]);        
 bin_width = (bin_edges[1]-bin_edges[0])/2
 bin_centers = bin_edges[:-1] + bin_width
 
