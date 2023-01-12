@@ -98,10 +98,12 @@ def read_summarylist(path, normalized=False):
     # Extract cell data
     all_cells =  list(summaryWs.values)
     data_cells = all_cells[1:]
+    metric_labels = all_cells[0][2:]
     num_rows = len(data_cells)
     
     # Empty lists to fill   
     cfos_paths = []
+    behaviour_metrics = []
     group_names = []
     for i in range(0,num_rows):
 
@@ -112,9 +114,9 @@ def read_summarylist(path, normalized=False):
            
         if(normalized):
             try:
-                cfos_image_name = glob.glob(base_cfos_path + '/Reg_Warped_normalized.nii.gz')[0]
+                cfos_image_name = glob.glob(base_cfos_path + '\Reg_Warped_normalized.nii.gz')[0]
             except IndexError:
-                print("No file found with name: " + base_cfos_path + '/Reg_Warped_normalized.nii.gz')
+                print("No file found with name: " + base_cfos_path + '\Reg_Warped_normalized.nii.gz')
                 sys.exit()
         else:
             try:
@@ -126,11 +128,18 @@ def read_summarylist(path, normalized=False):
         # Append path to list
         cfos_paths.append(cfos_image_name)
         
-    
-        behaviour = current_cell[2]                 
-        group_names.append(behaviour)
+        
+        # Find behaviour metrics
+        behaviour = np.zeros(4);
+        for i in range(4): 
+            behaviour[i] = current_cell[2 + i]                 
+        behaviour_metrics.append(behaviour)
                 
-    return cfos_paths, group_names
+    
+        group = current_cell[2]                 
+        group_names.append(group)
+                
+    return cfos_paths, group_names,behaviour_metrics
 
 # Compute summary stacks from a cFos experiment summary list
 def summary_stacks(paths, smooth_factor=1, normalized=False):

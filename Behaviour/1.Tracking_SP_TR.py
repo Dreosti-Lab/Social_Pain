@@ -10,7 +10,7 @@ sys.path.append(lib_path)
 
 # Set Base Path
 #base_path = r'S:\WIBR_Dreosti_Lab\Tom\Videos_Alizee'
-base_path =  r'S:\WIBR_Dreosti_Lab\Alizee\Behaviour_Heat_Gradient'
+base_path =  r'S:\WIBR_Dreosti_Lab\Alizee\Behaviour_Heat_Gradient/NewChamber'
 
 # Import useful libraries
 import os
@@ -28,7 +28,7 @@ import BONSAI_ARK
 import SP_utilities as SPU
 
 # Read Folder List
-FolderlistFile = base_path + '\Folderlist_Heat2.txt'
+FolderlistFile = base_path + '/Gradient_NewChamber38/Experiments/2022_12_06/Folderlist.txt'
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 # Divisor and closing kernel parameters (thresholding for mask and background)
