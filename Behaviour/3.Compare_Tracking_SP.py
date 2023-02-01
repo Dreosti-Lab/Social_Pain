@@ -29,8 +29,8 @@ from scipy import stats
 
 # Specify Analysis folder
 
-AnalysisFolder = base_path + '/Gradient_NewChamber38/Analysis' 
-FigureFolder = base_path + '/Gradient_NewChamber38/Figures' 
+AnalysisFolder = base_path + '/Gradient_NewChamber38/Experiments/2022_12_06/Analysis' 
+FigureFolder = base_path + '/Gradient_NewChamber38/Experiments/2022_12_06/Figures' 
 
 # Find all the npz files saved for each group and fish with all the information
 npzFiles = glob.glob(AnalysisFolder+'/*.npz')

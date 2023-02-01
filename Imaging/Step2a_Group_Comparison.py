@@ -31,20 +31,20 @@ summaryListFile = 'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Cfos_Summary/Pep
 smooth_factor = 4;
 
 # Set analysis path
-analysis_folder = 'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Analysis/OXT'
+analysis_folder = 'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Analysis/TH1'
 
 #---------------------------------------------------------------------------
 #---------------------------------------------------------------------------
 
 # Read summary list
-cfos_paths,group_names,behaviour_metrics = SPCFOS.read_summarylist(summaryListFile, normalized=True)
+cfos_paths,group_names = SPCFOS.read_summarylist(summaryListFile, normalized=True)
 cfos_paths = np.array(cfos_paths)
 group_names = np.array(group_names)
 
 
 # Assign metrics/paths for each group
-group_A = (group_names == 'OXT')
-group_B = (group_names == 'CHAT1A')
+group_A = (group_names == 'TH1')
+group_B = (group_names == 'Baseline')
 
 cfos_paths_A = cfos_paths[group_A]
 cfos_paths_B = cfos_paths[group_B]

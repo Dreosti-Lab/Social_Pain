@@ -41,9 +41,9 @@ motionStartThreshold = 0.02
 motionStopThreshold = 0.015
 
 
-AnalysisFolder = base_path + '/Gradient_NewChamber38/Analysis'
+AnalysisFolder = base_path + '/Gradient_NewChamber38/Experiments/2022_12_06/Analysis'
 # Read folder list
-FolderlistFile = base_path + '/Gradient_NewChamber38/Folderlist.txt'
+FolderlistFile = base_path + '/Gradient_NewChamber38/Experiments/2022_12_06/Folderlist.txt'
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 

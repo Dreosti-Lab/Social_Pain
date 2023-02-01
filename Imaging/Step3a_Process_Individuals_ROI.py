@@ -21,14 +21,14 @@ import SP_cfos as SPCFOS
 #---------------------------------------------------------------------------
 
 # Set Summary List
-summaryListFile = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Cfos_Summary/Cfos_fish_data_2.xlsx'
+summaryListFile = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Cfos_Summary/Cfos_fish_data_Hab.xlsx'
 
 # Set ROI Path
-roi_path = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/mask/Vv_MASK.tif'
-roi_name = r'Ventral_Telencephalon'
+roi_path = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/mask/SERT_hyp_3.tif'
+roi_name = r'SERT_hyp_3'
 
 # Set analysis folder and filename
-analysis_folder = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Analysis/GRADIENT/Cfos_Values'
+analysis_folder = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Analysis/HABITUATION/Cfos_Values'
 analysis_path = analysis_folder + '/' + roi_name + '/' + roi_name +'_cFos.npz'
 
 #---------------------------------------------------------------------------
