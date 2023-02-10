@@ -26,12 +26,12 @@ import SP_cfos as SPCFOS
 
 # Set Input stack
 #summaryListFile = r'\\128.40.155.187\data\D R E O S T I   L A B\Isolation_Experiments\Social_Brain_Areas_Analisys\Excel_Sheets\Test_Comparison_1.xlsx'
-stackFolder = 'S:/WIBR_Dreosti_Lab/Alizee/LSZ1_Server/Registration/Analysis/Heat-Baseline'
+stackFolder = 'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Analysis/NOXIOUS'
 stackFile = stackFolder + r'/Diff_Stack.nii.gz'
 
 # Set Mask Path
 #mask_path = r'\\128.40.155.187\data\D R E O S T I   L A B\Isolation_Experiments\Social_Brain_Areas_Analisys\Anatomical_Masks\BRAIN_DAPI_MASK_FINAL2.nii'
-mask_path =  'S:/WIBR_Dreosti_Lab/Alizee/LSZ1_Server/Registration/mask/DAPI_MASK.nii'
+mask_path =  'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/mask/DAPI_MASK.tif'
 mask_slice_range_start = 0
 mask_slice_range_stop = 399
 
@@ -39,8 +39,7 @@ mask_slice_range_stop = 399
 #---------------------------------------------------------------------------
 
 # Load mask
-mask_data, mask_affine, mask_header = SPCFOS.load_nii(mask_path, normalized=True)
-mask_data = mask_data[:,:,:,0]
+mask_data = SPCFOS.load_mask(mask_path, transpose=True)
 mask_data[:,:,:mask_slice_range_start] = 0
 mask_data[:,:,mask_slice_range_stop:] = 0
 num_mask_voxels = np.sum(np.sum(np.sum(mask_data)))
