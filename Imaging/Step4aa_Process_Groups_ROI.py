@@ -29,11 +29,11 @@ import SP_cfos as SPCFOS
 #---------------------------------------------------------------------------
 
 # Set Summary List
-summaryListFile = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Cfos_Summary/Cfos_Summary.xlsx'
+summaryListFile = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Cfos_Summary/Cfos_Summary_2.xlsx'
 
 # Set ROI Path
-roi_path = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/mask/SERT_hyp_3.tif'
-roi_name = r'SERT_hyp_3'
+roi_path = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/mask/cH.tif'
+roi_name = r'cH'
 
 #Set analysis folder and filename
 analysis_folder = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Analysis/ROI/'+ roi_name

@@ -129,17 +129,17 @@ def read_summarylist(path, normalized=False):
         cfos_paths.append(cfos_image_name)
         
         
-        # # Find behaviour metrics
-        # behaviour = np.zeros(4);
-        # for i in range(4): 
-        #     behaviour[i] = current_cell[2 + i]                 
-        # behaviour_metrics.append(behaviour)
+        # Find behaviour metrics
+        behaviour = np.zeros(5);
+        for i in range(5): 
+            behaviour[i] = current_cell[2 + i]                 
+        behaviour_metrics.append(behaviour)
                 
     
         group = current_cell[2]                 
         group_names.append(group)
                 
-    return cfos_paths, group_names
+    return cfos_paths, group_names, behaviour_metrics
 
 # Compute summary stacks from a cFos experiment summary list
 def summary_stacks(paths, smooth_factor=1, normalized=False):
