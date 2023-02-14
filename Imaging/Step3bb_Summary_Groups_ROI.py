@@ -1,6 +1,7 @@
 """
-This script plots summary stats for ROI cFOS activity across groups
-@author: Dreosti Lab
+This script plots summary cfos_values for a slected ROI  across groups
+-loads .npz files from step 3ba
+@author: Alizee Kastler
 """
 # -----------------------------------------------------------------------------
 # Set "Library Path" - Social Zebrafish Repo
@@ -15,49 +16,28 @@ sys.path.append(lib_path)
 # Import useful libraries
 import numpy as np
 import matplotlib.pyplot as plt
-import SP_cfos as SZCFOS
+import SP_cfos as SPCFOS
 import seaborn as sns
 import pandas as pd
 
 
-
-#---------------------------------------------------------------------------
 #---------------------------------------------------------------------------
 
 # Set cFos file (group A and B)
-cFos_file_A = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Analysis/ROI/PAG/group_A_cFos.npz'
-cFos_file_B = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Analysis/ROI/PAG/group_B_cFos.npz'
-cFos_file_C = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Analysis/ROI/PAG/group_C_cFos.npz'
+cfos_Baseline= r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Analysis/ROI/PAG/Baseline_cFos.npz'
+cfos_Social = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Analysis/ROI/PAG/Social_cFos.npz'
+cfos_Noxious= r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Analysis/ROI/PAG/Noxious_cFos.npz'
 
 analysis_folder = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Analysis/ROI/PAG'
+roi_name = r'PAG'
 
-# Load data
-npzfile = np.load(cFos_file_A)
-cFos_A = npzfile['cFos_values']
-group_name_A = npzfile['group_name']
-roi_name_A = npzfile['roi_name']
+# Create output folders (if they do not exist)
+if not os.path.exists(analysis_folder):
+   os.makedirs(analysis_folder)
 
-npzfile = np.load(cFos_file_B)
-cFos_B = npzfile['cFos_values']
-group_name_B = npzfile['group_name']
-roi_name_B = npzfile['roi_name']
-
-npzfile = np.load(cFos_file_C)
-cFos_C = npzfile['cFos_values']
-group_name_C = npzfile['group_name']
-roi_name_C = npzfile['roi_name']
-
-
-
-# Analyze
-mean_A = np.mean(cFos_A)
-std_A = np.std(cFos_A)
-
-mean_B = np.mean(cFos_B)
-std_B = np.std(cFos_B)
-
-mean_C = np.mean(cFos_C)
-std_C = np.std(cFos_C)
+cfos_value_Baseline, mean_Baseline, std_Baseline= SPCFOS.load_cfos_ROI(cfos_Baseline)
+cfos_value_Social, mean_Social, std_Social= SPCFOS.load_cfos_ROI(cfos_Social)
+cfos_value_Noxious, mean_Noxious, std_Noxious= SPCFOS.load_cfos_ROI(cfos_Noxious)
 
 
 
@@ -66,11 +46,11 @@ bar_colours = [ "#c0c0c0","#ff0000",'#0033ff']
 
 
 cfos_val = plt.figure(dpi=300)
-plt.title(roi_name_A,fontsize= 14)  
+plt.title(roi_name,fontsize= 14)  
 
-s1 = pd.Series(cFos_A, name='Baseline')
-s2 = pd.Series(cFos_B, name='Social')
-s3 = pd.Series(cFos_C, name='Noxious')
+s1 = pd.Series(cfos_value_Baseline, name='Baseline')
+s2 = pd.Series(cfos_value_Social, name='Social')
+s3 = pd.Series(cfos_value_Noxious, name='Noxious')
 df = pd.concat([s1,s2,s3], axis=1)
 ax=sns.swarmplot(data=df, orient="v", size=6, palette=bar_colours, zorder=1) 
 with plt.rc_context({'lines.linewidth': 0.8}):

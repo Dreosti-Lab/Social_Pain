@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """
 This script loads and processes a cFos folder list: .nii images and behaviour
+- saves cfos_values within ROI according to set range of behaviour metrics
+
 @author: Dreosti Lab
 """
 # -----------------------------------------------------------------------------
-# Set "Library Path" - Social Zebrafish Repo
+# Set Library Path
 lib_path = r'C:/Repos/Social_Pain/libs'
-# -----------------------------------------------------------------------------
 
-# Set Library Paths
 import sys
 sys.path.append(lib_path)
 
@@ -18,8 +18,8 @@ import matplotlib.pyplot as plt
 import SP_cfos as SZCFOS
 
 
-#---------------------------------------------------------------------------
-#---------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 # Set Summary List
 summaryListFile = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Cfos_Summary/Cfos_fish_data_1.xlsx'
@@ -41,7 +41,7 @@ analysis_folder = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Analysis/GRADIE
 analysis_path = analysis_folder + '/' + group_name + '_' + roi_name + '_cFos.npz'
 
 #---------------------------------------------------------------------------
-#---------------------------------------------------------------------------
+
 
 # Read summary list
 cfos_paths, group_names ,behaviour_metrics = SZCFOS.read_summarylist(summaryListFile, normalized=True)
@@ -59,9 +59,6 @@ n = len(group_indices)
 roi_stack = SZCFOS.load_mask(roi_path, transpose=True)
 num_roi_voxels = np.sum(np.sum(np.sum(roi_stack)))
 
-# ------------------------------------------------------------------
-# cFos Analysis
-# ------------------------------------------------------------------
 
 # Measure (normalized) cFOS in Mask ROI
 cFos_values = np.zeros(n)
@@ -78,10 +75,9 @@ for i in range(n):
     
     print(str(i+1) + ' of ' + str(n) + ':\n' + cfos_paths[i] + '\n')
 
-# ------------------------------------------------------------------
+
 # Save cFos values
-# ------------------------------------------------------------------
 np.savez(analysis_path, cFos_values=cFos_values, group_name=group_name, roi_name=roi_name)
-#print("Saved cFos Values: Mean - " + np.mean(cFos_values) + ' +/- STD ' + np.std(cFos_values))
+
 
 # FIN

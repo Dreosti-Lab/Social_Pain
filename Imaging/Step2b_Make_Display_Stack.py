@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 """
-This script converts a stack to a display-scaled version.
+This script converts the diff stack generated in Step2a into a display-scaled version.
 - Black = min, 0  = 128/gray, White = max
+- use the output MIN and MAX for the scale bar
 
 @author: Dreosti Lab
 """
-# -----------------------------------------------------------------------------
-# Set "Library Path" - Social Zebrafish Repo
-lib_path = r'C:/Repos/Social_Pain/libs'
-# -----------------------------------------------------------------------------
 
-# Set Library Paths
+# -----------------------------------------------------------------------------
+# Set Library Path
+lib_path = r'C:/Repos/Social_Pain/libs'
+
 import sys
 import os
 sys.path.append(lib_path)
@@ -21,22 +21,15 @@ import matplotlib.pyplot as plt
 import SP_cfos as SPCFOS
 
 
-#---------------------------------------------------------------------------
-#---------------------------------------------------------------------------
-
 # Set Input stack
-#summaryListFile = r'\\128.40.155.187\data\D R E O S T I   L A B\Isolation_Experiments\Social_Brain_Areas_Analisys\Excel_Sheets\Test_Comparison_1.xlsx'
 stackFolder = 'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Analysis/NOXIOUS'
 stackFile = stackFolder + r'/Diff_Stack.nii.gz'
 
 # Set Mask Path
-#mask_path = r'\\128.40.155.187\data\D R E O S T I   L A B\Isolation_Experiments\Social_Brain_Areas_Analisys\Anatomical_Masks\BRAIN_DAPI_MASK_FINAL2.nii'
 mask_path =  'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/mask/DAPI_MASK.tif'
 mask_slice_range_start = 0
 mask_slice_range_stop = 399
 
-#---------------------------------------------------------------------------
-#---------------------------------------------------------------------------
 
 # Load mask
 mask_data = SPCFOS.load_mask(mask_path, transpose=True)
@@ -77,15 +70,8 @@ pos_vals = cfos_data > 0.0
 display_data[neg_vals] = cfos_data[neg_vals] / np.abs(bot_val)
 display_data[pos_vals] = cfos_data[pos_vals] / np.abs(top_val)
 
-# ------------------------------------------------------------------
-# Measure Descriptive Statistics
-# ------------------------------------------------------------------
 
-# ------------------------------------------------------------------
 # Save Display stack
-# ------------------------------------------------------------------
-
-# Save NII stack of results
 image_affine = np.eye(4)
 displayFile = stackFolder + r'\Diff_Stack_DISPLAY_MIN' + format(bot_val, '.3f') + '_MAX' + format(top_val, '.3f') + '.nii.gz'
 SPCFOS.save_nii(displayFile, display_data, image_affine)

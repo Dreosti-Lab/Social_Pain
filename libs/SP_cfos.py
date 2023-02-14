@@ -5,15 +5,13 @@ Library of utilities for cFos analysis
 @author: Dreosti Lab
 """
 # -----------------------------------------------------------------------------
+# Set Library Path
 lib_path = r'C:/Repos/Social_Pain/libs'
 
-# Set Library Paths
 import sys
 sys.path.append(lib_path)
-# -----------------------------------------------------------------------------
 
 # Import useful libraries
-
 import glob
 import nibabel as nib
 import numpy as np
@@ -25,7 +23,7 @@ import seaborn as sns
 sns.set_style("whitegrid")
 import pandas as pd
 
-# Utilities for analyzing cFos experiments
+
 
 # Load NII stack
 def load_nii(path, normalized=False): 
@@ -98,6 +96,50 @@ def read_summarylist(path, normalized=False):
     # Extract cell data
     all_cells =  list(summaryWs.values)
     data_cells = all_cells[1:]
+    num_rows = len(data_cells)
+    
+    # Empty lists to fill   
+    cfos_paths = []
+    group_names = []
+    for i in range(0,num_rows):
+
+        # Find correct cfos image file path
+        current_cell = data_cells[i]
+
+        base_cfos_path = current_cell[0] + current_cell[1]
+           
+        if(normalized):
+            try:
+                cfos_image_name = glob.glob(base_cfos_path + '\Reg_Warped_normalized.nii.gz')[0]
+            except IndexError:
+                print("No file found with name: " + base_cfos_path + '\Reg_Warped_normalized.nii.gz')
+                sys.exit()
+        else:
+            try:
+                cfos_image_name = glob.glob(base_cfos_path + '\*_reg_Warped.nii.gz')[0]
+
+            except IndexError:
+                print("No file found: " + base_cfos_path + '\*_reg_Warped.nii.gz')
+                sys.exit()
+        # Append path to list
+        cfos_paths.append(cfos_image_name)
+    
+        group = current_cell[2]                 
+        group_names.append(group)
+                
+    return cfos_paths, group_names
+
+
+# Read cFos experiment summary list + Behaviour
+def read_metricSummary(path, normalized=False):
+    
+    # Load worksbook/sheet
+    summaryWb = load_workbook(filename = path)
+    summaryWs = summaryWb.active
+
+    # Extract cell data
+    all_cells =  list(summaryWs.values)
+    data_cells = all_cells[1:]
     #metric_labels = all_cells[0][2:]
     num_rows = len(data_cells)
     
@@ -140,6 +182,7 @@ def read_summarylist(path, normalized=False):
         group_names.append(group)
                 
     return cfos_paths, group_names, behaviour_metrics
+
 
 # Compute summary stacks from a cFos experiment summary list
 def summary_stacks(paths, smooth_factor=1, normalized=False):
@@ -188,6 +231,47 @@ def summary_stacks(paths, smooth_factor=1, normalized=False):
     print
 
     return mean_stack, std_stack
+
+def cfos_value_ROI(group, cfos_paths, roi_path):
+
+    
+    # Load ROI mask
+    roi_stack = load_mask(roi_path, transpose=True)
+    num_roi_voxels = np.sum(np.sum(np.sum(roi_stack)))
+    
+    cfos_paths_group = cfos_paths[group]
+    n=len(cfos_paths_group)
+    
+    # Measure (normalized) cFOS in Mask ROI
+    cfos_values = np.zeros(n)
+    for i in range(n):
+        
+        # Load original (warped) cFos stack
+        cfos_data, cfos_affine, cfos_header = load_nii(cfos_paths[i], normalized=True)
+    
+        # Measure average signal level in mask ROI
+        cfos_value = np.sum(np.sum(np.sum(roi_stack * cfos_data)))/num_roi_voxels
+                                 
+        # Append to list
+        cfos_values[i] = cfos_value
+        
+        print(str(i+1) + ' of ' + str(n) + ':\n' + cfos_paths[i] + '\n')
+    
+    return cfos_values
+
+def load_cfos_ROI(cfos):
+
+    # Load cfos values
+    npzfile = np.load(cfos)
+    cfos_value = npzfile['cfos_values']
+    group_name = npzfile['group_name']
+    roi_name = npzfile['roi_name']
+    
+    # Analyze
+    mean = np.mean(cfos_value)
+    std = np.std(cfos_value)
+    
+    return cfos_value, mean, std
 
 # Compute correlation between voxel values and explanatory metric
 def voxel_correlation(paths, metric, smooth_factor=1, normalized=False):
