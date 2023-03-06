@@ -209,6 +209,8 @@ def analyze_temporal_bouts(bouts, binning):
         
 def Binning(F_Start, FPS, movieLength, binsize) :
     
+    
+    
     FPS = 100
     
     movieLengthFrames= movieLength*60*FPS #in frames
@@ -223,6 +225,40 @@ def Binning(F_Start, FPS, movieLength, binsize) :
             
     
     return Binned_F       
+
+def bin_frames(frames, FPS):
+    bin_size = 60 * FPS
+    reshaped_frames = np.reshape(frames, (bin_size, -1), order='F')
+    bins = np.sum(reshaped_frames, 0) / bin_size
+    return bins*100
+
+def fill_bouts(bouts, FPS):
+    moving_frames = np.zeros(90000)
+    for bout in bouts:
+        start  = np.int(bout[0])
+        stop = np.int(bout[4])
+        moving_frames[start:stop] = 1
+        moving_frames = moving_frames[:90000]
+    
+    return moving_frames
+
+def fill_pauses(pauses, FPS, freeze_threshold):
+    
+    # Add first and last pause?
+    
+    long_pause_threshold = freeze_threshold*100
+    
+    pausing_frames = np.zeros(90000)
+    for pause in pauses:
+        start  = np.int(pause[0])
+        stop = np.int(pause[4])
+        duration = np.int(pause[8])
+        if(duration > long_pause_threshold):
+            pausing_frames[start:stop] = 1
+    
+        pausing_frames = pausing_frames[:90000]
+    
+    return pausing_frames
 
 
 def compute_motion(folder,ROIs,change_threshold=0,stepFrames=1000,bFrames = 50):
