@@ -22,11 +22,11 @@ import SP_cfos as SPCFOS
 
 
 # Set Input stack
-stackFolder = 'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Analysis/NOXIOUS'
+stackFolder = 'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Analysis/NOXIOUS/512_2'
 stackFile = stackFolder + r'/Diff_Stack.nii.gz'
 
 # Set Mask Path
-mask_path =  'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/mask/DAPI_MASK.tif'
+mask_path =  'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/mask/DAPI_MASK_512.tif'
 mask_slice_range_start = 0
 mask_slice_range_stop = 399
 

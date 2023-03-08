@@ -29,11 +29,11 @@ import SP_cfos as SPCFOS
 
 
 # Set Stack Path
-folder_path = 'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Habituation/22_10_27/fish18'
+folder_path = 'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/AITC/CTL/fish3'
 stack_path = folder_path + '/DAPI_CFOS_02_reg_Warped.nii.gz'
 
 # Set Mask Path
-mask_path =  'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/mask/DAPI_MASK.tif'
+mask_path =  'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/mask/DAPI_MASK_512.tif'
 mask_slice_range_start = 100
 mask_slice_range_stop = 300
 
@@ -56,7 +56,7 @@ cfos_data[cfos_data > 32768] = 0
 masked_values = cfos_data[mask_data == 1]
     
 #Histogram of masked_values
-histogram, bin_edges  = np.histogram(masked_values, bins = 100, range=[100,5000]);        
+histogram, bin_edges  = np.histogram(masked_values, bins = 1000, range=[0,10000]);        
 bin_width = (bin_edges[1]-bin_edges[0])/2
 bin_centers = bin_edges[:-1] + bin_width
 

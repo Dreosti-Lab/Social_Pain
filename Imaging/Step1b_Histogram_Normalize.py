@@ -28,7 +28,7 @@ import SP_cfos as SPCFOS
 
 
 # Set Stack Path
-folder_path ='S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Habituation/22_10_27/fish16'
+folder_path ='S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/AITC/CTL/fish3'
 stack_path = folder_path + '/DAPI_CFOS_02_reg_Warped.nii.gz'
 
 
