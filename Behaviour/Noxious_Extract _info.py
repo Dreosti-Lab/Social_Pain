@@ -31,13 +31,13 @@ import cv2
 
 # Set threshold
 freeze_threshold = 200
-motionStartThreshold = 0.02
+motionStartThreshold = 0.03
 motionStopThreshold = 0.015
 
 
-AnalysisFolder = base_path + '/Noxious++/Analysis'
+AnalysisFolder = base_path + '/MustardOil/100uM/Analysis'
 # Read folder list
-FolderlistFile = base_path + '/Noxious++/Folderlist.txt'
+FolderlistFile = base_path + '/MustardOil/100uM/Folderlist.txt'
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 
@@ -73,18 +73,18 @@ for idx,folder in enumerate(folderNames):
             
                 
             #15min Movie
-            fx_NS = fx_NS[0:90000]
-            fy_NS = fy_NS[0:90000]
-            bx_NS = bx_NS[0:90000]
-            by_NS = by_NS[0:90000]
-            ex_NS = ex_NS[0:90000]
-            ey_NS = ey_NS[0:90000]
-            area_NS = area_NS[0:90000]
-            ort_NS = ort_NS[0:90000]
-            motion_NS = motion_NS[0:90000]
+            fx_NS = fx_NS[0:60000]
+            fy_NS = fy_NS[0:60000]
+            bx_NS = bx_NS[0:60000]
+            by_NS = by_NS[0:60000]
+            ex_NS = ex_NS[0:60000]
+            ey_NS = ey_NS[0:60000]
+            area_NS = area_NS[0:60000]
+            ort_NS = ort_NS[0:60000]
+            motion_NS = motion_NS[0:60000]
           
         
-            numFrames = 90000  
+            numFrames = 60000  
             FPS= 100
 
             
