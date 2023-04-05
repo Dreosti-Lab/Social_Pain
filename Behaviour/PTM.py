@@ -26,12 +26,12 @@ import glob
 ## Local Functions
 ## ------------------------------------------------------------------------
 def fill_bouts(bouts, FPS):
-    moving_frames = np.zeros(90000)
+    moving_frames = np.zeros(200000)
     for bout in bouts:
         start  = np.int(bout[0])
         stop = np.int(bout[4])
         moving_frames[start:stop] = 1
-        moving_frames = moving_frames[:90000]
+        moving_frames = moving_frames[0:90000]
     
     return moving_frames
 
@@ -75,20 +75,29 @@ def load_and_process_npz(npzFiles):
 figureFolder = base_path + r'/Figure_Nox'
 
 # Specify Analysis folder
+analysisFolder_Baseline = base_path + r'/Baseline/Analysis'
 analysisFolder_Heat = base_path + r'/Noxious++/Analysis'
 analysisFolder_50 = base_path + r'/MustardOil/50uM/Analysis'
+analysisFolder_100 = base_path + r'/MustardOil/100uM/Analysis'
 analysisFolder_500 = base_path + r'/MustardOil/500uM/Analysis'
 
 # Find all the npz files saved for each group and fish with all the information
+npzFiles_Bas = glob.glob(analysisFolder_Baseline+ '/*.npz')
 npzFiles_Heat = glob.glob(analysisFolder_Heat + '/*.npz')
 npzFiles_50 = glob.glob(analysisFolder_50 + '/*.npz')
+npzFiles_100 = glob.glob(analysisFolder_100 + '/*.npz')
 npzFiles_500 = glob.glob(analysisFolder_500 + '/*.npz')
 
+
+PTM_NS_BINS_BAS = load_and_process_npz(npzFiles_Bas)
 # LOAD CONTROLS
 PTM_NS_BINS_Heat = load_and_process_npz(npzFiles_Heat)
 
 # LOAD ISO
 PTM_NS_BINS_50 = load_and_process_npz(npzFiles_50)
+
+# LOAD DRUGGED
+PTM_NS_BINS_100 = load_and_process_npz(npzFiles_100)
 
 # LOAD DRUGGED
 PTM_NS_BINS_500 = load_and_process_npz(npzFiles_500)
@@ -100,6 +109,17 @@ PTM_NS_BINS_500 = load_and_process_npz(npzFiles_500)
 # PTM binned 
 plt.figure(figsize=(10.24,7.68))
 plt.title("Percent Time Moving (one minute bins)")
+
+
+m = np.nanmean(PTM_NS_BINS_BAS, 0)
+std = np.nanstd(PTM_NS_BINS_BAS, 0)
+valid = (np.logical_not(np.isnan(PTM_NS_BINS_BAS)))
+n = np.sum(valid, 0)
+se = std/np.sqrt(n-1)
+plt.plot(m, 'steelblue', LineWidth=4)
+plt.plot(m, 'steelblue',Marker = 'o', MarkerSize=7)
+plt.plot(m+se, 'steelblue', LineWidth=1)
+plt.plot(m-se, 'steelblue', LineWidth=1)
 
 m = np.nanmean(PTM_NS_BINS_Heat, 0)
 std = np.nanstd(PTM_NS_BINS_Heat, 0)
@@ -121,15 +141,25 @@ plt.plot(m, 'lightcoral', Marker='o', MarkerSize=7)
 plt.plot(m+se, 'lightcoral', LineWidth=1)
 plt.plot(m-se, 'lightcoral', LineWidth=1)
 
-m = np.nanmean(PTM_NS_BINS_500, 0)
-std = np.nanstd(PTM_NS_BINS_500, 0)
-valid = (np.logical_not(np.isnan(PTM_NS_BINS_500)))
+m = np.nanmean(PTM_NS_BINS_100, 0)
+std = np.nanstd(PTM_NS_BINS_100, 0)
+valid = (np.logical_not(np.isnan(PTM_NS_BINS_100)))
 n = np.sum(valid, 0)
 se = std/np.sqrt(n-1)
 plt.plot(m, 'tomato', LineWidth=4)
 plt.plot(m, 'tomato',Marker = 'o', MarkerSize=7)
 plt.plot(m+se, 'tomato', LineWidth=1)
 plt.plot(m-se, 'tomato', LineWidth=1)
+
+m = np.nanmean(PTM_NS_BINS_500, 0)
+std = np.nanstd(PTM_NS_BINS_500, 0)
+valid = (np.logical_not(np.isnan(PTM_NS_BINS_500)))
+n = np.sum(valid, 0)
+se = std/np.sqrt(n-1)
+plt.plot(m, 'orangered', LineWidth=4)
+plt.plot(m, 'orangered',Marker = 'o', MarkerSize=7)
+plt.plot(m+se, 'orangered', LineWidth=1)
+plt.plot(m-se, 'orangered', LineWidth=1)
 
 #plt.axis([0, 14, 0.0, 0.02])
 plt.xlabel('minutes')

@@ -26,24 +26,28 @@ import pandas as pd
 FigureFolder = base_path + '/Figure_Nox'
 
 # Set analysis folder and label for experiment/condition A
-analysisFolder_A = base_path + r'/Noxious++/Analysis' 
-conditionName_A = "NoxHeat"
+analysisFolder_A = base_path + r'/Baseline/Analysis' 
+conditionName_A = "Bas"
+
+# Set analysis folder and label for experiment/condition A
+analysisFolder_B = base_path + r'/Noxious++/Analysis' 
+conditionName_B = "NoxHeat"
 
 # Set analysis folder and label for experiment/condition B
-analysisFolder_B = base_path + r'/MustardOil/50uM/Analysis' 
-conditionName_B = "50uM"
+analysisFolder_C = base_path + r'/MustardOil/50uM/Analysis' 
+conditionName_C = "50uM"
 
 # Set analysis folder and label for experiment/condition B
-analysisFolder_C = base_path + r'/MustardOil/500uM/Analysis' 
-conditionName_C = "500uM"
+analysisFolder_D = base_path + r'/MustardOil/100uM/Analysis' 
+conditionName_D = "100uM"
 
-# # Set analysis folder and label for experiment/condition B
-# analysisFolder_D = base_path + r'/NewChamber/Gradient_NewChamber38/Analysis' 
-# conditionName_D = "HS_N"
+# Set analysis folder and label for experiment/condition B
+analysisFolder_E = base_path + r'/MustardOil/500uM/Analysis' 
+conditionName_E = "500uM"
 
 # Assemble lists
-analysisFolders = [analysisFolder_A, analysisFolder_B, analysisFolder_C]
-conditionNames = [conditionName_A, conditionName_B, conditionName_C]
+analysisFolders = [analysisFolder_A, analysisFolder_B, analysisFolder_C, analysisFolder_D, analysisFolder_E]
+conditionNames = [conditionName_A, conditionName_B, conditionName_C, conditionName_D, conditionName_E]
 
 # Summary Containers
 BPS_NS_summary = []
@@ -140,7 +144,7 @@ BPS_data = pd.concat(series_list, axis=1)
 plt.ylabel('Number of Bouts Per Second (s)')
 #plt.ylim(0,5)
 ax=sns.boxplot(data=BPS_data,color = '#BBBBBB', linewidth=1, showfliers=False)
-ax=sns.stripplot(data=BPS_data, orient="v", palette=['purple','lightcoral','tomato'],size=6, jitter=True, edgecolor="gray")
+ax=sns.stripplot(data=BPS_data, orient="v", palette=['steelblue', 'purple','lightcoral','tomato', 'orangered'],size=6, jitter=True, edgecolor="gray")
 ax.set_xticklabels(ax.get_xticklabels(), rotation=30)
 sns.despine()
 
@@ -152,9 +156,20 @@ BPS.savefig(FigureFolder + '/BPS.png', dpi=300, bbox_inches='tight')
 Binned_Bouts = plt.figure(figsize=(14,10)) 
 plt.title("Number of Bouts(one minute bins)")
 
+
 m = np.nanmean(Binned_Bouts_NS_summary[0], 0)
 std = np.nanstd(Binned_Bouts_NS_summary[0], 0)
 valid = (np.logical_not(np.isnan(Binned_Bouts_NS_summary[0])))
+n = np.sum(valid, 0)
+se = std/np.sqrt(n-1)
+plt.plot(m, 'steelblue', LineWidth=4)
+plt.plot(m, 'steelblue',Marker = 'o', MarkerSize=7)
+plt.plot(m+se, 'steelblue', LineWidth=1)
+plt.plot(m-se, 'steelblue', LineWidth=1)
+
+m = np.nanmean(Binned_Bouts_NS_summary[1], 0)
+std = np.nanstd(Binned_Bouts_NS_summary[1], 0)
+valid = (np.logical_not(np.isnan(Binned_Bouts_NS_summary[1])))
 n = np.sum(valid, 0)
 se = std/np.sqrt(n-1)
 plt.plot(m, 'purple', LineWidth=4)
@@ -162,9 +177,9 @@ plt.plot(m, 'purple',Marker = 'o', MarkerSize=7)
 plt.plot(m+se, 'purple', LineWidth=1)
 plt.plot(m-se, 'purple', LineWidth=1)
 
-m = np.nanmean(Binned_Bouts_NS_summary[1], 0)
-std = np.nanstd(Binned_Bouts_NS_summary[1], 0)
-valid = (np.logical_not(np.isnan(Binned_Bouts_NS_summary[1])))
+m = np.nanmean(Binned_Bouts_NS_summary[2], 0)
+std = np.nanstd(Binned_Bouts_NS_summary[2], 0)
+valid = (np.logical_not(np.isnan(Binned_Bouts_NS_summary[2])))
 n = np.sum(valid, 0)
 se = std/np.sqrt(n-1)
 plt.plot(m, 'lightcoral', LineWidth=4)
@@ -172,15 +187,25 @@ plt.plot(m, 'lightcoral', Marker='o', MarkerSize=7)
 plt.plot(m+se, 'lightcoral', LineWidth=1)
 plt.plot(m-se, 'lightcoral', LineWidth=1)
 
-m = np.nanmean(Binned_Bouts_NS_summary[2], 0)
-std = np.nanstd(Binned_Bouts_NS_summary[2], 0)
-valid = (np.logical_not(np.isnan(Binned_Bouts_NS_summary[2])))
+m = np.nanmean(Binned_Bouts_NS_summary[3], 0)
+std = np.nanstd(Binned_Bouts_NS_summary[3], 0)
+valid = (np.logical_not(np.isnan(Binned_Bouts_NS_summary[3])))
 n = np.sum(valid, 0)
 se = std/np.sqrt(n-1)
 plt.plot(m, 'tomato', LineWidth=4)
 plt.plot(m, 'tomato',Marker = 'o', MarkerSize=7)
 plt.plot(m+se, 'tomato', LineWidth=1)
 plt.plot(m-se, 'tomato', LineWidth=1)
+
+m = np.nanmean(Binned_Bouts_NS_summary[4], 0)
+std = np.nanstd(Binned_Bouts_NS_summary[4], 0)
+valid = (np.logical_not(np.isnan(Binned_Bouts_NS_summary[4])))
+n = np.sum(valid, 0)
+se = std/np.sqrt(n-1)
+plt.plot(m, 'orangered', LineWidth=4)
+plt.plot(m, 'orangered',Marker = 'o', MarkerSize=7)
+plt.plot(m+se, 'orangered', LineWidth=1)
+plt.plot(m-se, 'orangered', LineWidth=1)
 
 #plt.axis([0, 14, 0.0, 0.02])
 plt.xlabel('minutes')
@@ -196,9 +221,20 @@ plt.savefig(filename, dpi=300)
 Binned_Freezes = plt.figure(figsize=(14,10)) 
 plt.title("Number of Freezes(one minute bins)")
 
-m = np.nanmean(Binned_Freezes_NS_summary[0], 0)
-std = np.nanstd(Binned_Freezes_NS_summary[0], 0)
-valid = (np.logical_not(np.isnan(Binned_Freezes_NS_summary[0])))
+
+m = np.nanmean(Binned_Bouts_NS_summary[0], 0)
+std = np.nanstd(Binned_Bouts_NS_summary[0], 0)
+valid = (np.logical_not(np.isnan(Binned_Bouts_NS_summary[0])))
+n = np.sum(valid, 0)
+se = std/np.sqrt(n-1)
+plt.plot(m, 'steelblue', LineWidth=4)
+plt.plot(m, 'steelblue',Marker = 'o', MarkerSize=7)
+plt.plot(m+se, 'steelblue', LineWidth=1)
+plt.plot(m-se, 'steelblue', LineWidth=1)
+
+m = np.nanmean(Binned_Freezes_NS_summary[1], 0)
+std = np.nanstd(Binned_Freezes_NS_summary[1], 0)
+valid = (np.logical_not(np.isnan(Binned_Freezes_NS_summary[1])))
 n = np.sum(valid, 0)
 se = std/np.sqrt(n-1)
 plt.plot(m, 'purple', LineWidth=4)
@@ -206,9 +242,9 @@ plt.plot(m, 'purple',Marker = 'o', MarkerSize=7)
 plt.plot(m+se, 'purple', LineWidth=1)
 plt.plot(m-se, 'purple', LineWidth=1)
 
-m = np.nanmean(Binned_Freezes_NS_summary[1], 0)
-std = np.nanstd(Binned_Freezes_NS_summary[1], 0)
-valid = (np.logical_not(np.isnan(Binned_Freezes_NS_summary[1])))
+m = np.nanmean(Binned_Freezes_NS_summary[2], 0)
+std = np.nanstd(Binned_Freezes_NS_summary[2], 0)
+valid = (np.logical_not(np.isnan(Binned_Freezes_NS_summary[2])))
 n = np.sum(valid, 0)
 se = std/np.sqrt(n-1)
 plt.plot(m, 'lightcoral', LineWidth=4)
@@ -216,15 +252,25 @@ plt.plot(m, 'lightcoral', Marker='o', MarkerSize=7)
 plt.plot(m+se, 'lightcoral', LineWidth=1)
 plt.plot(m-se, 'lightcoral', LineWidth=1)
 
-m = np.nanmean(Binned_Freezes_NS_summary[2], 0)
-std = np.nanstd(Binned_Freezes_NS_summary[2], 0)
-valid = (np.logical_not(np.isnan(Binned_Freezes_NS_summary[2])))
+m = np.nanmean(Binned_Freezes_NS_summary[3], 0)
+std = np.nanstd(Binned_Freezes_NS_summary[3], 0)
+valid = (np.logical_not(np.isnan(Binned_Freezes_NS_summary[3])))
 n = np.sum(valid, 0)
 se = std/np.sqrt(n-1)
 plt.plot(m, 'tomato', LineWidth=4)
 plt.plot(m, 'tomato',Marker = 'o', MarkerSize=7)
 plt.plot(m+se, 'tomato', LineWidth=1)
 plt.plot(m-se, 'tomato', LineWidth=1)
+
+m = np.nanmean(Binned_Freezes_NS_summary[4], 0)
+std = np.nanstd(Binned_Freezes_NS_summary[4], 0)
+valid = (np.logical_not(np.isnan(Binned_Freezes_NS_summary[4])))
+n = np.sum(valid, 0)
+se = std/np.sqrt(n-1)
+plt.plot(m, 'orangered', LineWidth=4)
+plt.plot(m, 'orangered',Marker = 'o', MarkerSize=7)
+plt.plot(m+se, 'orangered', LineWidth=1)
+plt.plot(m-se, 'orangered', LineWidth=1)
 
 #plt.axis([0, 14, 0.0, 0.02])
 plt.xlabel('minutes')
@@ -248,11 +294,11 @@ distance_data = pd.concat(series_list, axis=1)
 plt.ylabel('Total Distance Travelled (mm)')
 #plt.ylim(0,20000)
 ax=sns.boxplot(data=distance_data,color = '#BBBBBB', linewidth=1, showfliers=False)
-ax=sns.stripplot(data=distance_data, orient="v", palette=['purple','lightcoral','tomato'],size=6, jitter=True, edgecolor="gray")
+ax=sns.stripplot(data=distance_data, orient="v", palette=['steelblue','purple','lightcoral','tomato', 'orangered'],size=6, jitter=True, edgecolor="gray")
 ax.set_xticklabels(ax.get_xticklabels(), rotation=30)
 sns.despine()
 
-DistanceT.savefig(FigureFolder + '/DistanceT.eps', format='eps', dpi=300,bbox_inches= 'tight', transparent =True)    
+
 DistanceT.savefig(FigureFolder + '/DistanceT_WT.png', dpi=300, bbox_inches='tight')
 
 
@@ -270,12 +316,12 @@ distBout_data = pd.concat(series_list, axis=1)
 plt.ylabel('Total Distance Travelled (mm)')
 #plt.ylim(0,4)
 ax=sns.boxplot(data=distBout_data,color = '#BBBBBB', linewidth=1, showfliers=False)
-ax=sns.stripplot(data=distBout_data, orient="v", palette=['purple','lightcoral','tomato'],size=6, jitter=True, edgecolor="gray")
+ax=sns.stripplot(data=distBout_data, orient="v", palette=['steelblue','purple','lightcoral','tomato', 'orangered'],size=6, jitter=True, edgecolor="gray")
 ax.set_xticklabels(ax.get_xticklabels(), rotation=30)
 sns.despine()
 
 
-DistBout.savefig(FigureFolder + '/DistBout.eps', format='eps', dpi=300,bbox_inches= 'tight', transparent =True)    
+
 DistBout.savefig(FigureFolder + '/DistBout_WT.png', dpi=300, bbox_inches='tight')
 
 
@@ -290,7 +336,7 @@ for i, name in enumerate(conditionNames):
 moving_data = pd.concat(series_list, axis=1)
 plt.ylabel('% Time Moving')
 plt.ylim(0,100)
-ax=sns.barplot(data=moving_data,ci=95,  palette=['purple','lightcoral','tomato'])
+ax=sns.barplot(data=moving_data,ci=95,  palette=['steelblue','purple','lightcoral','tomato', 'orangered'])
 ax=sns.stripplot(data=moving_data, orient="v", color= 'dimgrey',size=6, jitter=True, edgecolor="gray")
 ax.set_xticklabels(ax.get_xticklabels(), rotation=30)
 sns.despine()
