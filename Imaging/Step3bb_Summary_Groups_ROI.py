@@ -24,12 +24,12 @@ import pandas as pd
 #---------------------------------------------------------------------------
 
 # Set cFos file (group A and B)
-cfos_Baseline= r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Analysis/ROI/PAG/Baseline_cFos.npz'
-cfos_Social = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Analysis/ROI/PAG/Social_cFos.npz'
-cfos_Noxious= r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Analysis/ROI/PAG/Noxious_cFos.npz'
+cfos_Baseline= r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Analysis/ROI/vHb/Baseline_cfos.npz'
+cfos_Social = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Analysis/ROI/vHb/Social_cfos.npz'
+cfos_Noxious= r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Analysis/ROI/vHb/Noxious_cfos.npz'
 
-analysis_folder = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Analysis/ROI/PAG'
-roi_name = r'PAG'
+analysis_folder = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Analysis/ROI'
+roi_name = r'vHabenula'
 
 # Create output folders (if they do not exist)
 if not os.path.exists(analysis_folder):
@@ -56,11 +56,11 @@ ax=sns.swarmplot(data=df, orient="v", size=6, palette=bar_colours, zorder=1)
 with plt.rc_context({'lines.linewidth': 0.8}):
     sns.pointplot(data=df, orient="v", linewidth=.1, ci=68, capsize=0.4, join=False, color="#444444", zorder=100)
 plt.ylabel("cFos expression")
-ax.set(ylim=(0, 3))
+ax.set(ylim=(0.5, 2))
 
 
-cfos_val.savefig(analysis_folder + '/cfos_value.png', dpi=300, bbox_inches='tight')
-cfos_val.savefig(analysis_folder + '/cfos_value.eps', dpi=300, bbox_inches='tight')
+cfos_val.savefig(analysis_folder + '/vHabenula.png', dpi=300, bbox_inches='tight')
+cfos_val.savefig(analysis_folder + '/vHabenula.eps', dpi=300, bbox_inches='tight')
 
 
 

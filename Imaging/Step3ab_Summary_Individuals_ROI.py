@@ -23,8 +23,8 @@ import pandas as pd
 # -----------------------------------------------------------------------------
 
 # Set cFos file
-analysis_folder = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Analysis/HABITUATION/Cfos_Values/PAG'
-cFos_file = analysis_folder + '/PAG_cFos_2.npz'
+analysis_folder = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Analysis/HABITUATION/Cfos_Values/Habenula'
+cFos_file = analysis_folder + '/Habenula_cFos_2.npz'
 
 # Load cFos data
 npzfile = np.load(cFos_file)
@@ -34,7 +34,7 @@ roi_name = npzfile['roi_name']
 
 
 # Set Behaviour_metric to plot
-TTS= behaviour_metrics[:,4]
+TTS= behaviour_metrics[:,2]
 
 
 # Plot cfos_value within ROI according to specifies behaviour metric 
@@ -53,6 +53,6 @@ ax.set(ylim=(0, 3))
 plt.ylabel('cFos expression')
 
 # Save Plot
-cfos_val.savefig(analysis_folder + '/cfos_value_TTS_cat.png', dpi=300, bbox_inches='tight')
+cfos_val.savefig(analysis_folder + '/cfos_value_PositionS.png', dpi=300, bbox_inches='tight')
 
 # FIN

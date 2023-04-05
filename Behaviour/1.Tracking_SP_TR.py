@@ -28,7 +28,7 @@ import BONSAI_ARK
 import SP_utilities as SPU
 
 # Read Folder List
-FolderlistFile = base_path + '/Gradient_NewChamber38/Experiments/2022_12_06/Folderlist.txt'
+FolderlistFile = base_path + '/Double_Exposed/30_03_23/Folderlist.txt'
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 # Divisor and closing kernel parameters (thresholding for mask and background)

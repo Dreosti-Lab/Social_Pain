@@ -28,8 +28,8 @@ import SP_cfos as SPCFOS
 
 
 # Set Stack Path
-folder_path ='S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/AITC/CTL/fish3'
-stack_path = folder_path + '/DAPI_CFOS_02_reg_Warped.nii.gz'
+folder_path ='S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Peptides/SLC6A4A/23_03_16/fish2'
+stack_path = folder_path + '/DAPI_SLC6A4A_02_reg_Warped.nii.gz'
 
 
 # Read histogram npz (Step1a)

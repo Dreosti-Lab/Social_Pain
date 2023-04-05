@@ -8,14 +8,14 @@ Created on Tue Apr  6 19:00:40 2021
 Extract information from tracking data and save into npz Summary file for each video of 6 fish
 """                        
 # Set Library Path - Social_Pain Repos
-lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
-#lib_path = r'C:/Repos/Social_Pain/libs'
+#lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
+lib_path = r'C:/Repos/Social_Pain/libs'
 import sys
 sys.path.append(lib_path)
 
 # Set Base Path
-#base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient/NewChamber'
-base_path = r'/Volumes/T7 Touch/Behaviour_Heat_Gradient'
+base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient/NewChamber'
+#base_path = r'/Volumes/T7 Touch/Behaviour_Heat_Gradient'
 
 # Import useful libraries
 import glob
@@ -36,14 +36,14 @@ plot = False
 filterTracking = False
 
 # Set threshold
-freeze_threshold = 200
-motionStartThreshold = 0.02
-motionStopThreshold = 0.015
+freeze_threshold = 300
+motionStartThreshold = 0.025
+motionStopThreshold = 0.005
 
 
-AnalysisFolder = base_path + '/Habituation_NewChamber38/Resilient/Analysis'
+AnalysisFolder = base_path + '/Habituation_NewChamber/Analysis'
 # Read folder list
-FolderlistFile = base_path + '/Habituation_NewChamber38/Resilient/Folderlist.txt'
+FolderlistFile = base_path + '/Habituation_NewChamber/Folderlist.txt'
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 

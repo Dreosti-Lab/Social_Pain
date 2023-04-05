@@ -86,8 +86,8 @@ def analyze_bouts_and_pauses(fx, fy, ort, motion, ROI, startThreshold, stopThres
                 boutStarts.append(f)
         else:
             if m < stopThreshold:
-                for mm in motion[f:f+10]:
-                    if mm>stopThreshold:
+                for m in motion[f:f+10]:
+                    if m>stopThreshold:
                         break
                     
             # np.mean(motion_sm[f:(f+10)]) <= stopThreshold:

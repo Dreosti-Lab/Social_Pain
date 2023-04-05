@@ -7,14 +7,14 @@ Created on Tue Apr  6 19:00:40 2021
 Compare Non Social and Social for one condition
 """                        
 # Set Library Path - Social_Pain Repos
-lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
-#lib_path = r'C:/Repos/Social_Pain/libs'
+#lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
+lib_path = r'C:/Repos/Social_Pain/libs'
 import sys
 sys.path.append(lib_path)
 
 # Set Base Path
-base_path = r'/Volumes/T7 Touch/Behaviour_Heat_Gradient'
-#base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient/NewChamber'
+#base_path = r'/Volumes/T7 Touch/Behaviour_Heat_Gradient'
+base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient/NewChamber'
 
 
 # Import useful libraries
@@ -29,8 +29,8 @@ from scipy import stats
 
 # Specify Analysis folder
 
-AnalysisFolder = base_path + '/Habituation_NewChamber38/Resilient/Analysis' 
-FigureFolder = base_path + '/Habituation_NewChamber38/Resilient/Figures' 
+AnalysisFolder = base_path + '/Habituation_NewChamber/Analysis'
+FigureFolder = base_path + '/Habituation_Newchamber/Figures'
 
 # Find all the npz files saved for each group and fish with all the information
 npzFiles = glob.glob(AnalysisFolder+'/*.npz')
@@ -199,7 +199,7 @@ ax.plot(df_jitter['Social'], df['Social'], 'o',mec='steelblue',mfc='steelblue', 
 for idx in df.index:
     ax.plot(df_jitter.loc[idx,['Non Social','Social']], df.loc[idx,['Non Social','Social']], color = 'grey', linewidth = 0.5, linestyle = '--', alpha=0.5)
 
-DistanceT.savefig(FigureFolder + '/DistanceT.eps', format='eps', dpi=300,bbox_inches= 'tight', transparent =True)    
+#DistanceT.savefig(FigureFolder + '/DistanceT.eps', format='eps', dpi=300,bbox_inches= 'tight', transparent =True)    
 DistanceT.savefig(FigureFolder + '/DistanceT.png', dpi=300, bbox_inches='tight')
 
 
@@ -222,7 +222,7 @@ plt.plot(mean_Bouts_NS, color = 'lightsteelblue', linewidth= 3)
 plt.fill_between(np.arange(mean_Bouts_NS.shape[0]), mean_Bouts_NS + sem_Bouts_NS,
                   mean_Bouts_NS - sem_Bouts_NS,color= 'lightsteelblue',alpha=0.2)
 plt.ylabel('number of Bouts', fontsize=18)
-plt.ylim(50,250)
+plt.ylim(0,200)
 plt.yticks(fontsize=18)
 plt.xticks(np.arange(0, 15, step= 1), ('1', '2','3','4','5','6','7', '8', '9', '10', '11','12','13','14','15'), fontsize=14)
 plt.xlabel('minutes', fontsize=18)
@@ -234,7 +234,7 @@ plt.title('Social', fontsize= 18, y=-0.30)
 plt.plot(mean_Bouts_S, color = 'steelblue', linewidth= 3)
 plt.fill_between(np.arange(mean_Bouts_S.shape[0]), mean_Bouts_S + sem_Bouts_S,
                   mean_Bouts_S - sem_Bouts_S,color= 'steelblue',alpha=0.2)
-plt.ylim(50,250)
+plt.ylim(0,200)
 plt.xticks(np.arange(0, 15, step= 1), ('1', '2','3','4','5','6','7', '8', '9', '10', '11','12','13','14','15'), fontsize=14)
 plt.xlabel('minutes', fontsize=18)
 ax.spines['right'].set_visible(False)
@@ -242,7 +242,7 @@ ax.spines['top'].set_visible(False)
 ax.spines['left'].set_visible(False)
 ax.get_yaxis().set_ticks([])
 
-Binned_Bouts.savefig(FigureFolder + '/BinnedBouts.eps', format='eps', dpi=300,bbox_inches= 'tight')
+#Binned_Bouts.savefig(FigureFolder + '/BinnedBouts.eps', format='eps', dpi=300,bbox_inches= 'tight')
 Binned_Bouts.savefig(FigureFolder + '/BinnedBouts.png', dpi=300, bbox_inches='tight')
 
 
@@ -272,7 +272,7 @@ ax.plot(df_jitter['Social'], df['Social'], 'o',mec='steelblue',mfc='steelblue', 
 for idx in df.index:
     ax.plot(df_jitter.loc[idx,['Non Social','Social']], df.loc[idx,['Non Social','Social']], color = 'grey', linewidth = 0.5, linestyle = '--', alpha=0.5)
 
-DistBout.savefig(FigureFolder + '/DistPerBout.eps', format='eps', dpi=300,bbox_inches= 'tight')    
+#DistBout.savefig(FigureFolder + '/DistPerBout.eps', format='eps', dpi=300,bbox_inches= 'tight')    
 DistBout.savefig(FigureFolder + '/DistPerBout.png', dpi=300, bbox_inches='tight')
 
 
@@ -357,7 +357,7 @@ sns.kdeplot(x=Bouts_S_ALL[:,1], y=Bouts_S_ALL[:,2], shade=True, cmap="Blues", th
 
 Bouts_map.tight_layout
 
-Bouts_map.savefig(FigureFolder + '/BoutsMap.eps', format='eps', dpi=300,bbox_inches= 'tight')
+#Bouts_map.savefig(FigureFolder + '/BoutsMap.eps', format='eps', dpi=300,bbox_inches= 'tight')
 Bouts_map.savefig(FigureFolder + '/BoutsMap.png', dpi=300, bbox_inches='tight')
 
 
@@ -405,16 +405,16 @@ Pausing.savefig(FigureFolder + '/%Pausing.png', dpi=300, bbox_inches='tight')
 DistPauses = plt.figure(figsize=(10,12), dpi=300)
 
 ax=plt.subplot(221)
-sns.histplot((Pauses_NS_ALL[:,8]/100),bins=2000)
-plt.xlim(0,1.5)
+sns.histplot((Pauses_NS_ALL[:,8]/100),bins=1000)
+plt.xlim(0,3)
 plt.xticks(fontsize=14)
 plt.yticks(fontsize=14)
 plt.title('Dist Pausing(NS)', fontsize=24)
 sns.despine()
 
 ax=plt.subplot(222)
-sns.histplot((Pauses_S_ALL[:,8]/100), bins=2000)
-plt.xlim(0,1.5)
+sns.histplot((Pauses_S_ALL[:,8]/100), bins=1000)
+plt.xlim(0,3)
 plt.xticks(fontsize=14)
 plt.yticks(fontsize=14)
 plt.title('Dist Pausing(S)', fontsize=24)
@@ -438,19 +438,19 @@ df_jitter += np.arange(len(df.columns))
 shortFreezes, ax = plt.subplots(figsize=(4,10), dpi=300)
 sns.boxplot(data=df, color = '#BBBBBB', linewidth=1, showfliers=False)
 sns.despine()  
-ax.set_title('2s Freezes (n=' + format(numFiles) + ')'+ '\n' +'\n p-value:'+ format(pvalue_Freezes),fontsize=24,fontweight= 'medium', y=-0.25)
+ax.set_title('3s Freezes (n=' + format(numFiles) + ')'+ '\n' +'\n p-value:'+ format(pvalue_Freezes),fontsize=24,fontweight= 'medium', y=-0.25)
 ax.set_xticklabels(df.columns, fontsize=18)
-ax.set_ylabel('Total Number of Freezes (>2s)', fontsize=18)
+ax.set_ylabel('Total Number of Freezes (>3s)', fontsize=18)
 plt.yticks(fontsize=14)
-plt.ylim(0,140)
+plt.ylim(-1,100)
 ax.plot(df_jitter['Non Social'], df['Non Social'],'o',mec='lightsteelblue',mfc='lightsteelblue', ms=6)
 ax.plot(df_jitter['Social'], df['Social'], 'o',mec='steelblue',mfc='steelblue', ms=6)
 
 for idx in df.index:
     ax.plot(df_jitter.loc[idx,['Non Social','Social']], df.loc[idx,['Non Social','Social']], color = 'grey', linewidth = 0.5, linestyle = '--', alpha=0.5)    
 
-shortFreezes.savefig(FigureFolder + '/2sFreezes.eps', format='eps', dpi=300,bbox_inches= 'tight')
-shortFreezes.savefig(FigureFolder + '/2sFreezes.png', dpi=300, bbox_inches='tight')
+#shortFreezes.savefig(FigureFolder + '/3sFreezes.eps', format='eps', dpi=300,bbox_inches= 'tight')
+shortFreezes.savefig(FigureFolder + '/3sFreezes.png', dpi=300, bbox_inches='tight')
 
 
 
@@ -466,7 +466,7 @@ sns.kdeplot(x=Freezes_S_ALL[:,1],y=Freezes_S_ALL[:,2],color= 'steelblue', shade=
 plt.legend(bbox_to_anchor=(0.3, 1.1), fontsize=14)
 plt.show()
 
-xFreezes.savefig(FigureFolder + '/Pos_Freezes.eps', format='eps', dpi=300,bbox_inches= 'tight')
+#xFreezes.savefig(FigureFolder + '/Pos_Freezes.eps', format='eps', dpi=300,bbox_inches= 'tight')
 xFreezes.savefig(FigureFolder + '/Pos_Freezes.png', dpi=300, bbox_inches='tight')
 
 
@@ -508,7 +508,7 @@ sem_Freezes_S = stats.sem(Binned_Freezes_S_ALL)
 std_Freezes_S = np.std(Binned_Freezes_S_ALL, axis=0)
 
 Binned_Freezes = plt.figure(figsize=(14,10), dpi=300)
-plt.suptitle('2s Freezes over time (n='+ format(numFiles)+ ')', fontsize=24) 
+plt.suptitle('3s Freezes over time (n='+ format(numFiles)+ ')', fontsize=24) 
 
 ax = plt.subplot(221)
 plt.title('Non Social', fontsize= 18, y=-0.30)
@@ -536,7 +536,7 @@ ax.spines['top'].set_visible(False)
 ax.spines['left'].set_visible(False)
 ax.get_yaxis().set_ticks([])
 
-Binned_Freezes.savefig(FigureFolder + '/BinnedFreezes.eps', format='eps', dpi=300,bbox_inches= 'tight')
+#Binned_Freezes.savefig(FigureFolder + '/BinnedFreezes.eps', format='eps', dpi=300,bbox_inches= 'tight')
 Binned_Freezes.savefig(FigureFolder + '/BinnedFreezes.png', dpi=300, bbox_inches='tight')
 
 
@@ -566,7 +566,7 @@ ax.plot(df_jitter['Social'], df['Social'], 'o',mec='steelblue',mfc='steelblue', 
 for idx in df.index:
     ax.plot(df_jitter.loc[idx,['Non Social','Social']], df.loc[idx,['Non Social','Social']], color = 'grey', linewidth = 0.5, linestyle = '--', alpha=0.5)    
 
-Position.savefig(FigureFolder + '/Avg_Pos.eps', format='eps', dpi=300,bbox_inches= 'tight')
+#Position.savefig(FigureFolder + '/Avg_Pos.eps', format='eps', dpi=300,bbox_inches= 'tight')
 Position.savefig(FigureFolder + '/Avg_Pos.png', dpi=300, bbox_inches='tight')
 
 
@@ -598,7 +598,7 @@ Hot = mpatches.Patch(color= 'purple', label = 'hot')
 Noxious = mpatches.Patch(color= 'darkorange', label = 'noxious')
 plt.legend(handles=[Noxious, Hot, Cool], bbox_to_anchor=(1, 1), fontsize=14)
 
-plt.savefig(FigureFolder + '/HistStack.eps', format='eps', dpi=300,bbox_inches= 'tight')
+#plt.savefig(FigureFolder + '/HistStack.eps', format='eps', dpi=300,bbox_inches= 'tight')
 plt.savefig(FigureFolder + '/HistStack.png', dpi=300, bbox_inches= 'tight')
 
 
@@ -627,7 +627,7 @@ plt.title('Mean TTS +/- SEM: {0:0.2f} +/- {1:0.2f}\n(p-value: {2:0.4f})'.format(
 plt.xlabel('Position Shift (mm)')
 plt.ylabel('Relative Frequency')
 sns.despine()
-plt.savefig(FigureFolder + '/TTS.eps', format='eps', dpi=300, bbox_inches= 'tight')
+#plt.savefig(FigureFolder + '/TTS.eps', format='eps', dpi=300, bbox_inches= 'tight')
 plt.savefig(FigureFolder + '/TTS.png', dpi=300, bbox_inches= 'tight')
 
 
@@ -669,7 +669,7 @@ plt.title('Noxious', fontweight="bold",fontsize= 25, y=-0.2)
 plt.plot(xAxis, np.hstack((Norm_OrtHist_NS_Noxious_ALL, Norm_OrtHist_NS_Noxious_ALL[0])),color='lightsteelblue', linewidth = 3)
 plt.plot(xAxis, np.hstack((Norm_OrtHist_S_Noxious_ALL, Norm_OrtHist_S_Noxious_ALL[0])), color= 'steelblue', linewidth = 3)
 
-Ort.figure.savefig(FigureFolder + '/Orientation.eps', format='eps', dpi=300,bbox_inches= 'tight')
+#Ort.figure.savefig(FigureFolder + '/Orientation.eps', format='eps', dpi=300,bbox_inches= 'tight')
 Ort.figure.savefig(FigureFolder + '/Orientation.png', dpi=300, bbox_inches='tight')
 
 
@@ -708,7 +708,7 @@ ax.spines['right'].set_visible(False)
 
 B_labels.tight_layout
 
-B_labels.savefig(FigureFolder + '/BoutType.eps', format='eps', dpi=300,bbox_inches= 'tight')
+#B_labels.savefig(FigureFolder + '/BoutType.eps', format='eps', dpi=300,bbox_inches= 'tight')
 B_labels.savefig(FigureFolder + '/BoutType.png', dpi=300, bbox_inches='tight')
 
 
@@ -739,7 +739,7 @@ plt.xticks(fontsize=14)
 sns.despine()
 
 distAngles.tight_layout
-distAngles.savefig(FigureFolder + '/distAngles.eps', format='eps', dpi=300,bbox_inches= 'tight')
+#distAngles.savefig(FigureFolder + '/distAngles.eps', format='eps', dpi=300,bbox_inches= 'tight')
 distAngles.savefig(FigureFolder + '/distAngles.png', dpi=300, bbox_inches='tight')
 
 

@@ -26,9 +26,9 @@ stackFolder = 'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Analysis/NOXIOUS/512
 stackFile = stackFolder + r'/Diff_Stack.nii.gz'
 
 # Set Mask Path
-mask_path =  'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/mask/DAPI_MASK_512.tif'
+mask_path =  'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/mask/DAPI_512_2_MASK.tif'
 mask_slice_range_start = 0
-mask_slice_range_stop = 399
+mask_slice_range_stop = 316
 
 
 # Load mask

@@ -30,12 +30,12 @@ import SP_cfos as SPCFOS
 summaryListFile = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Cfos_Summary/Cfos_fish_data_Hab_2.xlsx'
 
 # Set ROI Path
-roi_path = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/mask/cH.tif'
-roi_name = r'cH'
+roi_path = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/mask/vHb.tif'
+roi_name = r'V_Habenula'
 
 # Set analysis folder and filename
-analysis_folder = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Analysis/HABITUATION/Cfos_Values'
-analysis_path = analysis_folder + '/' + roi_name + '/' + roi_name +'_cFos_2.npz'
+analysis_folder = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Analysis/NOXIOUS/512_2/Cfos_Values'
+analysis_path = analysis_folder + '/' + roi_name + '/' + roi_name +'_cFos.npz'
 
 
 

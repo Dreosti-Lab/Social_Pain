@@ -26,11 +26,11 @@ import SP_cfos as SPCFOS
 
 
 # Set Summary List
-summaryListFile = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Cfos_Summary/Cfos_Summary_2.xlsx'
+summaryListFile = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Cfos_Summary/Cfos_Summary_2a.xlsx'
 
 # Set ROI Path
-roi_path = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/mask/cH.tif'
-roi_name = r'cH'
+roi_path = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Analysis/ROI/SERT_cH/SERT_cH.tif'
+roi_name = r'SERT_cH'
 
 #Set analysis folder and filename
 analysis_folder = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Analysis/ROI/'+ roi_name
@@ -42,7 +42,7 @@ if not os.path.exists(analysis_folder):
 
 analysis_path_A = analysis_folder + '/Baseline_cfos.npz'
 analysis_path_B = analysis_folder + '/Social_cfos.npz'
-analysis_path_C = analysis_folder + '/Noxioua_cfos.npz'
+analysis_path_C = analysis_folder + '/Noxious_cfos.npz'
 
 
 # -----------------------------------------------------------------------------

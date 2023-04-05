@@ -247,7 +247,7 @@ def cfos_value_ROI(group, cfos_paths, roi_path):
     for i in range(n):
         
         # Load original (warped) cFos stack
-        cfos_data, cfos_affine, cfos_header = load_nii(cfos_paths[i], normalized=True)
+        cfos_data, cfos_affine, cfos_header = load_nii(cfos_paths_group[i], normalized=True)
     
         # Measure average signal level in mask ROI
         cfos_value = np.sum(np.sum(np.sum(roi_stack * cfos_data)))/num_roi_voxels
@@ -255,7 +255,7 @@ def cfos_value_ROI(group, cfos_paths, roi_path):
         # Append to list
         cfos_values[i] = cfos_value
         
-        print(str(i+1) + ' of ' + str(n) + ':\n' + cfos_paths[i] + '\n')
+        print(str(i+1) + ' of ' + str(n) + ':\n' + cfos_paths_group[i] + '\n')
     
     return cfos_values
 

@@ -29,13 +29,13 @@ import SP_cfos as SPCFOS
 
 
 # Set Stack Path
-folder_path = 'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/AITC/CTL/fish3'
-stack_path = folder_path + '/DAPI_CFOS_02_reg_Warped.nii.gz'
+folder_path = 'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Peptides/SLC6A4A/23_03_16/fish2'
+stack_path = folder_path + '/DAPI_SLC6A4A_02_reg_Warped.nii.gz'
 
 # Set Mask Path
-mask_path =  'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/mask/DAPI_MASK_512.tif'
-mask_slice_range_start = 100
-mask_slice_range_stop = 300
+mask_path =  'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/mask/DAPI_MASK.tif'
+mask_slice_range_start = 0
+mask_slice_range_stop = 316
 
 # Load mask
 mask_data = SPCFOS.load_mask(mask_path, transpose=True)
@@ -50,7 +50,7 @@ num_mask_voxels = np.sum(np.sum(np.sum(mask_data)))
 cfos_data, cfos_affine, cfos_header = SPCFOS.load_nii(stack_path, normalized = False)
 
 # Remove starurated (peak in large values)
-cfos_data[cfos_data > 32768] = 0
+#cfos_data[cfos_data > 32768] = 0
 
 # Find voxels belonging to the Mask 
 masked_values = cfos_data[mask_data == 1]
