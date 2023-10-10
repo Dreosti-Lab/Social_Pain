@@ -26,10 +26,10 @@ import SP_cfos as SPCFOS
 # -----------------------------------------------------------------------------
 
 # Set Summary List
-summaryListFile = 'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Cfos_Summary/Cfos_Summary_2.xlsx'
+summaryListFile = 'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Cfos_Summary/Cfos_Summary_512_2.xlsx'
 
 # Set analysis path
-analysis_folder = 'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Analysis/NOXIOUS'
+analysis_folder = 'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Analysis/AITC/512_2/02_10_23'
 
 
 
@@ -40,7 +40,7 @@ group_names = np.array(group_names)
 
 
 # Assign metrics/paths for each group
-group_A = (group_names == 'Noxious')
+group_A = (group_names == 'AITC')
 group_B = (group_names == 'Baseline')
 
 cfos_paths_A = cfos_paths[group_A]

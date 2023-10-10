@@ -29,13 +29,13 @@ import SP_cfos as SPCFOS
 
 
 # Set Stack Path
-folder_path = 'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Peptides/SLC6A4A/23_03_16/fish2'
-stack_path = folder_path + '/DAPI_SLC6A4A_02_reg_Warped.nii.gz'
+folder_path =  'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/AITC/512_2/100uM/23_03_16/fish2'
+stack_path = folder_path + '/DAPI_CFOS_02_reg_Warped.nii.gz'
 
 # Set Mask Path
-mask_path =  'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/mask/DAPI_MASK.tif'
+mask_path =  'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/mask/DAPI_512_2_MASK.tif'
 mask_slice_range_start = 0
-mask_slice_range_stop = 316
+mask_slice_range_stop = 320
 
 # Load mask
 mask_data = SPCFOS.load_mask(mask_path, transpose=True)
@@ -56,7 +56,7 @@ cfos_data, cfos_affine, cfos_header = SPCFOS.load_nii(stack_path, normalized = F
 masked_values = cfos_data[mask_data == 1]
     
 #Histogram of masked_values
-histogram, bin_edges  = np.histogram(masked_values, bins = 1000, range=[0,10000]);        
+histogram, bin_edges  = np.histogram(masked_values, bins = 1000, range=[0,20000]);        
 bin_width = (bin_edges[1]-bin_edges[0])/2
 bin_centers = bin_edges[:-1] + bin_width
 
