@@ -13,6 +13,7 @@ import math
 import glob
 import cv2
 import pandas as pd
+import math
 
 # Import useful libraries
 import SP_video_TRARK as SPV
@@ -46,20 +47,20 @@ def distance_traveled(fx, fy,numFrames):
     return distanceT
 
 # Compute activity level of the fish in bouts per second (BPS)
-def measure_BPS(motion,boutStarts):
+def measure_BPS(boutStarts):
                    
     # Count number of bouts
     numBouts= len(boutStarts)
-    numberOfSeconds = np.size(motion)/100
+    #numberOfSeconds = np.size(motion)/100
     # Set the bouts per second (BPS)
-    boutsPerSecond = numBouts/numberOfSeconds
+    boutsPerSecond = numBouts/900
 
     return boutsPerSecond
 
 def debugBouts(motion,boutStarts,boutEnds,startThreshold=0.02,stopThreshold=0.015):
     
     plt.figure()
-    num=1000
+    num=50000
     motion=motion[0:num]
     plt.plot(motion)
     plt.hlines(startThreshold,0,num,color='green')
@@ -70,6 +71,18 @@ def debugBouts(motion,boutStarts,boutEnds,startThreshold=0.02,stopThreshold=0.01
     plt.vlines(boutEnds,0,np.max(motion),color='red')
     plt.xlim(0,1000)
     return
+
+def absolute_angle_change(angle1, angle2):
+    # Calculate the angle change (in degrees)
+    angle_change = angle2 - angle1
+
+    # Normalize the angle change to be between -180 and 180 degrees
+    while angle_change > 180:
+        angle_change -= 360
+    while angle_change <= -180:
+        angle_change += 360
+
+    return angle_change
     
 # Analyze bouts and pauses (individual stats)
 def analyze_bouts_and_pauses(fx, fy, ort, motion, ROI, startThreshold, stopThreshold):
@@ -100,52 +113,55 @@ def analyze_bouts_and_pauses(fx, fy, ort, motion, ROI, startThreshold, stopThres
     if(len(boutStarts) > len(boutStops)):
         boutStarts = boutStarts[:-1]
 
-    # Compute spatial and angular speed 
-    speed_space, speed_angle=compute_bout_signals(fx, fy, ort)
-
     # Extract all bouts (startindex, startx, starty, startort, stopindex, stopx, stopy, stoport, duration)
     numBouts= len(boutStarts)
     bouts = np.zeros((numBouts, 11))
     for i in range(0, numBouts):
         
-        
-              
-        # print(str(start) + '    ' + str(end))
-        x = fx[int(boutStarts[i]):int(boutStops[i])]      # X trajectory
-        y = fy[int(boutStarts[i]):int(boutStops[i])]      # Y trajectory
-
-        sx = x - x[0]   # Center X trajectory
-        sy = y - y[0]   # Center Y trajectory
-        
-        
-        bouts[i, 0] = boutStarts[i]
-        bouts[i, 1] = fx[boutStarts[i]]
-        bouts[i, 2] = fy[boutStarts[i]]
-        bouts[i, 3] = ort[boutStarts[i]]
-        bouts[i, 4] = boutStops[i]
-        bouts[i, 5] = fx[boutStops[i]]
-        bouts[i, 6] = fy[boutStops[i]]
-        bouts[i, 7] = ort[boutStops[i]]
-        bouts[i, 8] = boutStops[i] - boutStarts[i]# Durations
-        bouts[i, 9] = np.sum(speed_angle[boutStarts[i]:boutStops[i]]) # Net angle change  
-        bouts[i, 10] = np.sqrt(sx[-1]*sx[-1] + sy[-1]*sy[-1]) # Net distance change
-        
+        #filter tiny bouts
+        if (boutStops[i] - boutStarts[i])> 5:
+            
+            bouts[i, 0] = boutStarts[i]
+            bouts[i, 1] = fx[boutStarts[i]]
+            bouts[i, 2] = fy[boutStarts[i]]
+            bouts[i, 3] = ort[boutStarts[i]]
+            bouts[i, 4] = boutStops[i]
+            bouts[i, 5] = fx[boutStops[i]]
+            bouts[i, 6] = fy[boutStops[i]]
+            bouts[i, 7] = ort[boutStops[i]]
+            bouts[i, 8] = boutStops[i] - boutStarts[i]# Durations
+            bouts[i, 9] = absolute_angle_change(ort[boutStarts[i]], ort[boutStops[i]]) #angle change 
+            bouts[i, 10] = math.sqrt((fx[boutStops[i]] - fx[boutStarts[i]])**2 + (fy[boutStops[i]] - fy[boutStarts[i]])**2)
+            
     # Analyse all pauses (startindex, startx, starty, startort, stopindex, stopx, stopy, stoport, duration)
     numPauses = numBouts+1
     pauses = np.zeros((numPauses, 11))
 
     for i in range(1, numBouts):
-        pauses[i, 0] = boutStops[i-1]
-        pauses[i, 1] = fx[boutStops[i-1]]
-        pauses[i, 2] = fy[boutStops[i-1]]
-        pauses[i, 3] = ort[boutStops[i-1]]
-        pauses[i, 4] = boutStarts[i]
-        pauses[i, 5] = fx[boutStarts[i]]
-        pauses[i, 6] = (fy[boutStarts[i]])-ROI
-        pauses[i, 7] = ort[boutStarts[i]]
-        pauses[i, 8] = boutStarts[i]- boutStops[i-1]# Durations
-       
-  
+        
+        #filter tiny pauses
+        if (boutStarts[i] - boutStops[i-1])> 5:
+        
+            pauses[i, 0] = boutStops[i-1]
+            pauses[i, 1] = fx[boutStops[i-1]]
+            pauses[i, 2] = fy[boutStops[i-1]]
+            pauses[i, 3] = ort[boutStops[i-1]]
+            pauses[i, 4] = boutStarts[i]
+            pauses[i, 5] = fx[boutStarts[i]]
+            pauses[i, 6] = (fy[boutStarts[i]])-ROI
+            pauses[i, 7] = ort[boutStarts[i]]
+            pauses[i, 8] = boutStarts[i]- boutStops[i-1]# Durations
+           
+    
+    
+    mask = np.all(bouts == 0, axis=1)
+    # Use the mask to filter out rows with all zeros
+    bouts = bouts[~mask]
+    
+    mask = np.all(pauses == 0, axis=1)
+    # Use the mask to filter out rows with all zeros
+    pauses = pauses[~mask]
+    
     return bouts, pauses
 
 
@@ -246,7 +262,7 @@ def fill_pauses(pauses, FPS, freeze_threshold):
     
     # Add first and last pause?
     
-    long_pause_threshold = freeze_threshold*100
+    long_pause_threshold = freeze_threshold
     
     pausing_frames = np.zeros(90000)
     for pause in pauses:
@@ -317,14 +333,6 @@ def compute_motion(folder,ROIs,change_threshold=0,stepFrames=1000,bFrames = 50):
             
     return motS,background_ROIs
 
-def compute_speed(X,Y):
-    # Compute Speed (X-Y)    
-    speed = np.sqrt(np.diff(X)*np.diff(X) + np.diff(Y)*np.diff(Y)) 
-    speed = np.append([0], speed)
-    return speed
-
-
-
 def computeDistPerFrame(fx,fy):
 ## Computes straight line distance between every frame, given x and y coordinates of tracking data
     cumDistPerFrame=np.zeros(len(fx)-1)
@@ -339,22 +347,16 @@ def computeDistPerFrame(fx,fy):
     return distPerFrame,cumDistPerFrame
 
 
-# Compute Dynamic Signal for Detecting Bouts (swims and turns)
-def compute_bout_signals(X, Y, Ort):
-
-    # Compute Speed (X-Y)    
-    speedXY = compute_speed(X,Y)
-    
-    # Filter Speed for outliers
-    sigma = np.std(speedXY)
-    baseline = np.median(speedXY)
-    speedXY[speedXY > baseline+10*sigma] = -1.0
-    
-    # Compute Speed (Angular)
-    speedAngle = diffAngle(Ort)
-    speedAngle = filterTrackingFlips(speedAngle)
+def compute_interval(BoutStops,BoutStarts):
+    Bout_interval = []
+    for i in range (0,len(BoutStarts)-1):
+        x = BoutStarts[i+1] - BoutStops[i]
+        Bout_interval.append(x)
         
-    return speedXY, speedAngle
+        Bout_interval = Bout_interval*100
+        
+    return Bout_interval    
+
 
 # Build a histogram of all orientation values
 def ort_histogram(ort):
@@ -394,25 +396,21 @@ def filterTrackingFlips(dAngle):
             
     return np.array(new_dAngle)
 
-
 # Label Bouts
 def label_bouts(bout_angles):
 
-
     labels=np.zeros((len(bout_angles),3))
-
     
     for i,angle in enumerate(bout_angles):
-        if angle > 15: 
+        if angle > 20: 
             labels[i,0]=1
-        elif angle < -15:
+        elif angle < -20:
             labels[i,0]=1
         else:
             labels[i,1]=1
     T=labels[:,0]!=0
     F=labels[:,1]!=0
    
-    
     Turn = pd.Series(T, name='Turn')
     FSwim = pd.Series(F, name='FSwim')
     Bout_labels = pd.concat([Turn,FSwim], axis=1)

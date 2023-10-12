@@ -7,14 +7,14 @@ Created on Tue Apr  6 19:00:40 2021
 Compare Non Social and Social for one condition
 """                        
 # Set Library Path - Social_Pain Repos
-#lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
-lib_path = r'C:/Repos/Social_Pain/libs'
+lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
+#lib_path = r'C:/Repos/Social_Pain/libs'
 import sys
 sys.path.append(lib_path)
 
 # Set Base Path
-#base_path = r'/Volumes/T7 Touch/Behaviour_Heat_Gradient'
-base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient/NewChamber'
+base_path = r'/Volumes/T7 Touch/Behaviour_Heat_Gradient'
+#base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient/NewChamber'
 
 
 # Import useful libraries
@@ -29,8 +29,8 @@ from scipy import stats
 
 # Specify Analysis folder
 
-AnalysisFolder = base_path + '/Habituation_NewChamber/Analysis'
-FigureFolder = base_path + '/Habituation_Newchamber/Figures'
+AnalysisFolder = base_path + '/Gradient_Social/Analysis'
+FigureFolder = base_path + '/Gradient_Social/Figures'
 
 # Find all the npz files saved for each group and fish with all the information
 npzFiles = glob.glob(AnalysisFolder+'/*.npz')
@@ -39,10 +39,13 @@ npzFiles = glob.glob(AnalysisFolder+'/*.npz')
 numFiles = np.size(npzFiles, 0)
 
 # Allocate space for summary data
+cat_ALL = np.zeros(numFiles)
 BPS_NS_ALL = np.zeros(numFiles)
 BPS_S_ALL = np.zeros(numFiles)
 avgPosition_NS_ALL = np.zeros(numFiles)
 avgPosition_S_ALL = np.zeros(numFiles)
+#mPosition_NS_ALL = np.zeros(numFiles)
+#mPosition_S_ALL = np.zeros(numFiles)
 avgdistPerBout_NS_ALL = np.zeros(numFiles)
 avgdistPerBout_S_ALL = np.zeros(numFiles)
 #avg_cue_motion_ALL = np.zeros(numFiles)
@@ -78,7 +81,10 @@ OrtHist_S_Hot_ALL = np.zeros((numFiles,36))
 OrtHist_S_Noxious_ALL = np.zeros((numFiles,36))
 Position_NS_ALL = np.zeros((numFiles,3))
 Position_S_ALL = np.zeros((numFiles,3))
-
+Binned_PTF_NS_ALL = np.zeros((numFiles,15))
+Binned_PTF_S_ALL = np.zeros((numFiles,15))
+Binned_PTM_NS_ALL = np.zeros((numFiles,15))
+Binned_PTM_S_ALL = np.zeros((numFiles,15))
                            
 # Go through all the files contained in the analysis folder
 for f, filename in enumerate(npzFiles):
@@ -87,6 +93,7 @@ for f, filename in enumerate(npzFiles):
     dataobject = np.load(filename, allow_pickle = True)
     
     # Extract from the npz file 
+    cat = dataobject['cat']
     BPS_NS = dataobject['BPS_NS']   
     BPS_S = dataobject['BPS_S']
     Bouts_NS = dataobject['Bouts_NS']   
@@ -125,11 +132,17 @@ for f, filename in enumerate(npzFiles):
     Position_S = dataobject['Position_S']
     avgPosition_NS = dataobject['avgPosition_NS']
     avgPosition_S = dataobject['avgPosition_S']
+    #mPosition_NS = dataobject['mPosition_NS']
+    #mPosition_S = dataobject['mPosition_S']
     avgdistPerBout_NS = dataobject['avgdistPerBout_NS']
     avgdistPerBout_S = dataobject['avgdistPerBout_S']
-    #avg_cue_motion = dataobject['avg_cue_motion']
+    Binned_PTF_NS = dataobject['Binned_PTF_NS']
+    Binned_PTF_S = dataobject['Binned_PTF_S']
+    Binned_PTM_NS = dataobject['Binned_PTM_NS']
+    Binned_PTM_S = dataobject['Binned_PTM_S']
     
     # Make an array with all summary stats
+    cat_ALL[f]= cat
     BPS_NS_ALL[f] = BPS_NS
     BPS_S_ALL[f] = BPS_S
     numFreezes_NS_ALL[f] = numFreezes_NS
@@ -148,6 +161,8 @@ for f, filename in enumerate(npzFiles):
     Position_S_ALL[f] = Position_S
     avgPosition_NS_ALL[f] = avgPosition_NS
     avgPosition_S_ALL[f] = avgPosition_S
+    #mPosition_NS_ALL[f] = mPosition_NS
+    #mPosition_S_ALL[f] = mPosition_S
     avgdistPerBout_NS_ALL[f] = avgdistPerBout_NS
     avgdistPerBout_S_ALL[f] = avgdistPerBout_S
     #avg_cue_motion_ALL[f] = avg_cue_motion
@@ -170,6 +185,13 @@ for f, filename in enumerate(npzFiles):
     Pauses_S_ALL = np.vstack([Pauses_S_ALL, Pauses_S]) 
     Freezes_NS_ALL = np.vstack([Freezes_NS_ALL, Freezes_NS])
     Freezes_S_ALL = np.vstack([Freezes_S_ALL, Freezes_S])
+    Binned_PTF_NS_ALL[f,:] = Binned_PTF_NS
+    Binned_PTF_S_ALL[f,:] = Binned_PTF_S
+    Binned_PTM_NS_ALL[f,:] = Binned_PTM_NS
+    Binned_PTM_S_ALL[f,:] = Binned_PTM_S
+    
+    
+    
 
     
 
@@ -245,7 +267,75 @@ ax.get_yaxis().set_ticks([])
 #Binned_Bouts.savefig(FigureFolder + '/BinnedBouts.eps', format='eps', dpi=300,bbox_inches= 'tight')
 Binned_Bouts.savefig(FigureFolder + '/BinnedBouts.png', dpi=300, bbox_inches='tight')
 
+# PTM binned 
+PTM = plt.figure(figsize=(14,10), dpi=300)
+plt.title("Percent Time Moving (one minute bins)"+ '\n n='+ format(numFiles),fontsize=24)
 
+
+m = np.nanmean(Binned_PTM_NS_ALL, 0)
+std = np.nanstd(Binned_PTM_NS_ALL, 0)
+valid = (np.logical_not(np.isnan(Binned_PTM_NS_ALL)))
+n = np.sum(valid, 0)
+se = std/np.sqrt(n-1)
+
+ax = plt.subplot(221)
+plt.plot(m, 'steelblue', LineWidth=4)
+plt.plot(m, 'steelblue',Marker = 'o', MarkerSize=7)
+plt.plot(m+se, 'steelblue', LineWidth=1)
+plt.plot(m-se, 'steelblue', LineWidth=1)
+
+m = np.nanmean(Binned_PTM_S_ALL, 0)
+std = np.nanstd(Binned_PTM_S_ALL, 0)
+valid = (np.logical_not(np.isnan(Binned_PTM_S_ALL)))
+n = np.sum(valid, 0)
+se = std/np.sqrt(n-1)
+
+ax = plt.subplot(222)
+plt.plot(m, 'steelblue', LineWidth=4)
+plt.plot(m, 'steelblue',Marker = 'o', MarkerSize=7)
+plt.plot(m+se, 'steelblue', LineWidth=1)
+plt.plot(m-se, 'steelblue', LineWidth=1)
+
+PTM.savefig(FigureFolder + '/PTM.png', dpi=300, bbox_inches='tight')
+
+
+# PTM vs PTF
+PTF = plt.figure(figsize=(8,3), dpi=300)
+#plt.title("Active to Passive Coping"+ ' (n='+ format(numFiles)+ ')',fontsize=14)
+
+m = np.nanmean(Binned_PTM_NS_ALL, 0)
+std = np.nanstd(Binned_PTM_NS_ALL, 0)
+valid = (np.logical_not(np.isnan(Binned_PTM_NS_ALL)))
+n = np.sum(valid, 0)
+se = std/np.sqrt(n-1)
+
+plt.plot(m, 'darkorange', LineWidth=4, Marker = 'o', MarkerSize=7, label= '% Moving')
+plt.plot(m+se, 'darkorange', LineWidth=1)
+plt.plot(m-se, 'darkorange', LineWidth=1)
+
+m = np.nanmean(Binned_PTF_NS_ALL, 0)
+std = np.nanstd(Binned_PTF_NS_ALL, 0)
+valid = (np.logical_not(np.isnan(Binned_PTF_NS_ALL)))
+n = np.sum(valid, 0)
+se = std/np.sqrt(n-1)
+
+plt.plot(m, 'indigo', LineWidth=4, Marker = 'o', MarkerSize=7, label= '% Freezing')
+plt.plot(m, 'indigo',Marker = 'o', MarkerSize=7)
+plt.plot(m+se, 'indigo', LineWidth=1)
+plt.plot(m-se, 'indigo', LineWidth=1)
+
+plt.legend(loc="upper right", fontsize=14)
+plt.xlabel('minutes', fontsize = 14)
+plt.ylabel('Percentage', fontsize = 14)
+plt.ylim(-1,100)
+plt.yticks(fontsize=14)
+plt.xticks(np.arange(0, 15, step= 1), ('1', '2','3','4','5','6','7', '8', '9', '10', '11','12','13','14','15'), fontsize=14)
+sns.despine()
+
+PTF.savefig(FigureFolder + '/A_to_P_Nox.png', dpi=300, bbox_inches='tight')
+PTF.savefig(FigureFolder + '/A_to_P_Nox.eps', format='eps', dpi=300,bbox_inches= 'tight')
+
+# Plot Distance Travelled Per
 
 # Plot Distance Travelled Per Bout   
 s_DistBout,pvalue_DistBout = stats.ttest_rel(avgdistPerBout_NS_ALL, avgdistPerBout_S_ALL) 
@@ -341,23 +431,23 @@ ax = plt.subplot(221)
 plt.title('Non Social',fontsize= 18, y=-0.15) 
 plt.xticks([])
 plt.yticks([])
-sns.kdeplot(x=Bouts_NS_ALL[:,1], y=Bouts_NS_ALL[:,2], shade=True, cmap="Blues", thresh=0, cbar=True,  cbar_kws= {'format':'%.0f%%','ticks': [0, 100]})
-#plt.hist2d(Bouts_NS_ALL[:,1], Bouts_NS_ALL[:,2], bins=10,cmap='Blues', density=True)
+sns.kdeplot(x=Bouts_NS_ALL[:,1], y=Bouts_NS_ALL[:,2], shade=True, cmap="Purples", thresh=0, cbar=True,  cbar_kws= {'format':'%.0f%%','ticks': [0, 1000]})
+#plt.hist2d(Bouts_NS_ALL[:,1], Bouts_NS_ALL[:,2], bins=20,cmap='Purples', density=True)
 #plt.colorbar()
 #plt.clim(0.001,0.008)
 
 ax = plt.subplot(222)  
-#plt.hist2d(Bouts_S_ALL[:,1], Bouts_S_ALL[:,2],bins=10, cmap='Blues', density =True)
+#plt.hist2d(Bouts_S_ALL[:,1], Bouts_S_ALL[:,2],bins=20, cmap='Purples', density =True)
 plt.title('Social', fontsize= 18, y=-0.15)
 plt.xticks([])  
 plt.yticks([]) 
-sns.kdeplot(x=Bouts_S_ALL[:,1], y=Bouts_S_ALL[:,2], shade=True, cmap="Blues", thresh=0,cbar=True, cbar_kws= {'format':'%.0f%%','ticks': [0, 100]})
+sns.kdeplot(x=Bouts_S_ALL[:,1], y=Bouts_S_ALL[:,2], shade=True, cmap="Purples", thresh=0, levels=100,cbar=True)#cbar_kws= {'format':'%.0f%%','ticks': [0, 1000]})
 #plt.colorbar()
 #plt.clim(0.001,0.008)
 
 Bouts_map.tight_layout
 
-#Bouts_map.savefig(FigureFolder + '/BoutsMap.eps', format='eps', dpi=300,bbox_inches= 'tight')
+Bouts_map.savefig(FigureFolder + '/BoutsMap.eps', format='eps', dpi=300,bbox_inches= 'tight')
 Bouts_map.savefig(FigureFolder + '/BoutsMap.png', dpi=300, bbox_inches='tight')
 
 
@@ -571,6 +661,66 @@ Position.savefig(FigureFolder + '/Avg_Pos.png', dpi=300, bbox_inches='tight')
 
 
 
+PositionNS, ax = plt.subplots(figsize=(6,1.2), dpi=600)
+ax= sns.boxplot(avgPosition_NS_ALL, color = '#BBBBBB', linewidth=1, showfliers=False)
+ax = sns.swarmplot(avgPosition_NS_ALL,color= 'indigo', size=6)
+sns.despine()  
+#ax.set_title('Average Position (n=' + format(numFiles) + ')',fontsize=18, y=-0.15)
+ax.set_xlabel('Average Position(mm)', fontsize=1)
+plt.xticks(fontsize=14)
+plt.xlim(0,100)
+
+
+PositionNS.savefig(FigureFolder + '/Avg_NS.eps', format='eps', dpi=300,bbox_inches= 'tight')
+PositionNS.savefig(FigureFolder + '/Avg_NS.png', dpi=300, bbox_inches='tight')
+
+PositionS, ax = plt.subplots(figsize=(6, 1.5), dpi=600)
+ax= sns.boxplot(avgPosition_S_ALL, color = '#BBBBBB', linewidth=1, showfliers=False)
+ax = sns.swarmplot(avgPosition_S_ALL,color= 'indigo', size=6)
+sns.despine()  
+#ax.set_title('Average Position (n=' + format(numFiles) + ')',fontsize=18, y=-0.15)
+ax.set_xlabel('Average Position(mm)', fontsize=12)
+plt.xticks(fontsize=14)
+plt.xlim(0,100)
+
+
+PositionS.savefig(FigureFolder + '/Avg_S.eps', format='eps', dpi=300,bbox_inches= 'tight')
+PositionS.savefig(FigureFolder + '/Avg_S.png', dpi=300, bbox_inches='tight')
+
+
+
+
+# Scatterplot Position 
+s_Pos,pvalue_Pos = stats.ttest_rel(mPosition_NS_ALL, mPosition_S_ALL) 
+
+s1 = pd.Series(mPosition_NS_ALL, name='Non Social')
+s2 = pd.Series(mPosition_S_ALL, name='Social')
+df = pd.concat([s1,s2], axis=1)
+
+jitter = 0.05
+df_jitter = pd.DataFrame(np.random.normal(loc=0, scale=jitter, size=df.values.shape), columns=df.columns)
+df_jitter += np.arange(len(df.columns))
+
+Position, ax = plt.subplots(figsize=(4,10), dpi=300)
+sns.boxplot(data=df, color = '#BBBBBB', linewidth=1, showfliers=False)
+sns.despine()  
+ax.set_title('Most Current Position (n=' + format(numFiles) + ')'+ '\n' + '\n p-value:'+ format(pvalue_Pos),fontsize=24, y=-0.25)
+ax.set_xticklabels(df.columns, fontsize=18)
+ax.set_ylabel('Mode Position(mm)', fontsize=18)
+plt.yticks(fontsize=14)
+plt.ylim(0,100)
+ax.plot(df_jitter['Non Social'], df['Non Social'],'o',mec='lightsteelblue',mfc='lightsteelblue', ms=6)
+ax.plot(df_jitter['Social'], df['Social'], 'o',mec='steelblue',mfc='steelblue', ms=6)
+
+for idx in df.index:
+    ax.plot(df_jitter.loc[idx,['Non Social','Social']], df.loc[idx,['Non Social','Social']], color = 'grey', linewidth = 0.5, linestyle = '--', alpha=0.5)    
+
+#Position.savefig(FigureFolder + '/Avg_Pos.eps', format='eps', dpi=300,bbox_inches= 'tight')
+Position.savefig(FigureFolder + '/Mode_Pos.png', dpi=300, bbox_inches='tight')
+
+
+
+
 #stacked_Histogram
 normPosition_NS = pd.DataFrame(data = Position_NS_ALL*100/numFiles, columns = ["Cool","Hot","Noxious"])
 normPosition_NS['condition']='Non Social'
@@ -745,6 +895,86 @@ distAngles.savefig(FigureFolder + '/distAngles.png', dpi=300, bbox_inches='tight
 
 
 
-        
-        
-    
+
+
+
+Resilient = np.count_nonzero(avgPosition_NS_ALL[avgPosition_NS_ALL>35])
+Susceptible = np.count_nonzero(avgPosition_NS_ALL[avgPosition_NS_ALL<15])
+other =numFiles- (Resilient+ Susceptible)
+
+data = (Resilient, Susceptible, other)
+labels = ['Resilient', 'Susceptible', 'other']
+
+pie = plt.figure(figsize= (3,3))
+plt.pie(data, labels = labels, autopct='%1.1f%%',  colors=['indigo', 'darkorange', 'lightgray'])
+pie.savefig(FigureFolder + '/pie_NS.eps', format='eps', dpi=300,bbox_inches= 'tight')
+pie.savefig(FigureFolder + '/pie_NS.png', dpi=300, bbox_inches='tight')
+
+
+
+
+
+#Define Groups 
+
+#Group1 = High Tolerance NS-Gradient>40
+#Group2 = Low Tolerance NS-Gradient<40 and RPS = 0
+#Group3 = Social Buffering NS-Gradient<40 and RPS>10
+
+# Tolerance = pd.DataFrame(
+#     {'NS': avgPosition_NS_ALL,
+#      'S': avgPosition_S_ALL,
+#      'TTS': TTSs
+#     })
+
+
+
+# HighTolerant = Tolerance[(Tolerance['NS']>35) & (Tolerance['TTS']>=20)]
+# LowTolerant = Tolerance[(Tolerance['NS']<35)&(Tolerance['TTS']<=1)]
+# Buffering = Tolerance[(Tolerance['NS']<35) & (Tolerance['TTS']>=20)] 
+
+
+
+
+# s1 = pd.Series(HighTolerant['NS'], name='High')
+# s2 = pd.Series(LowTolerant['NS'], name='Low')
+# s3 = pd.Series(Buffering['NS'], name='Buffering')
+# Group = pd.concat([s1,s2,s3], axis=1)
+
+
+# sns.swarmplot(data=Group,color='lightsteelblue',zorder=1)
+
+
+
+
+from sklearn.cluster import KMeans
+
+n_clusters = 3
+
+kmeans = KMeans(n_clusters=3, random_state=0, n_init=10).fit(XM_values)
+
+fig = plt.figure(figsize=(8, 3))
+fig.subplots_adjust()
+colors = ["#4EACC5", "#FF9C34", "#4E9A06"]
+
+k = kmeans.labels_
+center = kmeans.cluster_centers_
+
+
+# KMeans
+ax = fig.add_subplot(1, 3, 1)
+for k, col in zip(range(n_clusters), colors):
+    my_members = kmeans.labels_ == k
+    cluster_center = kmeans.cluster_centers_[k]
+    ax.plot(XM_values[my_members, 0], XM_values[my_members, 1], "w", markerfacecolor=col, marker=".")
+    ax.plot(
+        cluster_center[0],
+        cluster_center[1],
+        "o",
+        markerfacecolor=col,
+        markeredgecolor="k",
+        markersize=6,
+    )
+ax.set_title("KMeans")
+
+
+   

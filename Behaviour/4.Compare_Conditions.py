@@ -60,7 +60,14 @@ avgPosition_NS_summary=[]
 avgPosition_S_summary=[]
 avgdistPerBout_NS_summary = []
 avgdistPerBout_S_summary = []
-#cue_motion_summary = []
+Binned_Bouts_NS_summary = []
+Binned_Bouts_S_summary = []
+Binned_Freezes_NS_summary = []
+Binned_Freezes_S_summary = []
+Binned_PTF_NS_summary = []
+Binned_PTF_S_summary = []
+Binned_PTM_NS_summary = []
+Binned_PTM_S_summary = []
 
 # Go through each condition (analysis folder)
 for i, analysisFolder in enumerate(analysisFolders):
@@ -87,7 +94,14 @@ for i, analysisFolder in enumerate(analysisFolders):
     avgPosition_S_ALL = np.zeros(numFiles)
     avgdistPerBout_NS_ALL = np.zeros(numFiles)
     avgdistPerBout_S_ALL = np.zeros(numFiles)
-    #avg_cue_motion_ALL = np.zeros(numFiles)
+    Binned_Bouts_NS_ALL = np.zeros((numFiles,15))
+    Binned_Bouts_S_ALL = np.zeros((numFiles,15))
+    Binned_Freezes_NS_ALL = np.zeros((numFiles,15))
+    Binned_Freezes_S_ALL = np.zeros((numFiles,15))
+    Binned_PTF_NS_ALL = np.zeros((numFiles,15))
+    Binned_PTF_S_ALL = np.zeros((numFiles,15))
+    Binned_PTM_NS_ALL = np.zeros((numFiles,15))
+    Binned_PTM_S_ALL = np.zeros((numFiles,15))
     
     # Go through all the files contained in the analysis folder
     for f, filename in enumerate(npzFiles):
@@ -108,8 +122,14 @@ for i, analysisFolder in enumerate(analysisFolders):
         avgPosition_S = dataobject['avgPosition_S']
         avgdistPerBout_NS = dataobject['avgdistPerBout_NS']
         avgdistPerBout_S = dataobject['avgdistPerBout_S']
-        
-        #avg_cue_motion = dataobject['avg_cue_motion']
+        Binned_Bouts_NS = dataobject['Binned_Bouts_NS']
+        Binned_Bouts_S = dataobject['Binned_Bouts_S']
+        Binned_Freezes_NS = dataobject['Binned_Freezes_NS']
+        Binned_Freezes_S = dataobject['Binned_Freezes_S']
+        Binned_PTF_NS = dataobject['Binned_PTF_NS']
+        Binned_PTF_S = dataobject['Binned_PTF_S']
+        Binned_PTM_NS = dataobject['Binned_PTM_NS']
+        Binned_PTM_S = dataobject['Binned_PTM_S']
         
         # Make an array with all summary stats
         Freezes_NS_ALL = np.vstack([Freezes_NS_ALL, Freezes_NS])
@@ -124,7 +144,14 @@ for i, analysisFolder in enumerate(analysisFolders):
         avgPosition_S_ALL[f] = avgPosition_S
         avgdistPerBout_NS_ALL[f] = avgdistPerBout_NS
         avgdistPerBout_S_ALL[f] = avgdistPerBout_S
-        #avg_cue_motion_ALL[f] = avg_cue_motion
+        Binned_Bouts_NS_ALL[f,:] = Binned_Bouts_NS
+        Binned_Bouts_S_ALL[f,:] = Binned_Bouts_S
+        Binned_Freezes_NS_ALL[f,:] = Binned_Freezes_NS
+        Binned_Freezes_S_ALL[f,:] = Binned_Freezes_S
+        Binned_PTF_NS_ALL[f,:] = Binned_PTF_NS
+        Binned_PTF_S_ALL[f,:] = Binned_PTF_S
+        Binned_PTM_NS_ALL[f,:] = Binned_PTM_NS
+        Binned_PTM_S_ALL[f,:] = Binned_PTM_S
     
     
     XMs = np.column_stack((avgPosition_NS_ALL, avgPosition_S_ALL))
@@ -155,8 +182,15 @@ for i, analysisFolder in enumerate(analysisFolders):
     avgdistPerBout_NS_summary.append(avgdistPerBout_NS_ALL)
     avgdistPerBout_S_summary.append(avgdistPerBout_S_ALL)
     
-    #cue_motion_ALL = np.nan_to_num(avg_cue_motion_ALL)
-    #cue_motion_summary.append(cue_motion_ALL)
+    Binned_Bouts_NS_summary.append(Binned_Bouts_NS_ALL) 
+    Binned_Bouts_S_summary.append(Binned_Bouts_S_ALL) 
+    Binned_Freezes_NS_summary.append(Binned_Freezes_NS_ALL) 
+    Binned_Freezes_S_summary.append(Binned_Freezes_S_ALL) 
+    Binned_PTF_NS_summary.append(Binned_PTF_NS_ALL) 
+    Binned_PTF_S_summary.append(Binned_PTF_S_ALL) 
+    Binned_PTM_NS_summary.append(Binned_PTM_NS_ALL)
+    Binned_PTM_S_summary.append(Binned_PTM_S_ALL)
+ 
 
 
     #TTS

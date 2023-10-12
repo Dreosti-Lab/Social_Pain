@@ -13,15 +13,15 @@ import cv2
 
 # Specify paths
 
-movie_file = '/Users/alizeekastler/Desktop/Social.avi'
-tracking_file = '/Users/alizeekastler/Desktop/tracking3.npz'
-save_file = '/Users/alizeekastler/Desktop/social_overlay_2.avi'
+movie_file = '/Volumes/T7 Touch/Behaviour_Heat_Gradient/Gradient_Isolated/Experiments/2022_05_19/Fish3_28dpf/Non_Social/Non_Social.avi'
+tracking_file = '/Volumes/T7 Touch/Behaviour_Heat_Gradient/Gradient_Isolated/Experiments/2022_05_19/Fish3_28dpf/Non_Social/tracking3.npz'
+save_file = '/Users/alizeekastler/Desktop/Iso_5.avi'
 
 # Set crop limits
-left = 34
-top = 262
-right = 741
-bottom = 376
+left = 45
+top = 285
+right = 710
+bottom = 380
 width = right-left
 height = bottom - top
 
@@ -31,8 +31,8 @@ radius = 1
 thickness = 2
 
 # Set frame range
-start = 78000
-end = 86000
+start = 18000
+end = 21000
 step = 1
 
 # Load tracking data

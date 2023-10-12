@@ -1,0 +1,133 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Apr 13 18:08:47 2023
+
+@author: alizeekastler
+"""
+
+# -----------------------------------------------------------------------------
+lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
+#lib_path = r'C:/Repos/Social_Pain/libs'
+import sys
+sys.path.append(lib_path)
+
+base_path = r'/Volumes/T7 Touch/Behaviour_Heat_Gradient'
+#base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
+
+
+
+# Import useful libraries
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
+from scipy.stats import mannwhitneyu
+from statsmodels.stats.multitest import fdrcorrection
+
+from sklearn import datasets
+ 
+
+import glob
+
+# Specify Analysis folder
+
+AnalysisFolder = base_path + '/Gradient_Social/Analysis'
+FigureFolder = base_path + '/Gradient_Social/Figures'
+
+# Find all the npz files saved for each group and fish with all the information
+npzFiles = glob.glob(AnalysisFolder+'/*.npz')
+
+# Calculate how many files
+numFiles = np.size(npzFiles, 0)
+# Allocate space for summary data
+cat_ALL = np.zeros(numFiles)
+BPS_NS_ALL = np.zeros(numFiles)
+BPS_S_ALL = np.zeros(numFiles)
+avgPosition_NS_ALL = np.zeros(numFiles)
+avgPosition_S_ALL = np.zeros(numFiles)
+avgdistPerBout_NS_ALL = np.zeros(numFiles)
+avgdistPerBout_S_ALL = np.zeros(numFiles)
+Turns_NS_ALL = np.zeros(numFiles)
+Turns_S_ALL = np.zeros(numFiles)
+FSwim_NS_ALL = np.zeros(numFiles)
+FSwim_S_ALL = np.zeros(numFiles)
+numFreezes_NS_ALL = np.zeros(numFiles)
+numFreezes_S_ALL = np.zeros(numFiles)
+DistanceT_NS_ALL = np.zeros(numFiles)
+DistanceT_S_ALL = np.zeros(numFiles)
+                           
+SummaryAll = []
+
+# Go through all the files contained in the analysis folder
+for f, filename in enumerate(npzFiles):
+
+    # Load each npz file
+    dataobject = np.load(filename, allow_pickle = True)
+    
+    # Extract from the npz file 
+    cat = dataobject['cat']
+    BPS_NS = dataobject['BPS_NS']   
+    BPS_S = dataobject['BPS_S']
+
+    Turns_NS = dataobject['Turns_NS']
+    Turns_S = dataobject['Turns_S']
+    
+    Freezes_NS = dataobject['Freezes_NS']
+    Freezes_S = dataobject['Freezes_S']
+    
+    numFreezes_NS = dataobject['numFreezes_NS']
+    numFreezes_S = dataobject['numFreezes_S']
+
+    DistanceT_NS = dataobject['DistanceT_NS']
+    DistanceT_S = dataobject['DistanceT_S']
+    
+    avgPosition_NS = dataobject['avgPosition_NS']
+    avgPosition_S = dataobject['avgPosition_S']
+    
+    avgdistPerBout_NS = dataobject['avgdistPerBout_NS']
+    avgdistPerBout_S = dataobject['avgdistPerBout_S']
+    
+    # Make an array with all summary stats
+    cat_ALL[f]= cat
+    BPS_NS_ALL[f] = BPS_NS
+    BPS_S_ALL[f] = BPS_S
+    numFreezes_NS_ALL[f] = numFreezes_NS
+    numFreezes_S_ALL[f] = numFreezes_S
+    
+    avgPosition_NS_ALL[f] = avgPosition_NS
+    avgPosition_S_ALL[f] = avgPosition_S
+    #mPosition_NS_ALL[f] = mPosition_NS
+    #mPosition_S_ALL[f] = mPosition_S
+    avgdistPerBout_NS_ALL[f] = avgdistPerBout_NS
+    avgdistPerBout_S_ALL[f] = avgdistPerBout_S
+    #avg_cue_motion_ALL[f] = avg_cue_motion
+    Turns_NS_ALL[f] = Turns_NS
+    Turns_S_ALL[f] = Turns_S
+    
+    DistanceT_NS_ALL[f] = DistanceT_NS
+    DistanceT_S_ALL[f] = DistanceT_S
+
+    SummaryAll.append([float(cat),float(BPS_NS), float(avgdistPerBout_NS),float(DistanceT_NS),float(Turns_NS), float(numFreezes_NS)])
+
+dfAll=pd.DataFrame(SummaryAll,columns=['Condition','BoutsPerSecond','distPerBout', 'distTravelled', 'Turn','Freezes'])
+
+
+# Plot histograms for each column based on 'Condition'
+for column in dfAll.columns[1:]:
+    plt.figure()
+    sns.histplot(data=dfAll, x=column, hue='Condition', multiple='stack', kde=True)
+    plt.title(f'Histogram of {column} by Condition')
+
+plt.show()
+
+#sns.barplot(dfAll['Condition'], dfAll['BoutsPerSecond'])
+#sns.barplot(dfAll, hue = dfAll['Condition'])
+ax = dfAll.plot(x=['BoutsPerSecond','distPerBout', 'distTravelled', 'Turn','Freezes'], kind="bar", hue= dfAll['Condition'], rot=0)
+
+high = dfAll.loc[dfAll['Condition']==1]
+
+plt.plot(high)
+
+
+

@@ -1,0 +1,131 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Oct 11 17:03:42 2023
+
+@author: alizeekastler
+"""
+
+import os
+import numpy as np
+from PIL import Image
+
+
+# Build paths
+base_folder = '/Volumes/T7/ATLAS/CFOS/Heat/27_06_23/'
+stack_path = base_folder + 'Positive_Apply_2.tif'
+DAPI_path = base_folder +  'DAPI_2.tif'
+output_folder = base_folder + '/output'
+
+
+# Create output folder (if it does not exist)
+if not os.path.exists(output_folder):
+   os.makedirs(output_folder)
+
+# Load line stack
+line_data = np.float32(Image.open(stack_path))
+#height, width, channels = np.shape(line_data)
+#num_frames = line_data.n_frames
+
+
+# Load mask stack
+DAPI_data = np.float32(Image.open(DAPI_path))
+
+
+alpha = line_data /255.0
+
+import cv2
+import numpy as np
+import os
+
+base_folder = '/Volumes/T7/ATLAS/CFOS/Heat/27_06_23/'
+
+# Load the TIFF stacks
+dapi_stack = cv2.imread(base_folder + 'DAPI_2.tif', cv2.IMREAD_UNCHANGED)
+negative_stack = cv2.imread(base_folder + 'Negative_2.tif', cv2.IMREAD_UNCHANGED)
+positive_stack = cv2.imread(base_folder + 'Positive_2.tif', cv2.IMREAD_UNCHANGED)
+
+# Create an empty list to store overlayed images
+overlayed_images = []
+
+# Define the alpha values for each stack
+alpha_negative = 0.5  # Adjust this as needed
+alpha_positive = 0.5  # Adjust this as needed
+
+# Alpha blend the images and store them in the list
+for i in range(len(dapi_stack)):
+    overlay = (
+        alpha_negative * negative_stack[i] +
+        alpha_positive * positive_stack[i] +
+        (1.0 - alpha_negative - alpha_positive) * dapi_stack[i]
+    ).astype(np.uint8)
+    overlayed_images.append(overlay)
+
+# Create the output directory if it doesn't exist
+output_directory = os.path.join(base_folder, 'output')
+os.makedirs(output_directory, exist_ok=True)
+
+# Save the overlayed images as a TIFF stack
+for i, image in enumerate(overlayed_images):
+    output_path = os.path.join(output_directory, f'overlay_{i}.tif')
+    cv2.imwrite(output_path, image)
+
+
+
+import cv2
+ 
+# Read the images
+foreground = cv2.imread("Positive.tif")
+background = cv2.imread("DAPI_2.tif")
+alpha = cv2.imread("puppets_alpha.png")
+ 
+# Convert uint8 to float
+foreground = foreground.astype(float)
+background = background.astype(float)
+ 
+# Normalize the alpha mask to keep intensity between 0 and 1
+alpha = alpha.astype(float)/255
+ 
+# Multiply the foreground with the alpha matte
+foreground = cv2.multiply(alpha, foreground)
+ 
+# Multiply the background with ( 1 - alpha )
+background = cv2.multiply(1.0 - alpha, background)
+ 
+# Add the masked foreground and background.
+outImage = cv2.add(foreground, background)
+ 
+# Display image
+cv2.imshow("outImg", outImage/255)
+cv2.waitKey(0)
+
+
+# alpha blending
+final_data = DAPI_data * (1-alpha) + alpha * line_data
+
+
+
+
+
+
+
+
+# Convert raw TIFF to PNG with alpha layers
+container = np.zeros((width,height,4), dtype=np.uint8)
+for i in range(num_frames):
+    line_data.seek(i)
+    DAPI_data.seek(i)
+    data = np.asarray(line_data) * np.asarray(DAPI_data)
+    rescaled = np.clip(((data - baseline) / scale) * 255.0, 0, 255)
+    integer = rescaled.astype(np.uint8)
+    if line_name == 'DAPI':
+        container[:,:,0] = integer
+        output = Image.fromarray(container[:,:,0])    
+    else:
+        container[:,:,0] = integer
+        container[:,:,3] = integer
+        output = Image.fromarray(container)
+    path = output_folder + '/' + line_name + str(i).zfill(4) + '.png'
+    output.save(path)
+
+# FIN

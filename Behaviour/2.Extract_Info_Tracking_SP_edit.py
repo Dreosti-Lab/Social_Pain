@@ -8,14 +8,14 @@ Created on Tue Apr  6 19:00:40 2021
 Extract information from tracking data and save into npz Summary file for each video of 6 fish
 """                        
 # Set Library Path - Social_Pain Repos
-#lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
-lib_path = r'C:/Repos/Social_Pain/libs'
+lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
+#lib_path = r'C:/Repos/Social_Pain/libs'
 import sys
 sys.path.append(lib_path)
 
 # Set Base Path
-base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient/NewChamber'
-#base_path = r'/Volumes/T7 Touch/Behaviour_Heat_Gradient'
+#base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient/NewChamber'
+base_path = r'/Volumes/T7 Touch/Behaviour_Heat_Gradient'
 
 # Import useful libraries
 import glob
@@ -23,6 +23,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import cv2
+from scipy import stats
 
 # Import local modules
 
@@ -37,13 +38,14 @@ filterTracking = False
 
 # Set threshold
 freeze_threshold = 300
-motionStartThreshold = 0.025
-motionStopThreshold = 0.005
+motionStartThreshold = 0.03
+motionStopThreshold = 0.015
+FPS = 100
 
 
-AnalysisFolder = base_path + '/Habituation_NewChamber/Analysis'
+AnalysisFolder = base_path + '/Gradient_Social/Analysis'
 # Read folder list
-FolderlistFile = base_path + '/Habituation_NewChamber/Folderlist.txt'
+FolderlistFile = base_path + '/Gradient_Social/Folderlist.txt'
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 
@@ -131,6 +133,13 @@ for idx,folder in enumerate(folderNames):
             
             avgPosition_NS = np.mean(fx_NS_mm)
             avgPosition_S = np.mean(fx_S_mm)
+            
+            modePosition_NS = stats.mode(fx_NS_mm)
+            mPosition_NS = modePosition_NS[0].item()
+            
+            modePosition_S = stats.mode(fx_S_mm)
+            mPosition_S = modePosition_S[0].item()
+            
 #--------------------------------------------------------------------------------------------------------            
             
             #Smooth Motion
@@ -155,6 +164,7 @@ for idx,folder in enumerate(folderNames):
             
             avgdistPerBout_NS = np.mean(Bouts_NS[:,10])
             avgdistPerBout_S = np.mean(Bouts_S[:,10])
+        
             
             #Analyze Bouts
             B_labels_NS, Bout_Angles_NS = SPA.label_bouts(Bouts_NS[:,9])
@@ -174,6 +184,18 @@ for idx,folder in enumerate(folderNames):
             Percent_Moving_S = (100 * np.sum(Bouts_S[:,8]))/(len(motion_S))
             Percent_Paused_S = (100 * np.sum(Pauses_S[:,8]))/(len(motion_S))
             
+            # Compute percent time freezing in one minute bins
+            moving_frames_NS = SPA.fill_bouts(Bouts_NS, FPS)
+            Binned_PTM_NS = SPA.bin_frames(moving_frames_NS, FPS)
+            
+            moving_frames_S = SPA.fill_bouts(Bouts_S, FPS)
+            Binned_PTM_S = SPA.bin_frames(moving_frames_S, FPS)
+           
+            pausing_frames_NS = SPA.fill_pauses(Pauses_NS, FPS, freeze_threshold)
+            Binned_PTF_NS = SPA.bin_frames(pausing_frames_NS, FPS)
+            
+            pausing_frames_S = SPA.fill_pauses(Pauses_S, FPS, freeze_threshold)
+            Binned_PTF_S = SPA.bin_frames(pausing_frames_S, FPS)
             
             # Count Freezes
             Freezes_NS, numFreezes_NS = SPA.analyze_freezes(Pauses_NS, freeze_threshold)
@@ -224,6 +246,26 @@ for idx,folder in enumerate(folderNames):
             Noxious_S = pd.Series(Frames_Noxious_S/totFrames_S, name='Noxious')
             Position_S = pd.concat([Cool_S,Hot_S,Noxious_S], axis=1)            
             
+            
+            TTS = avgPosition_S - avgPosition_NS    
+            
+            
+        
+        
+            if avgPosition_NS>35 and TTS>=20 : 
+                cat= 1
+            
+            elif avgPosition_NS<35 and TTS<=1:
+                cat= 2
+                
+            elif avgPosition_NS<35 and TTS>=20:
+                cat= 3
+                
+            else:
+                cat =4
+
+            
+            
 #---------------------------------------------------------------------------------------------------        
             if plot: 
                 
@@ -271,11 +313,13 @@ for idx,folder in enumerate(folderNames):
                       Percent_Moving_NS = Percent_Moving_NS, Percent_Moving_S = Percent_Moving_S, 
                       Percent_Paused_NS = Percent_Paused_NS, Percent_Paused_S = Percent_Paused_S, 
                       Freezes_S = Freezes_S, Freezes_NS = Freezes_NS, numFreezes_NS = numFreezes_NS, numFreezes_S = numFreezes_S,
-                      Binned_Freezes_NS = Binned_Freezes_NS,Binned_Freezes_S = Binned_Freezes_S,    
+                      Binned_Freezes_NS = Binned_Freezes_NS,Binned_Freezes_S = Binned_Freezes_S,  
+                      Binned_PTM_NS = Binned_PTM_NS, Binned_PTM_S = Binned_PTM_S, Binned_PTF_NS = Binned_PTF_NS, Binned_PTF_S= Binned_PTF_S,
                       DistanceT_NS = DistanceT_NS, DistanceT_S = DistanceT_S, #Binned_DistanceT_NS= Binned_DistanceT_NS, Binned_DistanceT_S = Binned_DistanceT_S, 
                       OrtHist_NS_Cool = OrtHist_NS_Cool,OrtHist_NS_Noxious = OrtHist_NS_Noxious, OrtHist_S_Cool = OrtHist_S_Cool, OrtHist_S_Noxious = OrtHist_S_Noxious,
                       OrtHist_NS_Hot = OrtHist_NS_Hot, OrtHist_S_Hot = OrtHist_S_Hot,
-                      Position_NS=Position_NS, Position_S = Position_S, avgPosition_NS = avgPosition_NS, avgPosition_S = avgPosition_S)
+                      Position_NS=Position_NS, Position_S = Position_S, avgPosition_NS = avgPosition_NS, avgPosition_S = avgPosition_S,
+                      mPosition_NS= mPosition_NS, mPosition_S= mPosition_S, cat =cat)
                       #avg_cue_motion = avg_cue_motion)
     
     # Report Progress

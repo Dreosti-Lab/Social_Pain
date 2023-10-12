@@ -383,7 +383,7 @@ def compare_mask_groups(group_files_A, group_files_B, report_path):
         group_roi = npzfile['roi_name']
         groups_s_A[i] = pd.Series(group_data, name=str(group_name))
 
-    # Load Group A data
+    # Load Group B data
     num_groups = len(group_files_B)
     groups_s_B = np.empty(num_groups, dtype=object)
     for i in range(num_groups):
