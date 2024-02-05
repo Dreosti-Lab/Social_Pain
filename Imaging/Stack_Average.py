@@ -11,7 +11,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-folder_path = 'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Peptides/512_2/TRPM3'
+folder_path = 'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Baseline/512'
 
 folder_list = (folder_path  + '/Average.txt')
 
@@ -19,9 +19,9 @@ folder_file = open(folder_list, "r") #"r" means read the file
 file_list = folder_file.readlines() # returns a list containing the lines
 
 num_fish = len(file_list) 
-Average_images = np.zeros((512, 512, 319), dtype = np.float32)
-Divisor = np.zeros((512, 512, 319), dtype = np.float32)
-Valid = np.zeros((512, 512, 319), dtype = np.float32)
+Average_images = np.zeros((512, 512, 399), dtype = np.float32)
+Divisor = np.zeros((512, 512, 399), dtype = np.float32)
+Valid = np.zeros((512, 512, 399), dtype = np.float32)
 
 for f in file_list:
     img_file = folder_path + f[:-1]  # to remove the space(new line character) in the txt file 
@@ -45,7 +45,7 @@ Average_images = Average_images/Divisor
 
 new_img = nib.Nifti1Image(Average_images, Image.affine, Image.header)
 
-nib.save(new_img, folder_path +  "/TRPM3.nii.gz")
+nib.save(new_img, folder_path +  "/Baseline.nii.gz")
 
 
 

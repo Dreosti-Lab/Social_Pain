@@ -14,7 +14,7 @@ import sys
 sys.path.append(lib_path)
 
 # Set Base Path
-base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient/NewChamber'
+base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
 #base_path = r'/Volumes/T7 Touch/Behaviour_Heat_Gradient'
 
 # Import useful libraries
@@ -41,9 +41,9 @@ motionStartThreshold = 0.025
 motionStopThreshold = 0.005
 
 
-AnalysisFolder = base_path + '/Habituation_NewChamber/Analysis'
+AnalysisFolder = base_path + '/Isolated_Control/Analysis'
 # Read folder list
-FolderlistFile = base_path + '/Habituation_NewChamber/Folderlist.txt'
+FolderlistFile = base_path + '/Isolated_Control/Folderlist_Isolated_Control.txt'
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 

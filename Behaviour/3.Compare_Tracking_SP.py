@@ -14,7 +14,7 @@ sys.path.append(lib_path)
 
 # Set Base Path
 #base_path = r'/Volumes/T7 Touch/Behaviour_Heat_Gradient'
-base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient/NewChamber'
+base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
 
 
 # Import useful libraries
@@ -29,8 +29,8 @@ from scipy import stats
 
 # Specify Analysis folder
 
-AnalysisFolder = base_path + '/Habituation_NewChamber/Analysis'
-FigureFolder = base_path + '/Habituation_Newchamber/Figures'
+AnalysisFolder = base_path + '/Isolated_Control/Analysis'
+FigureFolder = base_path + '/Isolated_Control/Figures'
 
 # Find all the npz files saved for each group and fish with all the information
 npzFiles = glob.glob(AnalysisFolder+'/*.npz')
