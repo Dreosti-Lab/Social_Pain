@@ -29,8 +29,8 @@ import SP_cfos as SPCFOS
 
 
 # Set Stack Path
-folder_path =  'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/AITC/512_2/100uM/23_03_16/fish2'
-stack_path = folder_path + '/DAPI_CFOS_02_reg_Warped.nii.gz'
+folder_path = 'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Peptides/512_2/CART/23_11_01/fish1'
+stack_path = folder_path + '/DAPI_CART_02_reg_Warped.nii.gz'
 
 # Set Mask Path
 mask_path =  'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/mask/DAPI_512_2_MASK.tif'

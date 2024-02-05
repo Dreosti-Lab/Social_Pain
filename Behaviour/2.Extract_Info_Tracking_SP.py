@@ -43,9 +43,9 @@ motionStopThreshold = 0.015
 FPS = 100
 
 
-AnalysisFolder = base_path + '/Gradient_Social/Analysis'
+AnalysisFolder = base_path + '/Isolated_Control/Analysis'
 # Read folder list
-FolderlistFile = base_path + '/Gradient_Social/Folderlist.txt'
+FolderlistFile = base_path + '/Isolated_Control/Folderlist_Isolated_Control.txt'
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 

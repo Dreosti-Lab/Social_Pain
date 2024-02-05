@@ -22,7 +22,7 @@ import SP_cfos as SPCFOS
 
 
 # Set Input stack
-stackFolder =  'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Analysis/AITC/512_2/02_10_23'
+stackFolder =  'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Analysis/AITC/512_2/03_11_23'
 stackFile = stackFolder + r'/Diff_Stack.nii.gz'
 
 # Set Mask Path
