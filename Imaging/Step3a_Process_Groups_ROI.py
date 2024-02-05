@@ -2,7 +2,7 @@
 """
 Created on Tue Jan 31 15:56:54 2023
 This code reads a summary list file and loads a specific ROI 
-- calculate the cfos_value of a specific ROI according to a defined behaviour group
+- calculates the cfos_value of a specific ROI according to a defined behaviour group
 - save values as npz 
 @author: Alizee Kastler
 """

@@ -1,6 +1,6 @@
 """
 This script plots cfos_values within the selected ROI for specified behaviour_metric
-- reads .npz file from Step3a
+- reads .npz file from Step4a
 
 """
 

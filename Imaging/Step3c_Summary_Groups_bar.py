@@ -2,6 +2,12 @@
 """
 Created on Tue Sep 26 16:04:52 2023
 
+This code loads the npz file with cfos values for the list of masks selected
+- for each mask the cfos values are compared between the specified condition and the value at baseline. 
+- mann whitney u test is used for comparison
+- plot a bar chart with two different conditons showing the cfos values for the specified masks
+- save bar plots as png
+
 @author: Alizee Kastler
 """
 # Set "Library Path" - Social Zebrafish Repo

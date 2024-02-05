@@ -1,6 +1,6 @@
 """
 This script plots summary cfos_values for a slected ROI  across groups
--loads .npz files from step 3ba
+-loads ROI .npz files from step 3a
 @author: Alizee Kastler
 """
 # -----------------------------------------------------------------------------
