@@ -131,7 +131,7 @@ def analyze_bouts_and_pauses(fx, fy, ort, motion, ROI, startThreshold, stopThres
             bouts[i, 7] = ort[boutStops[i]]
             bouts[i, 8] = boutStops[i] - boutStarts[i]# Durations
             bouts[i, 9] = absolute_angle_change(ort[boutStarts[i]], ort[boutStops[i]]) #angle change 
-            bouts[i, 10] = math.sqrt((fx[boutStops[i]] - fx[boutStarts[i]])**2 + (fy[boutStops[i]] - fy[boutStarts[i]])**2)
+            bouts[i, 10] = (math.sqrt((fx[boutStops[i]] - fx[boutStarts[i]])**2 + (fy[boutStops[i]] - fy[boutStarts[i]])**2))
             
     # Analyse all pauses (startindex, startx, starty, startort, stopindex, stopx, stopy, stoport, duration)
     numPauses = numBouts+1

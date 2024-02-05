@@ -26,36 +26,36 @@ import statsmodels.stats.multicomp as mc
 
 
 
-FigureFolder = base_path + '/Figure_Nox/test/Heat'
+FigureFolder = base_path + '/Figure_Nox/AITC'
 
 
 # Define condition data in a structured manner
 conditions = [
     {
         'folder': base_path + r'/Baseline/Analysis',
-        'name': "Bas",
+        'name': "Baseline",
         'color': '#aaa4c8',
     },
+    # {
+    #     'folder': base_path + r'/Heat_36°C/Analysis',
+    #     'name': "Heat",
+    #     'color': '#452775',
+    # },
     {
-        'folder': base_path + r'/Heat_36°C/Analysis',
-        'name': "NoxHeat",
-        'color': '#452775',
+          'folder': base_path + r'/DMSO/Analysis',
+          'name': "DMSO",
+          'color': 'plum',
     },
-    # {
-    #       'folder': base_path + r'/DMSO/Analysis',
-    #       'name': "DMSO",
-    #       'color': 'plum',
-    # },
-    # {
-    #       'folder': base_path + r'/AITC_100uM/Analysis',
-    #       'name': "100uM",
-    #       'color': 'lightcoral',
-    # },
-    # {
-    #       'folder': base_path + r'/AITC_200uM/Analysis',
-    #       'name': "200uM",
-    #       'color': '#d85c1a',
-    # },
+    {
+          'folder': base_path + r'/AITC_100uM/Analysis',
+          'name': "100uM",
+          'color': 'lightcoral',
+    },
+    {
+          'folder': base_path + r'/AITC_200uM/Analysis',
+          'name': "200uM",
+          'color': '#d85c1a',
+    }
 ]
 
 
@@ -168,8 +168,8 @@ for i  in range(0,len(conditions)):
 
 def box_strip_plot(conditions, variable, title, ylabel,ylim,FigureFolder):
     
-    x = plt.figure(figsize =(3,10), dpi=300)
-    plt.title(title, fontsize=20, y=1.1)
+    x = plt.figure(figsize =(6,10), dpi=300)
+    plt.title(title, fontsize=36, y=1.1, fontname="Arial")
     series_list = []
     
     # Data processing and plotting
@@ -179,14 +179,16 @@ def box_strip_plot(conditions, variable, title, ylabel,ylim,FigureFolder):
        
     x_data = pd.concat(series_list, axis=1) 
     
-    plt.ylabel(ylabel, fontsize = 16)
+    plt.ylabel(ylabel, fontsize = 30, fontname='Arial')
     plt.ylim(ylim)
-    plt.yticks(fontsize=14)
+    plt.yticks(fontsize=26, fontname="Arial")
     colors = [condition['color'] for condition in conditions]
     
-    ax=sns.boxplot(data=x_data,color = 'whitesmoke', linewidth=1, showfliers=False)
-    ax=sns.stripplot(data= x_data, orient="v", palette = colors,size=6, jitter=True, edgecolor="gray")
-    ax.set_xticklabels(ax.get_xticklabels(), rotation=30, fontsize = 16)
+    ax=sns.boxplot(data=x_data,color = 'whitesmoke', linewidth=3, showfliers=False)
+    ax=sns.stripplot(data= x_data, orient="v", palette = colors,size=8, jitter=True, edgecolor="gray")
+    ax.set_xticklabels(ax.get_xticklabels(), rotation=30, fontsize = 30, fontname='Arial')
+    ax.spines['left'].set_linewidth(2.5)
+    ax.spines['bottom'].set_linewidth(2.5)
     sns.despine() 
     
     # Perform the significance test (e.g., Mann-Whitney U Test or Independent t-test)
@@ -202,29 +204,29 @@ def box_strip_plot(conditions, variable, title, ylabel,ylim,FigureFolder):
     # posthoc_result = posthoc.tukeyhsd()
     # print(posthoc_result)
     
-    #Define the significance level (e.g., 0.05 for a 5% significance level)
-    significance_level = 0.05
+    # #Define the significance level (e.g., 0.05 for a 5% significance level)
+    # significance_level = 0.05
 
-    # Add asterisks to indicate significance
-    if p_value < significance_level:
-        significance_label = "*\n" + "_" * 10
-        ax.text(0.5, 1.03, significance_label, ha='center', va='center', transform=ax.transAxes, fontsize=18, fontweight='bold', color='black')
+    # # Add asterisks to indicate significance
+    # if p_value < significance_level:
+    #     significance_label = "*\n" + "_" * 10
+    #     ax.text(0.5, 1.03, significance_label, ha='center', va='center', transform=ax.transAxes, fontsize=24, fontweight='bold', color='black')
    
     x.savefig(FigureFolder + '/'+ title+'.png', dpi=300, bbox_inches='tight')    
         
 
 #Plot number of Bouts per second
-box_strip_plot(conditions, BPS_NS_summary, 'BPS', 'Number of Bouts per Second (s)',(0,3), FigureFolder)
+box_strip_plot(conditions, BPS_NS_summary, 'Bouts per Second', 'nb of BPS',(0,3), FigureFolder)
 #Plot distance Travelled
-box_strip_plot(conditions, DistanceT_NS_summary, 'Distance Travelled', 'Total Distance Travelled (mm)',(0,20000), FigureFolder)
+box_strip_plot(conditions, DistanceT_NS_summary, 'Distance Travelled', 'total distance (mm)',(0,20000), FigureFolder)
 #Plot distance Travelled per Bout
-box_strip_plot(conditions, avgdistPerBout_NS_summary, 'Distance Travelled per Bout', 'Total Distance Travelled (mm)',(0,15) , FigureFolder)
+box_strip_plot(conditions, avgdistPerBout_NS_summary, 'Distance Travelled per Bout', 'total distance (mm)',(0,15) , FigureFolder)
 #Plot Time Speed
-box_strip_plot(conditions, avgSpeedPerBout_NS_summary, 'Bout Speed', 'average Speed (mm/s)',(0,50), FigureFolder)
+box_strip_plot(conditions, avgSpeedPerBout_NS_summary, 'Bout Speed', 'average speed (mm/s)',(0,15), FigureFolder)
 #Plot Bout Interval
-box_strip_plot(conditions, avgBout_interval_NS_summary, 'inter-Bout interval', 'time between bouts (s)',(0,4), FigureFolder)
+box_strip_plot(conditions, avgBout_interval_NS_summary, 'Inter-Bout Interval', 'interval (s)',(0,4), FigureFolder)
 #Plot number of Freezes
-box_strip_plot(conditions, numFreezes_NS_summary, 'Freezes', 'Number of Freezes',(0,140), FigureFolder)
+box_strip_plot(conditions, numFreezes_NS_summary, 'Freezes', 'total nb of freezes',(0,100), FigureFolder)
 #Plot Time Moving
 box_strip_plot(conditions, Percent_Moving_NS_summary, 'Moving', '% Time Moving',(0,100), FigureFolder)
 #Plot Time Pausing
@@ -251,16 +253,20 @@ for series in series_list:
 for condition_name, df in condition_data.items():
     condition_color = [condition['color'] for condition in conditions if condition['name'] == condition_name][0]
 
-    plt.figure(figsize=(6, 8))
+    fig, ax = plt.subplots(figsize=(6, 8))
+    #ax=plt.figure(figsize=(6, 8))
     #plt.scatter(x, y, alpha=0.08)
-    plt.scatter(df[f'{condition_name}_Ort'], df[f'{condition_name}_Pos'], alpha=0.08, c=condition_color)
-    plt.title(f'BoutAngles_{condition_name}', fontsize=20, y=1.05)
-    plt.xlabel('∆ Orientation (°)', fontsize=16)
-    plt.ylabel('∆ Position (mm)', fontsize = 16)
-    plt.xlim(-80, 80)
-    plt.xticks(fontsize=16)
-    plt.yticks (fontsize=16)
-    plt.ylim(0, 8)
+    ax.scatter(df[f'{condition_name}_Ort'], df[f'{condition_name}_Pos'], alpha=0.08, c=condition_color)
+    ax.set_title(f'{condition_name}', fontsize=38, y=1.05, fontname='Arial')
+    ax.set_xlabel('∆ Orientation (°)', fontsize=38, fontname='Arial')
+    ax.set_ylabel('∆ Position (mm)', fontsize = 38, fontname='Arial')
+    ax.set_xlim(-80, 80)
+    ax.set_ylim(0, 8)
+    ax.tick_params(axis='both', which='major', labelsize=32)
+    ax.set_xticks(np.arange(-80, 81, step=40))
+    ax.set_yticks(np.arange(0, 9, step=2))
+    ax.spines['left'].set_linewidth(2.5)
+    ax.spines['bottom'].set_linewidth(2.5)
     sns.despine()
     
     # Save the plot
@@ -289,13 +295,15 @@ for condition_name, df in condition_data.items():
     
     plt.figure(figsize=(4, 10))
     
-    ax=sns.boxplot(data = df,color = 'whitesmoke', linewidth=1, showfliers=False)
-    ax=sns.stripplot(data= df, orient="v", color = condition_color,size=6, jitter=True, edgecolor="gray")
-    ax.set_xticklabels(ax.get_xticklabels(), rotation=30, fontsize = 16)
-    plt.title(f'BoutTypes_{condition_name}', fontsize=20, y=1.05)
-    plt.ylabel('Proportion of Bout Types', fontsize = 16)
+    ax=sns.boxplot(data = df,color = 'whitesmoke', linewidth=3, showfliers=False)
+    ax=sns.stripplot(data= df, orient="v", color = condition_color,size=8, jitter=True, edgecolor="gray")
+    ax.set_xticklabels(ax.get_xticklabels(), rotation=30, fontsize = 32)
+    plt.title(f'{condition_name}', fontsize=38, y=1.05)
+    plt.ylabel('Proportion of Bouts', fontsize = 38)
     plt.ylim(0,1)
-    plt.yticks(fontsize=14)
+    plt.yticks(fontsize=32)
+    ax.spines['left'].set_linewidth(2.5)
+    ax.spines['bottom'].set_linewidth(2.5)
     sns.despine()    
 
 
@@ -317,7 +325,7 @@ for i, condition in enumerate (conditions):
     n = np.sum(valid, 0)
     se = std / np.sqrt(n - 1)
 
-    ax.plot(m, color=condition['color'], linewidth=4, marker='o', markersize=7, label=f'% Moving ({condition["name"]})')
+    ax.plot(m, color=condition['color'], linewidth=4, marker='o', markersize=10, label=f'% Moving ({condition["name"]})')
     ax.plot(m + se, color=condition['color'], linewidth=1, alpha = 0.5)
     ax.plot(m - se, color=condition['color'], linewidth=1, alpha=0.5)
     ax.fill_between(np.arange(15), m - se, m + se, color=condition['color'], alpha=0.2)
@@ -329,22 +337,26 @@ for i, condition in enumerate (conditions):
     n = np.sum(valid, 0)
     se = std / np.sqrt(n - 1)
 
-    ax.plot(m, color=condition['color'], linewidth=4, marker='^', markersize=7, label=f'% Freezing ({condition["name"]})')
+    ax.plot(m, color=condition['color'], linewidth=4, marker='^', markersize=10, label=f'% Freezing ({condition["name"]})')
     ax.plot(m + se, color=condition['color'], linewidth=1, alpha=0.5)
     ax.plot(m - se, color=condition['color'], linewidth=1, alpha=0.5)
     ax.fill_between(np.arange(15), m - se, m + se, color=condition['color'], alpha=0.2)
     
     # Set labels and legend
-    ax.legend(loc="upper right", fontsize=16)
-    ax.set_xlabel('Minutes', fontsize=16)
-    ax.set_ylabel('Percentage', fontsize=16)
+    ax.legend(loc="upper right", fontsize=24)
+    ax.set_xlabel('Minutes', fontsize=24, fontname= 'Arial')
+    ax.set_ylabel('Percentage', fontsize=24, fontname = 'Arial')
     ax.set_ylim(-1, 90)
-    ax.tick_params(axis='both', which='both', labelsize=14)
-    ax.set_xticks(np.arange(0, 15, step=1))
-    ax.set_xticklabels(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15'], fontsize=14)
+    ax.tick_params(axis='both', which='both', labelsize=20)
+    ax.set_xticks(np.arange(0, 15, step=2))
+    ax.set_xticklabels(['0','2', '4', '6', '8', '10', '12', '14'], fontsize=24)
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_linewidth(2)
+    ax.spines['bottom'].set_linewidth(2)
     
     # Save the plot
     plt.savefig(FigureFolder + f'/A to P_'+condition['name']+'.png', dpi=300, bbox_inches='tight')
+
+
 

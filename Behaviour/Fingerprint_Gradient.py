@@ -28,8 +28,8 @@ from statsmodels.stats.multitest import fdrcorrection
 import glob
 
 conditions=[]
-conditions.append(r'Baseline')
-conditions.append(r'Social')
+conditions.append(r'L368_100uM_Gradient')
+conditions.append(r'L368_100uM_Gradient_Social')
 #conditions.append(r'Gradient')
 #conditions.append(r'Re-exposure')
 #conditions.append(r'Heat_Gradient')
@@ -49,7 +49,9 @@ for condition in conditions:
 
 BPS_NS_summary = []
 avgdistPerBout_NS_summary = []
+avgSpeedPerBout_NS_summary = []
 DistanceT_NS_summary = []
+avgBout_interval_NS_summary= []
 numFreezes_NS_summary = []
 Percent_Moving_NS_summary = []
 Percent_Pausing_NS_summary= []
@@ -66,9 +68,11 @@ for i, analysisFolder in enumerate(analysisFolders):
     
     BPS_NS_ALL = []
     avgdistPerBout_NS_ALL = []
+    avgSpeedPerBout_NS_ALL= []
     DistanceT_NS_ALL = []
     FSwim_NS_ALL = []
     Turn_NS_ALL = []
+    avgBout_interval_NS_ALL=[]
     numFreezes_NS_ALL = [] 
     Percent_Moving_NS_ALL = []
     Percent_Pausing_NS_ALL = []
@@ -82,7 +86,8 @@ for i, analysisFolder in enumerate(analysisFolders):
         # Extract from the npz file
         BPS_NS = dataobject['BPS_S']  
         avgdistPerBout_NS = dataobject['avgdistPerBout_S']
-        DistanceT_NS = dataobject['DistanceT_S'] 
+        avgSpeedPerBout_NS = dataobject['avgSpeedPerBout_S']
+        avgBout_interval_NS = dataobject['avgBout_interval_S']
         #FSwim_NS = dataobject['FSwim_S']
         Turn_NS = dataobject['Turns_S']
         numFreezes_NS = dataobject['numFreezes_S']
@@ -92,7 +97,8 @@ for i, analysisFolder in enumerate(analysisFolders):
             
         BPS_NS_ALL.append(BPS_NS)
         avgdistPerBout_NS_ALL.append(avgdistPerBout_NS)
-        DistanceT_NS_ALL.append(DistanceT_NS)
+        avgSpeedPerBout_NS_ALL.append(avgSpeedPerBout_NS)
+        avgBout_interval_NS_ALL.append(avgBout_interval_NS)
         #FSwim_NS_ALL.append(FSwim_NS)
         Turn_NS_ALL.append(Turn_NS)
         numFreezes_NS_ALL.append(numFreezes_NS)
@@ -100,18 +106,19 @@ for i, analysisFolder in enumerate(analysisFolders):
         #Percent_Pausing_NS_ALL.append(Percent_Pausing_NS)
             
       
-        SummaryAll.append([conditions[i],float(BPS_NS), float(avgdistPerBout_NS),float(DistanceT_NS),float(Turn_NS), float(numFreezes_NS)])
-        
+        SummaryAll.append([conditions[i],float(BPS_NS), float(avgdistPerBout_NS),float(avgSpeedPerBout_NS), float(Turn_NS),float(avgBout_interval_NS), float(numFreezes_NS)])
     
     BPS_NS_summary.append(BPS_NS_ALL)
     avgdistPerBout_NS_summary.append(avgdistPerBout_NS_ALL)
-    DistanceT_NS_summary.append(DistanceT_NS_ALL)
+    avgSpeedPerBout_NS_summary.append(avgSpeedPerBout_NS_ALL)
+    avgBout_interval_NS_summary.append(avgBout_interval_NS_ALL)
     numFreezes_NS_summary.append(numFreezes_NS_ALL)
     Percent_Moving_NS_summary.append(Percent_Moving_NS_ALL)
     Percent_Pausing_NS_summary.append(Percent_Pausing_NS_ALL)
 
 
-dfAll=pd.DataFrame(SummaryAll,columns=['Condition','BoutsPerSecond','distPerBout', 'distTravelled', 'Turn','Freezes'])
+dfAll=pd.DataFrame(SummaryAll,columns=['Condition','BPS','Distance','Speed', 'Turn','Interval', 'Freezes'])
+
 
 
 #Calculate zscore
@@ -199,6 +206,6 @@ for i in range(df_MeanZ_exBas.shape[0]):
             ax.text(j+0.5, i+0.5, "p<0.05", ha="center", va="center", color='black', fontsize=14)
   
 
-fingerprint.savefig(base_path + '/test.eps', format='eps', dpi=300,bbox_inches= 'tight')
+fingerprint.savefig(base_path + '/test_l368.eps', format='eps', dpi=300,bbox_inches= 'tight')
 #fingerprint.savefig(base_path + '/RE-Exposed.png', dpi=300, bbox_inches='tight')
               

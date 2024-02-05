@@ -26,9 +26,10 @@ from statsmodels.stats.multitest import fdrcorrection
 import glob
 
 conditionNames=[]
-conditionNames.append(r'Baseline')
-conditionNames.append(r'Social')
-conditionNames.append(r'Gradient')
+conditionNames.append(r'Old_Social')
+conditionNames.append(r'Old_Gradient')
+conditionNames.append(r'L368_100uM_Social')
+conditionNames.append(r'L368_100uM_Gradient')
 # conditionNames.append(r'DMSO')
 
 
@@ -48,6 +49,7 @@ Percent_Pausing_NS_summary= []
 
 
 AllFish = []
+
 for i, analysisFolder in enumerate(analysisFolders):
     
    
@@ -74,14 +76,14 @@ for i, analysisFolder in enumerate(analysisFolders):
         dataobject = np.load(filename)
         
         # Extract from the npz file
-        BPS_NS = dataobject['BPS_NS']  
-        avgdistPerBout_NS = dataobject['avgdistPerBout_NS']
-        avgSpeedPerBout_NS = dataobject['avgSpeedPerBout_NS']
-        avgBout_interval_NS = dataobject['avgBout_interval_NS']
+        BPS_NS = dataobject['BPS_S']  
+        avgdistPerBout_NS = dataobject['avgdistPerBout_S']
+        avgSpeedPerBout_NS = dataobject['avgSpeedPerBout_S']
+        avgBout_interval_NS = dataobject['avgBout_interval_S']
         #DistanceT_NS = dataobject['DistanceT_NS'] 
         #FSwim_NS = dataobject['FSwim_NS']
-        Turn_NS = dataobject['Turns_NS']
-        numFreezes_NS = dataobject['numFreezes_NS']
+        Turn_NS = dataobject['Turns_S']
+        numFreezes_NS = dataobject['numFreezes_S']
         #Percent_Moving_NS = dataobject['Percent_Moving_NS']
         #Percent_Pausing_NS = dataobject['Percent_Paused_NS']
         
@@ -111,84 +113,50 @@ for i, analysisFolder in enumerate(analysisFolders):
     Percent_Pausing_NS_summary.append(Percent_Pausing_NS_ALL)
 
 
-dfAll=pd.DataFrame(AllFish,columns=['Condition','BPS','Distance','Speed', 'Turn','Interval', 'Freezes'])
+    # Calculate z-score
+    df_All = pd.DataFrame(AllFish, columns=['Condition', 'BPS', 'Distance', 'Speed', 'Turn', 'Interval', 'Freezes'])
 
 
-#Calculate zscore
-df_zscore=dfAll.copy()
+# Extract data for relevant conditions
+social_condition = df_All[df_All['Condition'] == 'Old_Social']
+L368_social_condition = df_All[df_All['Condition'] == 'L368_100uM_Social']
+gradient_condition = df_All[df_All['Condition'] == 'Old_Gradient']
+L368_gradient_condition = df_All[df_All['Condition'] == 'L368_100uM_Gradient']
 
-# extract Baseline ( no stimuli)
-numeric_cols = dfAll.select_dtypes(include=[np.number]).columns 
-Baseline = dfAll.loc[(dfAll['Condition']=='Baseline')]
-# compute mean and SD
-BMean=Baseline.mean()
-Bstd=Baseline.std()
-# normalise dataframe
-for col in numeric_cols:
-    df_zscore[col]=(dfAll[col]-BMean[col])/Bstd[col]
-    
+# Select relevant swim kinematics columns
+kinematics_columns = ['BPS', 'Distance', 'Speed', 'Turn', 'Interval', 'Freezes']
 
-# perform mannwhitney with bonferroni correction
-def mann_whitney_all_vs_Bas(df):
-    """
-    Perform Mann-Whitney U tests comparing each condition to the Baseline
-    
-    Parameters:
-        df (pandas.DataFrame): Input dataframe containing the behavioral data.
+# Calculate z-scores for L368_100uM_Social vs Social
+z_scores_l368_vs_social = (L368_social_condition[kinematics_columns] - social_condition[kinematics_columns].mean()) / social_condition[kinematics_columns].std()
 
-    Returns:
-        pandas.DataFrame: Dataframe containing the p-values and FDR-corrected p-values for each condition and column.
-    """
-    # Get list of conditions
-    Conditions = df["Condition"].unique().tolist()
+# Calculate z-scores for L368_100uM_Gradient vs Gradient
+z_scores_l368_vs_gradient = (L368_gradient_condition[kinematics_columns] - gradient_condition[kinematics_columns].mean()) / gradient_condition[kinematics_columns].std()
 
-    # Remove "Baseline" from list 
-    Conditions.remove("Baseline")
+# Perform Mann-Whitney U tests and store p-values
+p_values_l368_vs_social = [mannwhitneyu(L368_social_condition[col], social_condition[col]).pvalue for col in kinematics_columns]
+p_values_l368_vs_gradient = [mannwhitneyu(L368_gradient_condition[col], gradient_condition[col]).pvalue for col in kinematics_columns]
 
-    # Create empty dataframe to store results
-    stats_df = pd.DataFrame()
-
-    # Perform Mann-Whitney U test for each genotype compared to "Scrambled" for all columns
-    for col_name in df.columns:
-        if col_name == "Condition":
-            continue
-        for Condition in Conditions:
-            group1 = df.loc[df["Condition"] == "Baseline", col_name]
-            group2 = df.loc[df["Condition"] == Condition, col_name]
-            _, pvalue = mannwhitneyu(group1, group2, alternative="two-sided")
-            stats_df = stats_df.append({"Condition": Condition, "Column": col_name, "pvalue": pvalue}, ignore_index=True)
-
-    # Correct p-values for multiple comparisons using FDR
-    stats_df["pvalue_corr"] = fdrcorrection(stats_df["pvalue"])[1]
-
-    return stats_df
-
-MannW_results_all = mann_whitney_all_vs_Bas(dfAll)
+# Combine the z-scores and p-values into a DataFrame
+df_zscore = pd.DataFrame({'L368,899_Social': z_scores_l368_vs_social.mean(),
+                            'L368,899_Gradient': z_scores_l368_vs_gradient.mean()})
+df_Pvalues= pd.DataFrame({'p-value (L368,899_Social)': p_values_l368_vs_social,
+                            'p-value (L368,899_Gradient)': p_values_l368_vs_gradient})
 
 
-#-----------------------------------------------------------------------------
 
-
-#plot all behaviours as a heatmap
-df_MeanZ=df_zscore.groupby(['Condition'], sort=False).mean()
-
-
-fingerprint =plt.figure(figsize= (10,6))
-
-df_MeanZ_exBas=df_MeanZ.drop('Baseline')
-
-ax=sns.heatmap(df_MeanZ_exBas,vmin=-1,vmax=1 ,cmap= 'coolwarm', linewidth=2, square = True)#, cbar_kws={'shrink':0.8})
+# Plot heatmap
+fingerprint =plt.figure(figsize=(10, 6))
+ax=sns.heatmap(df_zscore.T, annot=False, cmap="coolwarm", fmt=".2f", vmin = -2, vmax=2,linewidth=2, square=True )
 ax.set(xlabel='', ylabel='')
 ax.xaxis.tick_top()
 plt.xticks(rotation=20,fontsize =16, fontname='Arial')
 plt.yticks(rotation= 360, fontsize=16, fontname='Arial')
+plt.xticks(rotation=20,fontsize =16, fontname='Arial')
 
-df_pivot = pd.pivot_table(MannW_results_all, values='pvalue', index=['Condition'], columns=['Column'], sort=False)
-df_pivot = df_pivot[['BPS', 'Distance','Speed','Turn', 'Interval','Freezes']]
 
-for i in range(df_MeanZ_exBas.shape[0]):
-    for j in range(df_MeanZ_exBas.shape[1]):
-        value = df_pivot.iloc[i, j]
+for i in range(df_zscore.shape[1]):
+    for j in range(df_zscore.shape[0]):
+        value = df_Pvalues.T.iloc[i, j]
         if value < 0.001:
             ax.text(j+0.5, i+0.5, "p<0.001", ha="center", va="center", color='black', fontsize = 10)
         elif value < 0.01:
@@ -197,5 +165,5 @@ for i in range(df_MeanZ_exBas.shape[0]):
             ax.text(j+0.5, i+0.5, "p<0.05", ha="center", va="center", color='black', fontsize=10)
             
 
-fingerprint.savefig(base_path + '/Figure_Nox/fingerprint.eps', format='eps', dpi=300,bbox_inches= 'tight')           
+fingerprint.savefig(base_path + '/Gradient_Social/Figures/fingerprint_2.eps', format='eps', dpi=300,bbox_inches= 'tight')           
                 

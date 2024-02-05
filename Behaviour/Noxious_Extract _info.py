@@ -35,15 +35,15 @@ motionStartThreshold = 0.03
 motionStopThreshold = 0.015
 
 
-AnalysisFolder = base_path + '/Heat_36°C/Analysis'
+AnalysisFolder = base_path + '/Gradient/Analysis'
 # Read folder list
-FolderlistFile = base_path + '/Heat_36°C/Folderlist.txt'
+FolderlistFile = base_path + '/Gradient/Folderlist.txt'
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 
 # Get Folder Names
 for idx,folder in enumerate(folderNames):
-    NS_folder = folder + '/Non_Social'
+    NS_folder = folder + '/Social'
 
     #Load Crop regions NS
     bonsaiFiles = glob.glob(NS_folder + '/*.bonsai')
@@ -108,7 +108,7 @@ for idx,folder in enumerate(folderNames):
             
             avgdistPerBout_NS = np.mean(Bouts_NS[:,10])
             #Speed = dist/time
-            avgSpeedPerBout_NS = np.mean(Bouts_NS[:,10]/(Bouts_NS[:,8]/100))
+            avgSpeedPerBout_NS = np.mean(Bouts_NS[:,10]/(Bouts_NS[:,8]/30))
             
             
             #Analyze Bouts
