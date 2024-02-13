@@ -10,14 +10,14 @@ This script loads and processes two different groups of cfos stacks from an exce
 
 
 # -----------------------------------------------------------------------------
-# Set Library Path
+# Specify Library Path
 lib_path = r'C:/Repos/Social_Pain/libs'
 
 import sys
 import os
 sys.path.append(lib_path)
 
-# Import useful libraries
+# Import necessary libraries
 import numpy as np
 import matplotlib.pyplot as plt
 import SP_cfos as SPCFOS

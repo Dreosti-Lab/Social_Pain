@@ -35,15 +35,15 @@ motionStartThreshold = 0.03
 motionStopThreshold = 0.015
 
 
-AnalysisFolder = base_path + '/Gradient/Analysis'
+AnalysisFolder = base_path + '/Heat_36°C/Analysis'
 # Read folder list
-FolderlistFile = base_path + '/Gradient/Folderlist.txt'
+FolderlistFile = base_path + '/Heat_36°C/Folderlist.txt'
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 
 # Get Folder Names
 for idx,folder in enumerate(folderNames):
-    NS_folder = folder + '/Social'
+    NS_folder = folder + '/Non_Social'
 
     #Load Crop regions NS
     bonsaiFiles = glob.glob(NS_folder + '/*.bonsai')

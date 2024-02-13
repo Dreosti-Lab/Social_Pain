@@ -43,9 +43,9 @@ motionStopThreshold = 0.015
 FPS = 100
 
 
-AnalysisFolder = base_path + '/Isolated_Control/Analysis'
+AnalysisFolder = base_path + '/Social/Analysis'
 # Read folder list
-FolderlistFile = base_path + '/Isolated_Control/Folderlist_Isolated_Control.txt'
+FolderlistFile = base_path + '/Social/Folderlist.txt'
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 
@@ -95,14 +95,6 @@ for idx,folder in enumerate(folderNames):
             if filterTracking:
                 count_S,ort_S =SPU.filterTrackingFlips(ort_S)
                 count_NS,ort_NS =SPU.filterTrackingFlips(ort_NS)
-            
-            # #Conspecific Motion
-            # cue_motion_file = S_folder + r'/ROIs/cue_motion' + str(i+1) + '.npz'
-            # npzFile = np.load(cue_motion_file)
-            # cue_motS = npzFile['cue_motS']
-            # avg_cue_motion = np.mean(cue_motS)
-            
-        
                 
             #15min Movie
             fx_NS = fx_NS[0:90000]
@@ -152,8 +144,8 @@ for idx,folder in enumerate(folderNames):
             Bouts_S, Pauses_S = SPA.analyze_bouts_and_pauses(fx_S_mm, fy_S_mm, ort_S, Smotion_S, S_ROIs[i,1],motionStartThreshold, motionStopThreshold)       
             
             # Compute BPS 
-            BPS_NS = SPA.measure_BPS(Smotion_NS, Bouts_NS[:,0])
-            BPS_S = SPA.measure_BPS(Smotion_S, Bouts_S[:,0])
+            BPS_NS = SPA.measure_BPS(Bouts_NS[:,0])
+            BPS_S = SPA.measure_BPS(Bouts_S[:,0])
             
             Binned_Bouts_NS = SPA.Binning(Bouts_NS[:,0], 100, 16, 1) 
             Binned_Bouts_S = SPA.Binning(Bouts_S[:,0], 100, 16, 1) 
@@ -247,25 +239,6 @@ for idx,folder in enumerate(folderNames):
             Position_S = pd.concat([Cool_S,Hot_S,Noxious_S], axis=1)            
             
             
-            TTS = avgPosition_S - avgPosition_NS    
-            
-            
-        
-        
-            if avgPosition_NS>35 and TTS>=20 : 
-                cat= 1
-            
-            elif avgPosition_NS<35 and TTS<=1:
-                cat= 2
-                
-            elif avgPosition_NS<35 and TTS>=20:
-                cat= 3
-                
-            else:
-                cat =4
-
-            
-            
 #---------------------------------------------------------------------------------------------------        
             if plot: 
                 
@@ -315,12 +288,12 @@ for idx,folder in enumerate(folderNames):
                       Freezes_S = Freezes_S, Freezes_NS = Freezes_NS, numFreezes_NS = numFreezes_NS, numFreezes_S = numFreezes_S,
                       Binned_Freezes_NS = Binned_Freezes_NS,Binned_Freezes_S = Binned_Freezes_S,  
                       Binned_PTM_NS = Binned_PTM_NS, Binned_PTM_S = Binned_PTM_S, Binned_PTF_NS = Binned_PTF_NS, Binned_PTF_S= Binned_PTF_S,
-                      DistanceT_NS = DistanceT_NS, DistanceT_S = DistanceT_S, #Binned_DistanceT_NS= Binned_DistanceT_NS, Binned_DistanceT_S = Binned_DistanceT_S, 
+                      DistanceT_NS = DistanceT_NS, DistanceT_S = DistanceT_S,
                       OrtHist_NS_Cool = OrtHist_NS_Cool,OrtHist_NS_Noxious = OrtHist_NS_Noxious, OrtHist_S_Cool = OrtHist_S_Cool, OrtHist_S_Noxious = OrtHist_S_Noxious,
                       OrtHist_NS_Hot = OrtHist_NS_Hot, OrtHist_S_Hot = OrtHist_S_Hot,
                       Position_NS=Position_NS, Position_S = Position_S, avgPosition_NS = avgPosition_NS, avgPosition_S = avgPosition_S,
-                      mPosition_NS= mPosition_NS, mPosition_S= mPosition_S, cat =cat)
-                      #avg_cue_motion = avg_cue_motion)
+                      mPosition_NS= mPosition_NS, mPosition_S= mPosition_S)
+                      
     
     # Report Progress
     print (idx)

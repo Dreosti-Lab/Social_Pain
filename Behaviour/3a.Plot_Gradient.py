@@ -29,8 +29,8 @@ from scipy import stats
 
 # Specify Analysis folder
 
-AnalysisFolder = base_path + '/Gradient_Social/Analysis'
-FigureFolder = base_path + '/Gradient_Social/Figures'
+AnalysisFolder = base_path + '/Social/Analysis'
+FigureFolder = base_path + '/Social/Figures'
 
 # Find all the npz files saved for each group and fish with all the information
 npzFiles = glob.glob(AnalysisFolder+'/*.npz')
@@ -44,11 +44,8 @@ BPS_NS_ALL = np.zeros(numFiles)
 BPS_S_ALL = np.zeros(numFiles)
 avgPosition_NS_ALL = np.zeros(numFiles)
 avgPosition_S_ALL = np.zeros(numFiles)
-#mPosition_NS_ALL = np.zeros(numFiles)
-#mPosition_S_ALL = np.zeros(numFiles)
 avgdistPerBout_NS_ALL = np.zeros(numFiles)
 avgdistPerBout_S_ALL = np.zeros(numFiles)
-#avg_cue_motion_ALL = np.zeros(numFiles)
 Turns_NS_ALL = np.zeros(numFiles)
 Turns_S_ALL = np.zeros(numFiles)
 FSwim_NS_ALL = np.zeros(numFiles)
@@ -59,8 +56,6 @@ Binned_Freezes_NS_ALL = np.zeros((numFiles,15))
 Binned_Freezes_S_ALL = np.zeros((numFiles,15))
 Binned_Bouts_NS_ALL = np.zeros((numFiles,15))
 Binned_Bouts_S_ALL = np.zeros((numFiles,15))
-#Binned_DistanceT_NS_ALL = np.zeros((numFiles,15))
-#Binned_DistanceT_S_ALL = np.zeros((numFiles,15))
 Percent_Moving_NS_ALL = np.zeros(numFiles)
 Percent_Moving_S_ALL = np.zeros(numFiles)
 Percent_Paused_NS_ALL = np.zeros(numFiles)
@@ -98,8 +93,6 @@ for f, filename in enumerate(npzFiles):
     BPS_S = dataobject['BPS_S']
     Bouts_NS = dataobject['Bouts_NS']   
     Bouts_S = dataobject['Bouts_S']
-    #fish_Position_NS = dataobject['fish_Position_NS']
-    #fish_Position_S = dataobject['fish_Position_S']
     Turns_NS = dataobject['Turns_NS']
     Turns_S = dataobject['Turns_S']
     FSwim_NS = dataobject['FSwim_NS']
@@ -120,8 +113,6 @@ for f, filename in enumerate(npzFiles):
     Binned_Bouts_S = dataobject['Binned_Bouts_S']
     DistanceT_NS = dataobject['DistanceT_NS']
     DistanceT_S = dataobject['DistanceT_S']
-    #Binned_DistanceT_NS = dataobject['Binned_DistanceT_NS']
-    #Binned_DistanceT_S = dataobject['Binned_DistanceT_S']
     OrtHist_NS_Cool = dataobject['OrtHist_NS_Cool']
     OrtHist_NS_Hot = dataobject['OrtHist_NS_Hot']
     OrtHist_NS_Noxious = dataobject['OrtHist_NS_Noxious']
@@ -132,8 +123,6 @@ for f, filename in enumerate(npzFiles):
     Position_S = dataobject['Position_S']
     avgPosition_NS = dataobject['avgPosition_NS']
     avgPosition_S = dataobject['avgPosition_S']
-    #mPosition_NS = dataobject['mPosition_NS']
-    #mPosition_S = dataobject['mPosition_S']
     avgdistPerBout_NS = dataobject['avgdistPerBout_NS']
     avgdistPerBout_S = dataobject['avgdistPerBout_S']
     Binned_PTF_NS = dataobject['Binned_PTF_NS']
@@ -151,8 +140,6 @@ for f, filename in enumerate(npzFiles):
     Binned_Freezes_S_ALL[f,:] = Binned_Freezes_S
     Binned_Bouts_NS_ALL[f,:] = Binned_Bouts_NS
     Binned_Bouts_S_ALL[f,:] = Binned_Bouts_S
-    #Binned_DistanceT_NS_ALL[f,:] = Binned_DistanceT_NS
-    #Binned_DistanceT_S_ALL[f,:] = Binned_DistanceT_S
     Percent_Moving_NS_ALL[f] = Percent_Moving_NS
     Percent_Moving_S_ALL[f] = Percent_Moving_S
     Percent_Paused_NS_ALL[f] = Percent_Paused_NS
@@ -161,11 +148,8 @@ for f, filename in enumerate(npzFiles):
     Position_S_ALL[f] = Position_S
     avgPosition_NS_ALL[f] = avgPosition_NS
     avgPosition_S_ALL[f] = avgPosition_S
-    #mPosition_NS_ALL[f] = mPosition_NS
-    #mPosition_S_ALL[f] = mPosition_S
     avgdistPerBout_NS_ALL[f] = avgdistPerBout_NS
     avgdistPerBout_S_ALL[f] = avgdistPerBout_S
-    #avg_cue_motion_ALL[f] = avg_cue_motion
     Turns_NS_ALL[f] = Turns_NS
     Turns_S_ALL[f] = Turns_S
     FSwim_NS_ALL[f] = FSwim_NS
@@ -191,10 +175,6 @@ for f, filename in enumerate(npzFiles):
     Binned_PTM_S_ALL[f,:] = Binned_PTM_S
     
     
-    
-
-    
-
 
 # Plot Distance Travelled    
 s_DistanceT,pvalue_DistanceT = stats.ttest_rel(DistanceT_NS_ALL, DistanceT_S_ALL) 
@@ -223,7 +203,6 @@ for idx in df.index:
 
 #DistanceT.savefig(FigureFolder + '/DistanceT.eps', format='eps', dpi=300,bbox_inches= 'tight', transparent =True)    
 DistanceT.savefig(FigureFolder + '/DistanceT.png', dpi=300, bbox_inches='tight')
-
 
 
 # Plot Bouts Time
@@ -301,7 +280,6 @@ PTM.savefig(FigureFolder + '/PTM.png', dpi=300, bbox_inches='tight')
 
 # PTM vs PTF
 PTF = plt.figure(figsize=(8,3), dpi=300)
-#plt.title("Active to Passive Coping"+ ' (n='+ format(numFiles)+ ')',fontsize=14)
 
 m = np.nanmean(Binned_PTM_NS_ALL, 0)
 std = np.nanstd(Binned_PTM_NS_ALL, 0)
@@ -335,7 +313,7 @@ sns.despine()
 PTF.savefig(FigureFolder + '/A_to_P_Nox.png', dpi=300, bbox_inches='tight')
 PTF.savefig(FigureFolder + '/A_to_P_Nox.eps', format='eps', dpi=300,bbox_inches= 'tight')
 
-# Plot Distance Travelled Per
+
 
 # Plot Distance Travelled Per Bout   
 s_DistBout,pvalue_DistBout = stats.ttest_rel(avgdistPerBout_NS_ALL, avgdistPerBout_S_ALL) 
@@ -472,7 +450,7 @@ Moving.savefig(FigureFolder + '/%Moving.png', dpi=300, bbox_inches='tight')
 
 
 
-# Plot Percent time Moving
+# Plot Percent time Pausing
 s_Pausing,pvalue_Pausing = stats.ttest_rel(Percent_Paused_NS_ALL, Percent_Paused_S_ALL) 
 
 Pausing = plt.figure(figsize=(4,10), dpi=300)
@@ -490,29 +468,6 @@ sns.despine()
 
 Pausing.savefig(FigureFolder + '/%Pausing.png', dpi=300, bbox_inches='tight')
  
-
-#Make histogram and plot it with lines 
-DistPauses = plt.figure(figsize=(10,12), dpi=300)
-
-ax=plt.subplot(221)
-sns.histplot((Pauses_NS_ALL[:,8]/100),bins=1000)
-plt.xlim(0,3)
-plt.xticks(fontsize=14)
-plt.yticks(fontsize=14)
-plt.title('Dist Pausing(NS)', fontsize=24)
-sns.despine()
-
-ax=plt.subplot(222)
-sns.histplot((Pauses_S_ALL[:,8]/100), bins=1000)
-plt.xlim(0,3)
-plt.xticks(fontsize=14)
-plt.yticks(fontsize=14)
-plt.title('Dist Pausing(S)', fontsize=24)
-sns.despine()
-
-DistPauses.savefig(FigureFolder + '/Dist_Pausing.png', dpi=300, bbox_inches='tight')
-
-
 
 # Plot Short Freezes
 s_Freezes,pvalue_Freezes = stats.ttest_rel(numFreezes_NS_ALL, numFreezes_S_ALL) 
@@ -688,39 +643,6 @@ PositionS.savefig(FigureFolder + '/Avg_S.eps', format='eps', dpi=300,bbox_inches
 PositionS.savefig(FigureFolder + '/Avg_S.png', dpi=300, bbox_inches='tight')
 
 
-
-
-# Scatterplot Position 
-s_Pos,pvalue_Pos = stats.ttest_rel(mPosition_NS_ALL, mPosition_S_ALL) 
-
-s1 = pd.Series(mPosition_NS_ALL, name='Non Social')
-s2 = pd.Series(mPosition_S_ALL, name='Social')
-df = pd.concat([s1,s2], axis=1)
-
-jitter = 0.05
-df_jitter = pd.DataFrame(np.random.normal(loc=0, scale=jitter, size=df.values.shape), columns=df.columns)
-df_jitter += np.arange(len(df.columns))
-
-Position, ax = plt.subplots(figsize=(4,10), dpi=300)
-sns.boxplot(data=df, color = '#BBBBBB', linewidth=1, showfliers=False)
-sns.despine()  
-ax.set_title('Most Current Position (n=' + format(numFiles) + ')'+ '\n' + '\n p-value:'+ format(pvalue_Pos),fontsize=24, y=-0.25)
-ax.set_xticklabels(df.columns, fontsize=18)
-ax.set_ylabel('Mode Position(mm)', fontsize=18)
-plt.yticks(fontsize=14)
-plt.ylim(0,100)
-ax.plot(df_jitter['Non Social'], df['Non Social'],'o',mec='lightsteelblue',mfc='lightsteelblue', ms=6)
-ax.plot(df_jitter['Social'], df['Social'], 'o',mec='steelblue',mfc='steelblue', ms=6)
-
-for idx in df.index:
-    ax.plot(df_jitter.loc[idx,['Non Social','Social']], df.loc[idx,['Non Social','Social']], color = 'grey', linewidth = 0.5, linestyle = '--', alpha=0.5)    
-
-#Position.savefig(FigureFolder + '/Avg_Pos.eps', format='eps', dpi=300,bbox_inches= 'tight')
-Position.savefig(FigureFolder + '/Mode_Pos.png', dpi=300, bbox_inches='tight')
-
-
-
-
 #stacked_Histogram
 normPosition_NS = pd.DataFrame(data = Position_NS_ALL*100/numFiles, columns = ["Cool","Hot","Noxious"])
 normPosition_NS['condition']='Non Social'
@@ -824,7 +746,6 @@ Ort.figure.savefig(FigureFolder + '/Orientation.png', dpi=300, bbox_inches='tigh
 
 
 
-
 B_labels = plt.figure(figsize =(6,8), dpi=300)
 plt.suptitle('Frequency of Bout Type (n='+ format(numFiles) + ')', fontsize= 18, fontweight='medium')
 
@@ -891,90 +812,4 @@ sns.despine()
 distAngles.tight_layout
 #distAngles.savefig(FigureFolder + '/distAngles.eps', format='eps', dpi=300,bbox_inches= 'tight')
 distAngles.savefig(FigureFolder + '/distAngles.png', dpi=300, bbox_inches='tight')
-
-
-
-
-
-
-
-Resilient = np.count_nonzero(avgPosition_NS_ALL[avgPosition_NS_ALL>35])
-Susceptible = np.count_nonzero(avgPosition_NS_ALL[avgPosition_NS_ALL<15])
-other =numFiles- (Resilient+ Susceptible)
-
-data = (Resilient, Susceptible, other)
-labels = ['Resilient', 'Susceptible', 'other']
-
-pie = plt.figure(figsize= (3,3))
-plt.pie(data, labels = labels, autopct='%1.1f%%',  colors=['indigo', 'darkorange', 'lightgray'])
-pie.savefig(FigureFolder + '/pie_NS.eps', format='eps', dpi=300,bbox_inches= 'tight')
-pie.savefig(FigureFolder + '/pie_NS.png', dpi=300, bbox_inches='tight')
-
-
-
-
-
-#Define Groups 
-
-#Group1 = High Tolerance NS-Gradient>40
-#Group2 = Low Tolerance NS-Gradient<40 and RPS = 0
-#Group3 = Social Buffering NS-Gradient<40 and RPS>10
-
-# Tolerance = pd.DataFrame(
-#     {'NS': avgPosition_NS_ALL,
-#      'S': avgPosition_S_ALL,
-#      'TTS': TTSs
-#     })
-
-
-
-# HighTolerant = Tolerance[(Tolerance['NS']>35) & (Tolerance['TTS']>=20)]
-# LowTolerant = Tolerance[(Tolerance['NS']<35)&(Tolerance['TTS']<=1)]
-# Buffering = Tolerance[(Tolerance['NS']<35) & (Tolerance['TTS']>=20)] 
-
-
-
-
-# s1 = pd.Series(HighTolerant['NS'], name='High')
-# s2 = pd.Series(LowTolerant['NS'], name='Low')
-# s3 = pd.Series(Buffering['NS'], name='Buffering')
-# Group = pd.concat([s1,s2,s3], axis=1)
-
-
-# sns.swarmplot(data=Group,color='lightsteelblue',zorder=1)
-
-
-
-
-from sklearn.cluster import KMeans
-
-n_clusters = 3
-
-kmeans = KMeans(n_clusters=3, random_state=0, n_init=10).fit(XM_values)
-
-fig = plt.figure(figsize=(8, 3))
-fig.subplots_adjust()
-colors = ["#4EACC5", "#FF9C34", "#4E9A06"]
-
-k = kmeans.labels_
-center = kmeans.cluster_centers_
-
-
-# KMeans
-ax = fig.add_subplot(1, 3, 1)
-for k, col in zip(range(n_clusters), colors):
-    my_members = kmeans.labels_ == k
-    cluster_center = kmeans.cluster_centers_[k]
-    ax.plot(XM_values[my_members, 0], XM_values[my_members, 1], "w", markerfacecolor=col, marker=".")
-    ax.plot(
-        cluster_center[0],
-        cluster_center[1],
-        "o",
-        markerfacecolor=col,
-        markeredgecolor="k",
-        markersize=6,
-    )
-ax.set_title("KMeans")
-
-
    

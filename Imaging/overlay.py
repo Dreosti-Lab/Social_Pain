@@ -16,10 +16,10 @@ from tifffile import imread, imsave
 
 # Build paths
 base_folder = '/Volumes/T7/ATLAS/CFOS'
-positive_stack = '/Volumes/T7/ATLAS/stacks/OXT/OXT_HEAT_RGB_2.tif'
+positive_stack = '/Volumes/T7/ATLAS/stacks/CCK/CCK_HEAT_RGB.tif'
 negative_stack = '/Volumes/T7/ATLAS/stacks/NPY/Negative_NPY.tif'
 DAPI_stack = base_folder +  '/AITC/03_11_23/DAPI_RGB.tif'
-output_folder = '/Volumes/T7/ATLAS/stacks/OXT'
+output_folder = '/Volumes/T7/ATLAS/stacks/CCK'
 
 # Create output folder (if it does not exist)
 if not os.path.exists(output_folder):
@@ -38,7 +38,7 @@ alpha = np.zeros(np.shape(DAPI_data), dtype=np.float32)
 
 # Blend alpha (positive)
 alpha = np.zeros(np.shape(DAPI_data), dtype=np.float32)
-beta = np.clip(positive_data[:,:,:,2] /80.0/1, -0.1, 1.0)
+beta = np.clip(positive_data[:,:,:,2] /110.0/1, -0.1, 1.0)
 alpha[:,:,:,0] = beta
 alpha[:,:,:,1] = beta
 alpha[:,:,:,2] = beta
@@ -58,5 +58,5 @@ blended_stack = np.uint8(front + back)
 # blended_stack = np.uint8(front_b + front_r + back)
 
 # Save the result as a TIFF stack
-imsave(output_folder + '/Overlay_Heat_OXT.tiff', blended_stack)
+imsave(output_folder + '/Overlay_Heat_CCK.tiff', blended_stack)
 

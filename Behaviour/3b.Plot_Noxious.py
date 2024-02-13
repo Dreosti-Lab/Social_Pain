@@ -26,7 +26,7 @@ import statsmodels.stats.multicomp as mc
 
 
 
-FigureFolder = base_path + '/Figure_Nox/AITC'
+FigureFolder = base_path + '/MustardOil/Figures'
 
 
 # Define condition data in a structured manner
