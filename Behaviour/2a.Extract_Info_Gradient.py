@@ -2,12 +2,13 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Apr  6 19:00:40 2021
-
 @author: alizeekastler
 
-Extract information from tracking data and save into npz Summary file for each video of 6 fish
+Extract information from tracking data and save into npz Summary files for each of the 6 fish in one video 
+You can also save plots and summary data for each fish. 
+
 """                        
-# Set Library Path - Social_Pain Repos
+# Set Library Path
 lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
 #lib_path = r'C:/Repos/Social_Pain/libs'
 import sys
@@ -26,24 +27,26 @@ import cv2
 from scipy import stats
 
 # Import local modules
-
 import SP_utilities as SPU
 import SP_Analysis as SPA
 import SP_video_TRARK as SPV
 import BONSAI_ARK
 
-
+#display and save summary plots or not 
 plot = False
+
+#filter to remove flips in tracking
 filterTracking = False
 
-# Set threshold
+# Set parameters
 freeze_threshold = 300
 motionStartThreshold = 0.03
 motionStopThreshold = 0.015
 FPS = 100
 
-
+# Set Analysis folder (npz summary files will be saved here)
 AnalysisFolder = base_path + '/Social/Analysis'
+
 # Read folder list
 FolderlistFile = base_path + '/Social/Folderlist.txt'
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
@@ -53,22 +56,23 @@ groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 for idx,folder in enumerate(folderNames):
     NS_folder, S_folder, Analysis = SPU.get_folder_names(folder)
 
-    #Load Crop regions NS
+    #Load Crop regions Non_Social
     bonsaiFiles = glob.glob(NS_folder + '/*.bonsai')
     bonsaiFiles = bonsaiFiles[0]
     NS_ROIs = BONSAI_ARK.read_bonsai_crop_rois(bonsaiFiles)
         
-    #Load Crop regions S
+    #Load Crop regions Social
     bonsaiFiles = glob.glob(S_folder + '/*.bonsai')
     bonsaiFiles = bonsaiFiles[0]
     S_ROIs = BONSAI_ARK.read_bonsai_crop_rois(bonsaiFiles)
     
+    #Get ROI measures
     x=NS_ROIs[:,0]
     y=NS_ROIs[:,1]
     width=NS_ROIs[:,2]
     height=NS_ROIs[:,3]
 
-    
+    #Use ROI size to define thresholds 
     Threshold_Cool = np.mean(x+(width)/6)
     Threshold_Noxious = np.mean(x+(width)*5/6)
     
@@ -78,127 +82,104 @@ for idx,folder in enumerate(folderNames):
     # Analyze and plot each Fish
     for i in range(0,6):
         
-        # Only use "good" fish
-       if fishStat[i] == 1:
-            
-            if plot:
-                plt.figure(figsize=(10, 12), dpi=300)
+       if fishStat[i] == 1: # Only use "good" fish
 
-            # Extract tracking data (NS)     
+            # Extract tracking data (Non_Social)     
             tracking_file_NS = NS_folder + r'/tracking' + str(i+1) +'.npz'
             fx_NS,fy_NS,bx_NS, by_NS, ex_NS, ey_NS, area_NS, ort_NS, motion_NS = SPU.getTracking(tracking_file_NS)
             
-            # Extract tracking data (S)
+            # Extract tracking data (Social)
             tracking_file_S = S_folder + r'/tracking' + str(i+1) +'.npz'
             fx_S,fy_S,bx_S, by_S, ex_S, ey_S, area_S, ort_S, motion_S = SPU.getTracking(tracking_file_S)
-    
+            
+            # filter tracking flips for both conditions if required
             if filterTracking:
                 count_S,ort_S =SPU.filterTrackingFlips(ort_S)
                 count_NS,ort_NS =SPU.filterTrackingFlips(ort_NS)
                 
-            #15min Movie
-            fx_NS = fx_NS[0:90000]
-            fy_NS = fy_NS[0:90000]
-            bx_NS = bx_NS[0:90000]
-            by_NS = by_NS[0:90000]
-            ex_NS = ex_NS[0:90000]
-            ey_NS = ey_NS[0:90000]
-            area_NS = area_NS[0:90000]
-            ort_NS = ort_NS[0:90000]
-            motion_NS = motion_NS[0:90000]
+            #analyse only first 15min of Movie
+            numFrames = 90000 
+            
+            fx_NS = fx_NS[0:numFrames]
+            fy_NS = fy_NS[0:numFrames]
+            bx_NS = bx_NS[0:numFrames]
+            by_NS = by_NS[0:numFrames]
+            ex_NS = ex_NS[0:numFrames]
+            ey_NS = ey_NS[0:numFrames]
+            area_NS = area_NS[0:numFrames]
+            ort_NS = ort_NS[0:numFrames]
+            motion_NS = motion_NS[0:numFrames]
            
-            fx_S = fx_S[0:90000]
-            fy_S = fy_S[0:90000]
-            bx_S = bx_S[0:90000]
-            by_S = by_S[0:90000]
-            ex_S = ex_S[0:90000]
-            ey_S = ey_S[0:90000]
-            area_S = area_S[0:90000]
-            ort_S = ort_S[0:90000]
-            motion_S = motion_S[0:90000]
-        
-            numFrames = 90000    
+            fx_S = fx_S[0:numFrames]
+            fy_S = fy_S[0:numFrames]
+            bx_S = bx_S[0:numFrames]
+            by_S = by_S[0:numFrames]
+            ex_S = ex_S[0:numFrames]
+            ey_S = ey_S[0:numFrames]
+            area_S = area_S[0:numFrames]
+            ort_S = ort_S[0:numFrames]
+            motion_S = motion_S[0:numFrames]
 
-            
-            fx_NS_mm, fy_NS_mm = SPU.convert_mm(fx_NS, fy_NS, NS_ROIs[i])
-            fx_S_mm, fy_S_mm = SPU.convert_mm(fx_S, fy_S, S_ROIs[i])            
-            
-            avgPosition_NS = np.mean(fx_NS_mm)
-            avgPosition_S = np.mean(fx_S_mm)
-            
-            modePosition_NS = stats.mode(fx_NS_mm)
-            mPosition_NS = modePosition_NS[0].item()
-            
-            modePosition_S = stats.mode(fx_S_mm)
-            mPosition_S = modePosition_S[0].item()
-            
-#--------------------------------------------------------------------------------------------------------            
-            
             #Smooth Motion
             Smotion_NS =SPU.smoothSignal(motion_NS,N=3)
             Smotion_S =SPU.smoothSignal(motion_S,N=3)
 
-        
-            # Analyze "Bouts" and "Pauses" 
+            #Convert pixel positions to mm
+            fx_NS_mm, fy_NS_mm = SPU.convert_mm(fx_NS, fy_NS, NS_ROIs[i])
+            fx_S_mm, fy_S_mm = SPU.convert_mm(fx_S, fy_S, S_ROIs[i])            
+            
+#--------------------------------------------------------------------------------------------------------            
+            #Analyse motion and compute parameters
             Bouts_NS, Pauses_NS = SPA.analyze_bouts_and_pauses(fx_NS_mm, fy_NS_mm,ort_NS, Smotion_NS, NS_ROIs[i,1],motionStartThreshold, motionStopThreshold)
             Bouts_S, Pauses_S = SPA.analyze_bouts_and_pauses(fx_S_mm, fy_S_mm, ort_S, Smotion_S, S_ROIs[i,1],motionStartThreshold, motionStopThreshold)       
             
-            # Compute BPS 
+            # Compute number of bouts per second
             BPS_NS = SPA.measure_BPS(Bouts_NS[:,0])
             BPS_S = SPA.measure_BPS(Bouts_S[:,0])
             
+            # Compute number of bouts in 1min bins
             Binned_Bouts_NS = SPA.Binning(Bouts_NS[:,0], 100, 16, 1) 
             Binned_Bouts_S = SPA.Binning(Bouts_S[:,0], 100, 16, 1) 
             
-            # Compute Distance Travelled 
+            # Compute total Distance Travelled 
             DistanceT_NS = SPA.distance_traveled(fx_NS_mm,fy_NS_mm,len(fx_NS_mm))
             DistanceT_S = SPA.distance_traveled(fx_S_mm,fy_S_mm,len(fx_S_mm))
             
+            # Compute Distance Travelled per bout
             avgdistPerBout_NS = np.mean(Bouts_NS[:,10])
             avgdistPerBout_S = np.mean(Bouts_S[:,10])
-        
             
-            #Analyze Bouts
-            B_labels_NS, Bout_Angles_NS = SPA.label_bouts(Bouts_NS[:,9])
-            B_labels_S, Bout_Angles_S = SPA.label_bouts(Bouts_S[:,9])
-        
-            
-            Turns_NS =(np.sum(B_labels_NS.Turn))/len(B_labels_NS) 
-            FSwim_NS = (np.sum(B_labels_NS.FSwim))/len(B_labels_NS)
-            
-            Turns_S = (np.sum(B_labels_S.Turn))/len(B_labels_S)
-            FSwim_S = (np.sum(B_labels_S.FSwim))/len(B_labels_S)
-            
-
+            #Analyze motion
             Percent_Moving_NS = (100 * np.sum(Bouts_NS[:,8]))/(len(motion_NS))
             Percent_Paused_NS = (100 * np.sum(Pauses_NS[:,8]))/(len(motion_NS))
-            
             Percent_Moving_S = (100 * np.sum(Bouts_S[:,8]))/(len(motion_S))
             Percent_Paused_S = (100 * np.sum(Pauses_S[:,8]))/(len(motion_S))
             
             # Compute percent time freezing in one minute bins
             moving_frames_NS = SPA.fill_bouts(Bouts_NS, FPS)
             Binned_PTM_NS = SPA.bin_frames(moving_frames_NS, FPS)
-            
             moving_frames_S = SPA.fill_bouts(Bouts_S, FPS)
             Binned_PTM_S = SPA.bin_frames(moving_frames_S, FPS)
-           
             pausing_frames_NS = SPA.fill_pauses(Pauses_NS, FPS, freeze_threshold)
             Binned_PTF_NS = SPA.bin_frames(pausing_frames_NS, FPS)
-            
             pausing_frames_S = SPA.fill_pauses(Pauses_S, FPS, freeze_threshold)
             Binned_PTF_S = SPA.bin_frames(pausing_frames_S, FPS)
             
-            # Count Freezes
+            # Count and bin Freezes: periods of immobility lasting over 3s
             Freezes_NS, numFreezes_NS = SPA.analyze_freezes(Pauses_NS, freeze_threshold)
             Binned_Freezes_NS = SPA.Binning(Freezes_NS[:,0], 100, 16, 1)
-            
             Freezes_S, numFreezes_S = SPA.analyze_freezes(Pauses_S, freeze_threshold)
             Binned_Freezes_S = SPA.Binning(Freezes_S[:,0], 100, 16, 1) 
             
-#----------------------------------------------------------------------------------------------------------            
-           
-            # Orientation
+            #Analyze Bout types
+            B_labels_NS, Bout_Angles_NS = SPA.label_bouts(Bouts_NS[:,9])
+            B_labels_S, Bout_Angles_S = SPA.label_bouts(Bouts_S[:,9])
+            Turns_NS =(np.sum(B_labels_NS.Turn))/len(B_labels_NS) 
+            FSwim_NS = (np.sum(B_labels_NS.FSwim))/len(B_labels_NS)
+            Turns_S = (np.sum(B_labels_S.Turn))/len(B_labels_S)
+            FSwim_S = (np.sum(B_labels_S.FSwim))/len(B_labels_S)
+
+            # compute Orientation
             OrtHist_NS_Cool = SPA.ort_histogram(ort_NS[fx_NS < Threshold_Cool])
             OrtHist_NS_Hot = SPA.ort_histogram(ort_NS[(fx_NS > Threshold_Cool) & (fx_NS < Threshold_Noxious)])
             OrtHist_NS_Noxious = SPA.ort_histogram(ort_NS[fx_NS > Threshold_Noxious])
@@ -207,6 +188,14 @@ for idx,folder in enumerate(folderNames):
             OrtHist_S_Noxious = SPA.ort_histogram(ort_S[fx_S > Threshold_Noxious])
 
 #--------------------------------------------------------------------------------------------------------------            
+            #Check position in the chamber
+            avgPosition_NS = np.mean(fx_NS_mm)
+            avgPosition_S = np.mean(fx_S_mm)
+            modePosition_NS = stats.mode(fx_NS_mm)
+            mPosition_NS = modePosition_NS[0].item()
+            modePosition_S = stats.mode(fx_S_mm)
+            mPosition_S = modePosition_S[0].item()
+            
             # Divide ROIs
             fx_NS[fx_NS < Threshold_Cool] = 1
             fx_NS[(fx_NS > Threshold_Cool) & (fx_NS <Threshold_Noxious)] = 2
@@ -276,7 +265,7 @@ for idx,folder in enumerate(folderNames):
 #-----------------------------------------------------------------------------------------
             
 
-            # Save Analyzed Summary Data
+            # Save Analyzed Summary Data into npz files
             filename = AnalysisFolder + '/' + str(int(groups[idx])) + 'SUMMARY' + str(i+1) + '.npz'
             np.savez(filename,BPS_NS = BPS_NS,BPS_S = BPS_S,
                       Bouts_NS = Bouts_NS,Bouts_S = Bouts_S,Binned_Bouts_NS = Binned_Bouts_NS, Binned_Bouts_S= Binned_Bouts_S,

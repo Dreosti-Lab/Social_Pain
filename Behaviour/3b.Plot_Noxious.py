@@ -2,20 +2,22 @@
 # -*- coding: utf-8 -*-
 """
 Created on Mon Sep  4 12:10:53 2023
-
 @author: alizeekastler
+
+This code loads summary npz files and processes data from different conditions to generate analysys plots of behavioural data. 
 """
 
-# -----------------------------------------------------------------------------
+# Set library path
 lib_path = r'/Users/alizeekastler/Documents/GitHub/Social_Pain/libs'
 #lib_path = r'C:/Repos/Social_Pain/libs'
 import sys
 sys.path.append(lib_path)
 
+#Set base path
 base_path = r'/Volumes/T7 Touch/Behaviour_Heat_Gradient'
 #base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
 
-
+#import useful libraries 
 import glob
 import numpy as np
 import matplotlib.pyplot as plt
@@ -25,11 +27,10 @@ from scipy.stats import  ttest_ind, stats
 import statsmodels.stats.multicomp as mc
 
 
-
+#Set figure folder to save all the generated figures 
 FigureFolder = base_path + '/MustardOil/Figures'
 
-
-# Define condition data in a structured manner
+# Define condition data you want to plot and give the path to their analysis folders with summary npz files 
 conditions = [
     {
         'folder': base_path + r'/Baseline/Analysis',
@@ -128,7 +129,6 @@ for i  in range(0,len(conditions)):
         Turns_NS = dataobject['Turns_NS']
         FSwim_NS= dataobject['FSwim_NS']
         
-        
         # Make an array with all summary stats
         BPS_NS_ALL[f] = BPS_NS
         DistanceT_NS_ALL[f] = DistanceT_NS
@@ -165,10 +165,10 @@ for i  in range(0,len(conditions)):
     Turns_NS_summary.append(Turns_NS_ALL)
     FSwim_NS_summary.append(FSwim_NS_ALL)
 
-
+#generate box and strip plots for the different conditions and parameters analysed
 def box_strip_plot(conditions, variable, title, ylabel,ylim,FigureFolder):
     
-    x = plt.figure(figsize =(6,10), dpi=300)
+    x = plt.figure(figsize =(6,10), dpi=300)#change the width of the figure based on the number of conditions you want to compare
     plt.title(title, fontsize=36, y=1.1, fontname="Arial")
     series_list = []
     

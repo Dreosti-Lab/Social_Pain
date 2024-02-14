@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-PreProcessing check immediately if the tracking has worked: Summary Background image + Difference
+Check immediately if the tracking has worked: generates a summary background image + Difference
 """
-# Set Library Path - Social Pain Repo
+# Set Library Path
 lib_path = r'C:/Repos/Social_Pain/libs'
 import sys
 sys.path.append(lib_path)
+
 # Set Base Path
 base_path = r'S:/WIBR_Dreosti_Lab/Alizee/Behaviour_Heat_Gradient'
 #base_path = r'S:\WIBR_Dreosti_Lab\Alizee\Behaviour_Heat_Gradient'
@@ -26,9 +27,9 @@ for idx,folder in enumerate(folderNames):
     # Get Folder Names
     NS_folder, S_folder, Analysis = SPU.get_folder_names(folder)
             
-    # Process Video (NS)
+    # Process Video (Non_Social)
     SPV.pre_process_video(NS_folder, False)
-    # Process Video (S)
+    # Process Video (Social)
     SPV.pre_process_video(S_folder, True)
        
     # Report Progress

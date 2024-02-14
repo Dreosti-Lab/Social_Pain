@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-Video Fish Tracking after defining ROIs 
+Fish tracking from a video and after defining ROIs in Bonsai
 """                        
-# Set Library Path - Social_Pain Repos
-#lib_path = r'C:\Users\thoma\OneDrive\Documents\GitHub\Social_Pain\libs'
+# Set Library Path 
 lib_path = r'C:\Repos\Social_Pain\libs'
 import sys
 sys.path.append(lib_path)
@@ -28,7 +27,7 @@ import BONSAI_ARK
 import SP_utilities as SPU
 
 # Read Folder List
-FolderlistFile = base_path + '/Gradient_NewChamber38/Experiments/2023_12_06/Folderlist - 2.txt'
+FolderlistFile = base_path + '/Gradient_NewChamber38/Experiments/2023_12_06/Folderlist.txt'
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 # Divisor and closing kernel parameters (thresholding for mask and background)
@@ -42,26 +41,26 @@ for idx,folder in enumerate(folderNames):
     NS_folder, S_folder, Analysis = SPU.get_folder_names(folder)
 
     # ---------------------
-    # Process Video (NS)
+    # Process Video (Non_Social)
     bonsaiFiles = NS_folder + r'\Bonsai_ROI_Analysis.bonsai'
     ROIs = BONSAI_ARK.read_bonsai_crop_rois(bonsaiFiles)
-    # Run more improved tracking in SP_video module
+    # Run tracking in SP_video 
     fxS, fyS, bxS, byS, exS, eyS, areaS, ortS, motS = SPV.fish_tracking(NS_folder, S_folder, ROIs, divisor=divisor, kSize=kernelWidth)
 
-    # Save Tracking (NS)
+    # Save Tracking (Non_Social)
     for i in range(0,6):
         filename = NS_folder + r'\tracking'+ str(i+1) + '.npz'
         fish = np.vstack((fxS[:,i], fyS[:,i], bxS[:,i], byS[:,i], exS[:,i], eyS[:,i], areaS[:,i], ortS[:,i], motS[:,i]))
         np.savez(filename, tracking=fish.T)
     
     #---------------------
-    # Process Video (S)
+    # Process Video (Social)
     bonsaiFiles = S_folder + r'/Bonsai_ROI_Analysis.bonsai'
     ROIs = BONSAI_ARK.read_bonsai_crop_rois(bonsaiFiles)
-    #Run more improved tracking in SP_video module
+    #Run tracking in SP_video
     fxS, fyS, bxS, byS, exS, eyS, areaS, ortS, motS = SPV.fish_tracking(S_folder, S_folder, ROIs, divisor=divisor, kSize=kernelWidth)
 
-    # Save Tracking (S)
+    # Save Tracking (Social)
     for i in range(0,6):
         filename = S_folder + r'/tracking'+ str(i+1) + '.npz'
         fish = np.vstack((fxS[:,i], fyS[:,i], bxS[:,i], byS[:,i], exS[:,i], eyS[:,i], areaS[:,i], ortS[:,i], motS[:,i]))
