@@ -1,7 +1,8 @@
 # Social_Pain
-Lonely and hurting (fish)
+
 
 ## Behaviour 
+Buddy-boosted Tolerance (in fish)
 
 ### Gradient: Analysis of 2 different movies of the same fish comparing conditions to a baseline 
 
