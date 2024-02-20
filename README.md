@@ -42,6 +42,8 @@ Buddy-boosted Tolerance (in fish)
 
 **4. Calculate cfos values** within specific ROI and compare values between groups
 
-**5. Process individual fish** based on cfos values in ROIs and behavioural metrics
+**5. Cross-Correlation** analysis to evaluate similarities and divergences between groups 
+
+**6. Process individual fish** based on cfos values in ROIs and behavioural metrics
 
 
