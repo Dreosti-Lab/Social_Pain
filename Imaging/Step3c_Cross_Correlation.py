@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Fri Oct 20 13:57:58 2023
+This script performs cross-correlation analysis comparing a set of cfos values in ROIs for different conditions.
 
 @author: Alizee Kastler
 """

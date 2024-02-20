@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Wed Oct 11 17:03:42 2023
-
+This script is used to overlay raw RGB tiff of cfos for example onto a white DAPI background. 
 @author: alizeekastler
 """
 

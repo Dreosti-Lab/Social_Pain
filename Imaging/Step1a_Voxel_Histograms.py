@@ -83,7 +83,6 @@ mode_bin = np.argmax(histogram)
 mode = bin_centers[mode_bin]
 
 
-
 # Plot histogram with markers for median(black dot), mode(black cross), bottom (blue) and top decile (red) 
 voxel_hist = plt.figure()
 
@@ -95,7 +94,7 @@ plt.plot(top_decile, histogram[top_decile_bin], 'ro')
 
 #Add labels and legend
 plt.xlabel('voxel intensity')
-pl.ylabel ('frequency')
+plt.ylabel ('frequency')
 plt.legend()
 
 # Save histogram as png file to check immediately and npz to store vallues

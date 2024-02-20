@@ -27,7 +27,7 @@ import SP_cfos as SPCFOS
 
 
 # Set Summary List
-summaryListFile = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Cfos_Summary/Cfos_fish_data_Hab_2.xlsx'
+summaryListFile = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Cfos_Summary/Cfos_Summary_512.xlsx'
 
 # Set ROI Path
 roi_path = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/mask/vHb.tif'

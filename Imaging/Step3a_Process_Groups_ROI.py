@@ -2,8 +2,10 @@
 """
 Created on Tue Jan 31 15:56:54 2023
 This code reads a summary list file and loads a specific ROI 
-- calculates the cfos_value of a specific ROI according to a defined behaviour group
+- calculates the cfos_value within this ROI according to group names
 - save values as npz 
+- loads cfos values from npz files and plots as a swarmplot
+
 @author: Alizee Kastler
 """
 
@@ -27,7 +29,7 @@ import seaborn as sns
 
 
 # Set Summary List
-summaryListFile = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Cfos_Summary/Cfos_Summary_512_2.xlsx'
+summaryListFile = r'S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Cfos_Summary/Cfos_Summary_512.xlsx'
 
 # Set ROI Path
 roi_path = 'F:/ATLAS/MASK_CFOS/cH.tif'
@@ -40,14 +42,6 @@ analysis_folder ='S:/WIBR_Dreosti_Lab/Alizee/LSZ1/Registration/Analysis/ROI/'+ r
 if not os.path.exists(analysis_folder):
    os.makedirs(analysis_folder)
 
-
-analysis_path_A = analysis_folder + '/Baseline_cfos.npz'
-analysis_path_B = analysis_folder + '/Heat_cfos.npz'
-analysis_path_C = analysis_folder + '/AITC_cfos.npz'
-analysis_path_D = analysis_folder + '/Social_cfos.npz'
-analysis_path_E = analysis_folder + '/DMSO_cfos.npz'
-
-
 # -----------------------------------------------------------------------------
 
 # Read summary list
@@ -55,54 +49,50 @@ cfos_paths, group_names = SPCFOS.read_summarylist(summaryListFile, normalized=Tr
 cfos_paths = np.array(cfos_paths)
 group_names = np.array(group_names)
 
+# Function to calculate cfos values and save npz file
+def calculate_and_save_cfos_values(group_name):
+    group = (group_names == group_name)
+    cfos_values = SPCFOS.cfos_value_ROI(group, cfos_paths, roi_path)
+    np.savez(analysis_folder + '/'+ group_name + '_cfos.npz', cfos_values=cfos_values, group_name=group_name, roi_name=roi_name)
 
-group_A = (group_names == 'Baseline')
-cfos_values_A = SPCFOS.cfos_value_ROI(group_A, cfos_paths, roi_path)
-np.savez(analysis_path_A, cfos_values=cfos_values_A, group_name=group_A, roi_name=roi_name)
+# Loop through each analysis path and corresponding group name
+for  group_name in  group_names:
+    calculate_and_save_cfos_values(group_name)
 
-group_B = (group_names == 'Heat')
-cfos_values_B = SPCFOS.cfos_value_ROI(group_B, cfos_paths, roi_path)
-np.savez(analysis_path_B, cfos_values=cfos_values_B, group_name=group_B, roi_name=roi_name)
+#--------------------------------------------------------------------------------------------------------------------
 
-group_C = (group_names == 'AITC')
-cfos_values_C = SPCFOS.cfos_value_ROI(group_C, cfos_paths, roi_path)
-np.savez(analysis_path_C, cfos_values=cfos_values_C, group_name=group_C, roi_name=roi_name)
+# Load data from npz files and construct DataFrame
+data = {}
+max_length = 0
+for group_name in group_names:
+    npz_file = np.load(analysis_folder + '/' + group_name + '_cfos.npz')
+    cfos_values = npz_file['cfos_values']
+    data[group_name] = cfos_values
+    max_length = max(max_length, len(cfos_values))
+    npz_file.close()
 
-group_D = (group_names == 'Social')
-cfos_values_D = SPCFOS.cfos_value_ROI(group_D, cfos_paths, roi_path)
-np.savez(analysis_path_D, cfos_values=cfos_values_D, group_name=group_D, roi_name=roi_name)
+# Pad arrays with NaNs to make them the same length
+for group_name, cfos_values in data.items():
+    if len(cfos_values) < max_length:
+        data[group_name] = np.pad(cfos_values, (0, max_length - len(cfos_values)), 'constant', constant_values=np.nan)
 
-group_E = (group_names == 'DMSO')
-cfos_values_E = SPCFOS.cfos_value_ROI(group_E, cfos_paths, roi_path)
-np.savez(analysis_path_E, cfos_values=cfos_values_E, group_name=group_E, roi_name=roi_name)
-
-
+df = pd.DataFrame(data)
 
 # Plot
-bar_colours = [ "#aaa4c8","#452775",'plum', '#d75d1b', 'lightgrey']
+bar_colours = ["#aaa4c8", "#452775", 'plum', '#d75d1b', 'lightgrey']
+cfos_val = plt.figure(figsize=(4, 4), dpi=300)
+plt.title(roi_name, fontsize=14)
 
-
-cfos_val = plt.figure(figsize=(4,4),dpi=300)
-plt.title(roi_name,fontsize= 14)  
-
-s1 = pd.Series(cfos_values_A, name='Baseline')
-s2 = pd.Series(cfos_values_B, name='Noxious')
-s3 = pd.Series(cfos_values_E, name='DMSO')
-s4 = pd.Series(cfos_values_C, name='AITC')
-s5 = pd.Series(cfos_values_D, name='Social')
-df = pd.concat([s1,s2,s3,s4,s5], axis=1)
-ax=sns.swarmplot(data=df, orient="v", size=6, palette=bar_colours, zorder=1) 
+ax = sns.swarmplot(data=df, orient="v", size=6, palette=bar_colours, zorder=1)
 with plt.rc_context({'lines.linewidth': 0.8}):
     sns.pointplot(data=df, orient="v", linewidth=0, ci=68, capsize=0.4, join=False, color="#444444", zorder=100)
 plt.ylabel("cFos expression")
 ax.set(ylim=(0, 4))
 sns.despine()
-plt.show ()
+plt.show()
+
 
 cfos_val.savefig(analysis_folder + '/'+ roi_name +'.png', dpi=300, bbox_inches='tight')
-
-
-
 
 
 #FIN
