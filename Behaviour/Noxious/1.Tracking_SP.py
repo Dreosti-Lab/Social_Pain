@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-Fish tracking from a video and after defining ROIs in Bonsai
+Fish tracking offline from a video and after defining ROIs in Bonsai
+Extracts x and y coordinates of eye, body and heading orientation 
+
 """                        
 # Set Library Path 
 lib_path = r'C:\Repos\Social_Pain\libs'

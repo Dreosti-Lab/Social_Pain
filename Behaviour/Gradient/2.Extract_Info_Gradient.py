@@ -45,10 +45,10 @@ motionStopThreshold = 0.015
 FPS = 100
 
 # Set Analysis folder (npz summary files will be saved here)
-AnalysisFolder = base_path + '/Social/Analysis'
+AnalysisFolder = base_path + '/Gradient_Social/Analysis'
 
 # Read folder list
-FolderlistFile = base_path + '/Social/Folderlist.txt'
+FolderlistFile = base_path + '/Gradient_Social/Folderlist.txt'
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 

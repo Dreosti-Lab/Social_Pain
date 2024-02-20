@@ -75,8 +75,8 @@ cluster_labels = kmeans.labels_
 centers = kmeans.cluster_centers_
 
 # Map numeric labels to cluster names
-cluster_names = {0: 'Low-Low', 1: 'High-High', 2: 'High-Low', 3:'Low-High'}
-cluster_colors = {0: 'yellow', 1: 'cadetblue', 2: 'steelblue', 3: 'lightgreen'}
+cluster_names = {0: 'High-High', 1: 'Low-Low',  2:'Low-High', 3: 'High-Low'}
+cluster_colors = {0: 'cadetblue', 1: 'yellow',  2: 'lightgreen', 3: 'steelblue'}
 clusters = [cluster_names[label] for label in cluster_labels]
 
 

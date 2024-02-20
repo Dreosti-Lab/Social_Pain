@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Check immediately if the tracking has worked: generates a summary background image + Difference
+Generates a summary background image + Difference
 """
 # Set Library Path
 lib_path = r'C:/Repos/Social_Pain/libs'
