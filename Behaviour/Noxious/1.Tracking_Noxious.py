@@ -29,7 +29,7 @@ import BONSAI_ARK
 import SP_utilities as SPU
 
 # Read Folder List
-FolderlistFile = base_path + '/Gradient_NewChamber38/Experiments/2023_12_06/Folderlist.txt'
+FolderlistFile = base_path + '/Heat_36/23_07_19/Folderlist.txt'
 groups, ages, folderNames, fishStatus = SPU.read_folder_list(FolderlistFile)
 
 # Divisor and closing kernel parameters (thresholding for mask and background)
@@ -40,34 +40,20 @@ kernelWidth=3
 for idx,folder in enumerate(folderNames):
     
     # Get Folder Names
-    NS_folder, S_folder, Analysis = SPU.get_folder_names(folder)
+    NS_folder,S_folder = SPU.get_folder_name(folder)
 
     # ---------------------
     # Process Video (Non_Social)
-    bonsaiFiles = NS_folder + r'\Bonsai_ROI_Analysis.bonsai'
+    bonsaiFiles = NS_folder + r'/Bonsai_ROI_Analysis.bonsai'
     ROIs = BONSAI_ARK.read_bonsai_crop_rois(bonsaiFiles)
     # Run tracking in SP_video 
-    fxS, fyS, bxS, byS, exS, eyS, areaS, ortS, motS = SPV.fish_tracking(NS_folder, S_folder, ROIs, divisor=divisor, kSize=kernelWidth)
+    fxS, fyS, bxS, byS, exS, eyS, areaS, ortS, motS = SPV.fish_tracking(NS_folder,S_folder, ROIs, divisor=divisor, kSize=kernelWidth)
 
     # Save Tracking (Non_Social)
     for i in range(0,6):
-        filename = NS_folder + r'\tracking'+ str(i+1) + '.npz'
+        filename = NS_folder + r'/tracking'+ str(i+1) + '.npz'
         fish = np.vstack((fxS[:,i], fyS[:,i], bxS[:,i], byS[:,i], exS[:,i], eyS[:,i], areaS[:,i], ortS[:,i], motS[:,i]))
-        np.savez(filename, tracking=fish.T)
-    
-    #---------------------
-    # Process Video (Social)
-    bonsaiFiles = S_folder + r'/Bonsai_ROI_Analysis.bonsai'
-    ROIs = BONSAI_ARK.read_bonsai_crop_rois(bonsaiFiles)
-    #Run tracking in SP_video
-    fxS, fyS, bxS, byS, exS, eyS, areaS, ortS, motS = SPV.fish_tracking(S_folder, S_folder, ROIs, divisor=divisor, kSize=kernelWidth)
-
-    # Save Tracking (Social)
-    for i in range(0,6):
-        filename = S_folder + r'/tracking'+ str(i+1) + '.npz'
-        fish = np.vstack((fxS[:,i], fyS[:,i], bxS[:,i], byS[:,i], exS[:,i], eyS[:,i], areaS[:,i], ortS[:,i], motS[:,i]))
-        np.savez(filename, tracking=fish.T)
-         
+        np.savez(filename, tracking=fish.T)         
     
     #Close Plots
     plt.close('all')

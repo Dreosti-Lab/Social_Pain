@@ -65,6 +65,12 @@ def get_folder_names(folder):
     
     return NS_folder, S_folder, Analysis
 
+def get_folder_name(folder):
+    # Specifiy Folder Names
+    NS_folder = folder + '/Non_Social'
+    S_folder = folder + '/Non_Social'
+    
+    return NS_folder, S_folder
     
 
 def load_video (folder):
