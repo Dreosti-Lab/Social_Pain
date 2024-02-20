@@ -33,3 +33,15 @@ Buddy-boosted Tolerance (in fish)
 **4. Summary** fingerprint comparing the change (increase or decrease) in analysed parameters for each condition compared to baseline
 
 ## Imaging
+
+**1. Normalize** each voxel to the background value (mode of all voxels histogram)
+
+**2. Compare 2 different groups** and generate mean and diff stacks. scale diff stack for display
+
+**3. Overlay** RGB cfos stack on a light DAPI background for better contrast in final figures
+
+**4. Calculate cfos values** within specific ROI and compare values between groups
+
+**5. Process individual fish** based on cfos values in ROIs and behavioural metrics
+
+
