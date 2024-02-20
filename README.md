@@ -9,7 +9,7 @@ Lonely and hurting (fish)
 
 **1. Track** 6 fish at a time in 6 individual wells and extract x and y coordinates of the body, eyes, and heading orientation. 
 
-**2.Measure** swim parameters and store into summary npz files for each fish 
+**2. Measure** swim parameters and store into summary npz files for each fish 
 
 **3. Plot** the summary data and save the plots in a figure folder 
 
