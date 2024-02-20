@@ -88,7 +88,6 @@ for f, filename in enumerate(npzFiles):
     dataobject = np.load(filename, allow_pickle = True)
     
     # Extract from the npz file 
-    cat = dataobject['cat']
     BPS_NS = dataobject['BPS_NS']   
     BPS_S = dataobject['BPS_S']
     Bouts_NS = dataobject['Bouts_NS']   
@@ -131,7 +130,6 @@ for f, filename in enumerate(npzFiles):
     Binned_PTM_S = dataobject['Binned_PTM_S']
     
     # Make an array with all summary stats
-    cat_ALL[f]= cat
     BPS_NS_ALL[f] = BPS_NS
     BPS_S_ALL[f] = BPS_S
     numFreezes_NS_ALL[f] = numFreezes_NS
@@ -174,77 +172,112 @@ for f, filename in enumerate(npzFiles):
     Binned_PTM_NS_ALL[f,:] = Binned_PTM_NS
     Binned_PTM_S_ALL[f,:] = Binned_PTM_S
     
+
+
+def box_strip_plot (data_NS, data_S, title, ylabel, ylim, FigureFolder):
     
+    #Statistics for paired data
+    s,p_value = stats.ttest_rel(data_NS, data_S)
+    
+    s1 = pd.Series(data_NS, name='Non Social')
+    s2 = pd.Series(data_S, name='Social')
+    df=pd.concat([s1,s2],axis=1)
+    
+    jitter = 0.05
+    df_jitter = pd.DataFrame(np.random.normal(loc=0, scale=jitter, size=df.values.shape), columns=df.columns)
+    df_jitter += np.arange(len(df.columns))
+    
+    fig,ax = plt.subplots(figsize=(4,12), dpi=300)
+    ax.set_title(title + '(n='+ format(numFiles) + ')' + '\n'+'\n p-value:'+ format(p_value), fontsize = 36, fontname = 'Arial',y=1.1)
+    
+    ax.set_ylabel(ylabel, fontsize= 30, fontname = 'Arial')
+    plt.yticks(fontsize=26,fontname='Arial')
+    plt.ylim(ylim)
+    
+    sns.boxplot(data=df, color= 'whitesmoke', linewidth=3, showfliers=False) 
+    ax.set_xticklabels(df.columns, rotation = 30, fontname= 'Arial',fontsize=30)
+    ax.spines['left'].set_linewidth(2.5)
+    ax.spines['bottom'].set_linewidth(2.5)
+    sns.despine()
+    
+    ax.plot(df_jitter['Non Social'], df['Non Social'],'o',mec='lightsteelblue',mfc='lightsteelblue', ms=8)
+    ax.plot(df_jitter['Social'], df['Social'], 'o',mec='steelblue',mfc='steelblue', ms=8)
 
-# Plot Distance Travelled    
-s_DistanceT,pvalue_DistanceT = stats.ttest_rel(DistanceT_NS_ALL, DistanceT_S_ALL) 
+    for idx in df.index:
+        ax.plot(df_jitter.loc[idx,['Non Social','Social']], df.loc[idx,['Non Social','Social']], color = 'grey', linewidth = 0.5, linestyle = '--', alpha=0.5)
 
-s1 = pd.Series(DistanceT_NS_ALL, name='Non Social')
-s2 = pd.Series(DistanceT_S_ALL, name='Social')
-df = pd.concat([s1,s2], axis=1)
+    fig. savefig(FigureFolder + '/'+ title + '.png', dpi=300, bbox_inches= 'tight')
 
-jitter = 0.05
-df_jitter = pd.DataFrame(np.random.normal(loc=0, scale=jitter, size=df.values.shape), columns=df.columns)
-df_jitter += np.arange(len(df.columns))
 
-DistanceT, ax = plt.subplots(figsize=(4,10), dpi=300)
-sns.boxplot(data=df, color = '#BBBBBB', linewidth=1, showfliers=False)
-sns.despine()  
-ax.set_title('Distance Travelled (n='+ format(numFiles) + ')' + '\n'+'\n p-value:'+ format(pvalue_DistanceT), fontsize =  24, fontweight = 'medium',y=-0.25)
-ax.set_xticklabels(df.columns, fontsize=18)
-ax.set_ylabel('Total Distance Travelled (mm)', fontsize= 18)
-plt.yticks(fontsize=14)
-plt.ylim(0,18000)
-ax.plot(df_jitter['Non Social'], df['Non Social'],'o',mec='lightsteelblue',mfc='lightsteelblue', ms=8)
-ax.plot(df_jitter['Social'], df['Social'], 'o',mec='steelblue',mfc='steelblue', ms=8)
 
-for idx in df.index:
-    ax.plot(df_jitter.loc[idx,['Non Social','Social']], df.loc[idx,['Non Social','Social']], color = 'grey', linewidth = 0.5, linestyle = '--', alpha=0.5)
+#Plot BPS
+box_strip_plot(BPS_NS_ALL, BPS_S_ALL, 'Bouts per Second', 'nb of BPS', (0,3.5), FigureFolder)
+#Plot Distance Travelled
+box_strip_plot(DistanceT_NS_ALL, DistanceT_S_ALL, 'Distance Travelled','total distance (mm)', (0,20000), FigureFolder )
+#Plot Distanced Travelled per Bout
+box_strip_plot(avgdistPerBout_NS_ALL, avgdistPerBout_S_ALL, 'Distance Travelled per Bout', 'total distance(mm)', (0,4), FigureFolder)
+#Plot number of Freezes
+box_strip_plot(numFreezes_NS_ALL, numFreezes_S_ALL, 'Freezes', 'total nb of freezes', (-1,100), FigureFolder)
+#Plot Time Moving
+box_strip_plot(Percent_Moving_NS_ALL, Percent_Moving_S_ALL, 'Moving','% Time Moving', (0,100), FigureFolder)
+#Plot Time Pausing
+box_strip_plot(Percent_Paused_NS_ALL, Percent_Paused_S_ALL, 'Pausing','% Time Pausing', (0,100), FigureFolder)
 
-#DistanceT.savefig(FigureFolder + '/DistanceT.eps', format='eps', dpi=300,bbox_inches= 'tight', transparent =True)    
-DistanceT.savefig(FigureFolder + '/DistanceT.png', dpi=300, bbox_inches='tight')
 
+#Calculate Number of Bouts
+nBouts_NS = BPS_NS_ALL * (90000/100)
+nBouts_S = BPS_S_ALL * (90000/100)
+#Plot number of Bouts
+box_strip_plot(nBouts_NS, nBouts_S, 'Total number of Bouts', 'nb of bouts', (0,3500), FigureFolder)
+
+
+
+
+def plot_binned_graph (data_NS, data_S, title, ylabel,ylim, FigureFolder):
+    
+    mean_NS = np.mean(data_NS, axis=0)
+    sem_NS = stats.sem(data_NS)
+    std_NS = np.std(data_NS, axis=0)
+    
+    mean_S = np.mean(data_S, axis=0)
+    sem_S = stats.sem(data_S)
+    std_S = np.std(data_S, axis=0)
+    
+    fig = plt.figure (figsize= (12,6), dpi=300)
+    plt.suptitle(title + '\n n='+ format(numFiles), fontsize=26, fontname='Arial')
+    
+    ax = plt.subplot(221)
+    plt.title('Non Social',fontsize= 16, fontname='Arial', y=-0.30)
+    plt.plot(mean_NS, color = 'lightsteelblue', linewidth= 3)
+    plt.fill_between(np.arange(mean_NS.shape[0]), mean_NS + sem_NS,
+                  mean_NS - sem_NS,color= 'lightsteelblue',alpha=0.2)
+    plt.ylabel(ylabel, fontsize=16, fontname = 'Arial')
+    plt.ylim(ylim)
+    plt.yticks(fontsize=14)
+    plt.xticks(np.arange(0, 15, step= 1), ('1', '2','3','4','5','6','7', '8', '9', '10', '11','12','13','14','15'), fontsize=14)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+
+    ax = plt.subplot(222)
+    plt.title('Social', fontsize= 16, fontname='Arial', y=-0.30)
+    plt.plot(mean_S, color = 'steelblue', linewidth= 3)
+    plt.fill_between(np.arange(mean_S.shape[0]), mean_S + sem_S,
+                  mean_S - sem_S,color= 'steelblue',alpha=0.2)
+    plt.ylim(ylim)
+    plt.xticks(np.arange(0, 15, step= 1), ('1', '2','3','4','5','6','7', '8', '9', '10', '11','12','13','14','15'), fontsize=14)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.spines['left'].set_visible(False)
+    ax.get_yaxis().set_ticks([])
+    
+    fig.savefig(FigureFolder + '/'+ title + '.png', dpi=300, bbox_inches= 'tight')
 
 # Plot Bouts Time
-mean_Bouts_NS = np.mean(Binned_Bouts_NS_ALL, axis=0)
-sem_Bouts_NS = stats.sem(Binned_Bouts_NS_ALL)
-std_Bouts_NS = np.std(Binned_Bouts_NS_ALL, axis=0)
+plot_binned_graph (Binned_Bouts_NS_ALL, Binned_Bouts_S_ALL, "Bouts over time", 'nb of bouts', (0,200), FigureFolder)
+#Plot Binned Freezes
+plot_binned_graph (Binned_Freezes_NS_ALL, Binned_Freezes_S_ALL, "Freezes over time", 'nb of freezes', (0,4), FigureFolder)
 
-mean_Bouts_S = np.mean(Binned_Bouts_S_ALL, axis=0)
-sem_Bouts_S = stats.sem(Binned_Bouts_S_ALL)
-std_Bouts_S = np.std(Binned_Bouts_S_ALL, axis=0)
 
-Binned_Bouts = plt.figure(figsize=(14,10), dpi=300)
-plt.suptitle("Bouts over time"+ '\n n='+ format(numFiles),fontsize=24) 
-
-ax = plt.subplot(221)
-plt.title('Non Social',fontsize= 18, y=-0.30)
-plt.plot(mean_Bouts_NS, color = 'lightsteelblue', linewidth= 3)
-plt.fill_between(np.arange(mean_Bouts_NS.shape[0]), mean_Bouts_NS + sem_Bouts_NS,
-                  mean_Bouts_NS - sem_Bouts_NS,color= 'lightsteelblue',alpha=0.2)
-plt.ylabel('number of Bouts', fontsize=18)
-plt.ylim(0,200)
-plt.yticks(fontsize=18)
-plt.xticks(np.arange(0, 15, step= 1), ('1', '2','3','4','5','6','7', '8', '9', '10', '11','12','13','14','15'), fontsize=14)
-plt.xlabel('minutes', fontsize=18)
-ax.spines['right'].set_visible(False)
-ax.spines['top'].set_visible(False)
-
-ax = plt.subplot(222)
-plt.title('Social', fontsize= 18, y=-0.30)
-plt.plot(mean_Bouts_S, color = 'steelblue', linewidth= 3)
-plt.fill_between(np.arange(mean_Bouts_S.shape[0]), mean_Bouts_S + sem_Bouts_S,
-                  mean_Bouts_S - sem_Bouts_S,color= 'steelblue',alpha=0.2)
-plt.ylim(0,200)
-plt.xticks(np.arange(0, 15, step= 1), ('1', '2','3','4','5','6','7', '8', '9', '10', '11','12','13','14','15'), fontsize=14)
-plt.xlabel('minutes', fontsize=18)
-ax.spines['right'].set_visible(False)
-ax.spines['top'].set_visible(False)
-ax.spines['left'].set_visible(False)
-ax.get_yaxis().set_ticks([])
-
-#Binned_Bouts.savefig(FigureFolder + '/BinnedBouts.eps', format='eps', dpi=300,bbox_inches= 'tight')
-Binned_Bouts.savefig(FigureFolder + '/BinnedBouts.png', dpi=300, bbox_inches='tight')
 
 # PTM binned 
 PTM = plt.figure(figsize=(14,10), dpi=300)
@@ -311,97 +344,11 @@ plt.xticks(np.arange(0, 15, step= 1), ('1', '2','3','4','5','6','7', '8', '9', '
 sns.despine()
 
 PTF.savefig(FigureFolder + '/A_to_P_Nox.png', dpi=300, bbox_inches='tight')
-PTF.savefig(FigureFolder + '/A_to_P_Nox.eps', format='eps', dpi=300,bbox_inches= 'tight')
-
-
-
-# Plot Distance Travelled Per Bout   
-s_DistBout,pvalue_DistBout = stats.ttest_rel(avgdistPerBout_NS_ALL, avgdistPerBout_S_ALL) 
-
-s1 = pd.Series(avgdistPerBout_NS_ALL, name='Non Social')
-s2 = pd.Series(avgdistPerBout_S_ALL, name='Social')
-df = pd.concat([s1,s2], axis=1)
-
-jitter = 0.05
-df_jitter = pd.DataFrame(np.random.normal(loc=0, scale=jitter, size=df.values.shape), columns=df.columns)
-df_jitter += np.arange(len(df.columns))
-
-DistBout, ax = plt.subplots(figsize=(4,10), dpi=300)
-sns.boxplot(data=df, color = '#BBBBBB', linewidth=1, showfliers=False)
-sns.despine()  
-ax.set_title('Distance Travelled Per Bout (n=' + format(numFiles) +  ')' + '\n' +'\n p-value:'+ format(pvalue_DistBout),fontsize=24,fontweight = 'medium', y=-0.25)
-ax.set_xticklabels(df.columns, fontsize = 18)
-ax.set_ylabel('Distance Travelled (mm)', fontsize = 18)
-plt.ylim(0,4)
-plt.yticks(fontsize=14)
-ax.plot(df_jitter['Non Social'], df['Non Social'],'o',mec='lightsteelblue',mfc='lightsteelblue', ms=8)
-ax.plot(df_jitter['Social'], df['Social'], 'o',mec='steelblue',mfc='steelblue', ms=8)
-
-for idx in df.index:
-    ax.plot(df_jitter.loc[idx,['Non Social','Social']], df.loc[idx,['Non Social','Social']], color = 'grey', linewidth = 0.5, linestyle = '--', alpha=0.5)
-
-#DistBout.savefig(FigureFolder + '/DistPerBout.eps', format='eps', dpi=300,bbox_inches= 'tight')    
-DistBout.savefig(FigureFolder + '/DistPerBout.png', dpi=300, bbox_inches='tight')
-
-
-
-#Plot BPS
-s_BPS,pvalue_BPS = stats.ttest_rel(BPS_NS_ALL, BPS_S_ALL) 
-
-s1 = pd.Series(BPS_NS_ALL, name='Non Social')
-s2 = pd.Series(BPS_S_ALL, name='Social')
-df = pd.concat([s1,s2], axis=1)
-
-jitter = 0.05
-df_jitter = pd.DataFrame(np.random.normal(loc=0, scale=jitter, size=df.values.shape), columns=df.columns)
-df_jitter += np.arange(len(df.columns))
-
-BoutsperSecond, ax = plt.subplots(figsize=(4,10), dpi=300)
-sns.boxplot(data=df, color = '#BBBBBB', linewidth=1, showfliers=False)
-sns.despine()  
-ax.set_title('Bouts Per Second (n=' + format(numFiles) + ')'+ '\n' +'\n p-value:'+ format(pvalue_BPS),fontsize=24,fontweight='medium', y=-0.25)
-ax.set_xticklabels(df.columns, fontsize=18)
-ax.set_ylabel('Number of Bouts Per Second', fontsize=18)
-plt.ylim(0,6)
-plt.yticks(fontsize=14)
-ax.plot(df_jitter['Non Social'], df['Non Social'],'o',mec='lightsteelblue',mfc='lightsteelblue', ms=8)
-ax.plot(df_jitter['Social'], df['Social'], 'o',mec='steelblue',mfc='steelblue', ms=8)
-
-for idx in df.index:
-    ax.plot(df_jitter.loc[idx,['Non Social','Social']], df.loc[idx,['Non Social','Social']], color = 'grey', linewidth = 0.5, linestyle = '--', alpha=0.5)    
-
-BoutsperSecond.savefig(FigureFolder + '/BPS.eps', format='eps', dpi=300,bbox_inches= 'tight')
-BoutsperSecond.savefig(FigureFolder + '/BPS.png', dpi=300, bbox_inches='tight')
-
-
-
-#Calculate Number of Bouts
-nBouts_NS = BPS_NS_ALL * (90000/100)
-nBouts_S = BPS_S_ALL * (90000/100)
-
-s_nBouts,pvalue_nBouts = stats.ttest_rel(nBouts_NS, nBouts_S) 
-nBouts = plt.figure(figsize=(4,10), dpi=300)
-plt.title(' Total number of Bouts (n=' + format(numFiles) + ')'+ '\n'+ '\n p-value: '+ format(pvalue_nBouts), pad=10, fontsize= 24, y=-0.25)
-plt.ylabel('Number of Bouts', fontsize=18)
-plt.yticks(fontsize=14)
-plt.xticks(fontsize=18)
-plt.ylim(0,5000)
-s1 = pd.Series(nBouts_NS, name='Non Social')
-s2 = pd.Series(nBouts_S, name='Social')
-df = pd.concat([s1,s2], axis=1)
-sns.barplot(data=df, ci='sd',  palette=['lightsteelblue','steelblue'])
-sns.stripplot(data=df, orient="v", color= 'dimgrey',size=8, jitter=True, edgecolor="gray")
-sns.despine()
-plt.show()
-
-nBouts.tight_layout
-
-nBouts.savefig(FigureFolder + '/nBouts.png', dpi=300, bbox_inches='tight')
+#PTF.savefig(FigureFolder + '/A_to_P_Nox.eps', format='eps', dpi=300,bbox_inches= 'tight')
 
 
 
 #Plot distribution of Bouts // NS vs S
-
 Bouts_map = plt.figure(figsize=(28,10), dpi=300)
 plt.suptitle('Distribution of Bouts (n='+ format(numFiles) + ')', fontweight="medium", fontsize=24, x=0.26) 
 
@@ -427,75 +374,6 @@ Bouts_map.tight_layout
 
 Bouts_map.savefig(FigureFolder + '/BoutsMap.eps', format='eps', dpi=300,bbox_inches= 'tight')
 Bouts_map.savefig(FigureFolder + '/BoutsMap.png', dpi=300, bbox_inches='tight')
-
-
-
-# Plot Percent time Moving
-s_Moving,pvalue_Moving = stats.ttest_rel(Percent_Moving_NS_ALL, Percent_Moving_S_ALL) 
-
-Moving = plt.figure(figsize=(4,10), dpi=300)
-plt.title('% Moving (n='+ format(numFiles) + ')'+ '\n'+'\n p-value: ' + format(pvalue_Moving), pad=10, fontsize= 24, y=-0.25)
-plt.ylabel('% Time Moving', fontsize=18)
-plt.yticks(fontsize=14)
-plt.xticks(fontsize=18)
-plt.ylim(0,100)
-s1 = pd.Series(Percent_Moving_NS_ALL, name='Non Social')
-s2 = pd.Series(Percent_Moving_S_ALL, name='Social')
-df = pd.concat([s1,s2], axis=1)
-sns.barplot(data=df, ci='sd',  palette=['lightsteelblue','steelblue'])
-sns.stripplot(data=df, orient="v", color= 'dimgrey',size=8, jitter=True, edgecolor="gray")
-sns.despine()
-
-Moving.savefig(FigureFolder + '/%Moving.png', dpi=300, bbox_inches='tight')
-
-
-
-# Plot Percent time Pausing
-s_Pausing,pvalue_Pausing = stats.ttest_rel(Percent_Paused_NS_ALL, Percent_Paused_S_ALL) 
-
-Pausing = plt.figure(figsize=(4,10), dpi=300)
-plt.title('% Pausing (n='+ format(numFiles) + ')'+ '\n' +'\n p-value: ' + format(pvalue_Pausing), pad=10, fontsize= 24, y=-0.25)
-plt.ylabel('% Time Pausing', fontsize=18)
-plt.yticks(fontsize=14)
-plt.xticks(fontsize=18)
-plt.ylim(0,100)
-s1 = pd.Series(Percent_Paused_NS_ALL, name='Non Social')
-s2 = pd.Series(Percent_Paused_S_ALL, name='Social')
-df = pd.concat([s1,s2], axis=1)
-sns.barplot(data=df, ci='sd',  palette=['lightsteelblue','steelblue'])
-sns.stripplot(data=df, orient="v", color= 'dimgrey',size=8, jitter=True, edgecolor="gray")
-sns.despine()
-
-Pausing.savefig(FigureFolder + '/%Pausing.png', dpi=300, bbox_inches='tight')
- 
-
-# Plot Short Freezes
-s_Freezes,pvalue_Freezes = stats.ttest_rel(numFreezes_NS_ALL, numFreezes_S_ALL) 
-
-s1 = pd.Series(numFreezes_NS_ALL, name='Non Social')
-s2 = pd.Series(numFreezes_S_ALL, name='Social')
-df = pd.concat([s1,s2], axis=1)
-
-jitter = 0.05
-df_jitter = pd.DataFrame(np.random.normal(loc=0, scale=jitter, size=df.values.shape), columns=df.columns)
-df_jitter += np.arange(len(df.columns))
-
-shortFreezes, ax = plt.subplots(figsize=(4,10), dpi=300)
-sns.boxplot(data=df, color = '#BBBBBB', linewidth=1, showfliers=False)
-sns.despine()  
-ax.set_title('3s Freezes (n=' + format(numFiles) + ')'+ '\n' +'\n p-value:'+ format(pvalue_Freezes),fontsize=24,fontweight= 'medium', y=-0.25)
-ax.set_xticklabels(df.columns, fontsize=18)
-ax.set_ylabel('Total Number of Freezes (>3s)', fontsize=18)
-plt.yticks(fontsize=14)
-plt.ylim(-1,100)
-ax.plot(df_jitter['Non Social'], df['Non Social'],'o',mec='lightsteelblue',mfc='lightsteelblue', ms=6)
-ax.plot(df_jitter['Social'], df['Social'], 'o',mec='steelblue',mfc='steelblue', ms=6)
-
-for idx in df.index:
-    ax.plot(df_jitter.loc[idx,['Non Social','Social']], df.loc[idx,['Non Social','Social']], color = 'grey', linewidth = 0.5, linestyle = '--', alpha=0.5)    
-
-#shortFreezes.savefig(FigureFolder + '/3sFreezes.eps', format='eps', dpi=300,bbox_inches= 'tight')
-shortFreezes.savefig(FigureFolder + '/3sFreezes.png', dpi=300, bbox_inches='tight')
 
 
 
@@ -541,48 +419,6 @@ plt.colorbar()
 Freezes_map.tight_layout
 Freezes_map.savefig(FigureFolder + '/FreezeMap.png', dpi=300, bbox_inches='tight')
 
-
-
-#Binned Freezes
-mean_Freezes_NS = np.mean(Binned_Freezes_NS_ALL, axis=0)
-sem_Freezes_NS = stats.sem(Binned_Freezes_NS_ALL)
-std_Freezes_NS = np.std(Binned_Freezes_NS_ALL, axis=0)
-
-mean_Freezes_S = np.mean(Binned_Freezes_S_ALL, axis=0)
-sem_Freezes_S = stats.sem(Binned_Freezes_S_ALL)
-std_Freezes_S = np.std(Binned_Freezes_S_ALL, axis=0)
-
-Binned_Freezes = plt.figure(figsize=(14,10), dpi=300)
-plt.suptitle('3s Freezes over time (n='+ format(numFiles)+ ')', fontsize=24) 
-
-ax = plt.subplot(221)
-plt.title('Non Social', fontsize= 18, y=-0.30)
-plt.plot(mean_Freezes_NS, color = 'lightsteelblue', linewidth= 3)
-plt.fill_between(np.arange(mean_Freezes_NS.shape[0]), mean_Freezes_NS + sem_Freezes_NS,
-                 mean_Freezes_NS - sem_Freezes_NS,color= 'lightsteelblue',alpha=0.2)
-plt.ylabel('mean nb Freezes', fontsize=18)
-plt.ylim(0,4)
-plt.yticks(fontsize=18)
-plt.xticks(np.arange(0, 15, step= 1), ('1', '2','3','4','5','6','7', '8', '9', '10', '11','12','13','14','15'), fontsize=14)
-plt.xlabel('minutes', fontsize =18)
-ax.spines['right'].set_visible(False)
-ax.spines['top'].set_visible(False)
-
-ax = plt.subplot(222)
-plt.title('Social',fontsize= 18, y=-0.30)
-plt.plot(mean_Freezes_S, color = 'steelblue', linewidth= 3)
-plt.fill_between(np.arange(mean_Freezes_S.shape[0]), mean_Freezes_S + sem_Freezes_S,
-                 mean_Freezes_S - sem_Freezes_S,color= 'steelblue',alpha=0.2)
-plt.ylim(0,4)
-plt.xticks(np.arange(0, 15, step= 1), ('1', '2','3','4','5','6','7', '8', '9', '10', '11','12','13','14','15'), fontsize=14)
-plt.xlabel('minutes', fontsize=18)
-ax.spines['right'].set_visible(False)
-ax.spines['top'].set_visible(False)
-ax.spines['left'].set_visible(False)
-ax.get_yaxis().set_ticks([])
-
-#Binned_Freezes.savefig(FigureFolder + '/BinnedFreezes.eps', format='eps', dpi=300,bbox_inches= 'tight')
-Binned_Freezes.savefig(FigureFolder + '/BinnedFreezes.png', dpi=300, bbox_inches='tight')
 
 
 
