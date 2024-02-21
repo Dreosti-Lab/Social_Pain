@@ -36,7 +36,7 @@ Buddy-boosted Tolerance (in fish)
 
 **1. Normalize** each voxel to the background value (mode of all voxels histogram)
 
-**2. Compare 2 different groups** and generate mean and diff stacks. scale diff stack for display
+**2. Compare 2 different groups** and generate mean and diff stacks. Sscale diff stack for display
 
 **3. Overlay** RGB cfos stack on a light DAPI background for better contrast in final figures
 
